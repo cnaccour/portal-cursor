@@ -4,7 +4,7 @@ require_login();
 require __DIR__.'/../includes/header.php';
 ?>
 
-<h1 class="text-2xl font-semibold mb-6">Morning Shift Report</h1>
+<h1 class="text-2xl font-semibold mb-6">Shift Report</h1>
 
 <form x-data="shiftForm()" method="post" action="/api/save-morning-shift.php" @submit="preparePayload"
       class="space-y-6">
@@ -12,11 +12,20 @@ require __DIR__.'/../includes/header.php';
   <!-- Shift Information -->
   <section class="bg-white p-6 rounded-xl border">
     <h2 class="text-lg font-semibold mb-4">Shift Information</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div>
         <label class="block text-sm mb-1">Shift Date</label>
         <input type="date" name="shift_date" class="w-full border rounded-lg px-3 py-2"
                :value="today">
+      </div>
+      <div>
+        <label class="block text-sm mb-1">Shift Type <span class="text-red-500">*</span></label>
+        <select name="shift_type" required class="w-full border rounded-lg px-3 py-2" 
+                x-model="shiftType" @change="updateChecklist">
+          <option value="">Choose…</option>
+          <option value="morning">Morning Shift</option>
+          <option value="evening">Evening Shift</option>
+        </select>
       </div>
       <div>
         <label class="block text-sm mb-1">Salon Location <span class="text-red-500">*</span></label>
@@ -35,7 +44,7 @@ require __DIR__.'/../includes/header.php';
   <!-- Morning Duties Checklist -->
   <section class="bg-white p-6 rounded-xl border" x-data>
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-lg font-semibold">Morning Duties Checklist</h2>
+      <h2 class="text-lg font-semibold" x-text="shiftType ? (shiftType.charAt(0).toUpperCase() + shiftType.slice(1) + ' Duties Checklist') : 'Shift Duties Checklist'">Shift Duties Checklist</h2>
       <div class="text-right">
         <div class="text-xs text-gray-500"><span x-text="progress + '%'"></span> Complete</div>
         <div class="w-40 h-2 bg-gray-200 rounded-full overflow-hidden">
@@ -179,8 +188,9 @@ require __DIR__.'/../includes/header.php';
 
   <!-- Actions -->
   <div class="flex items-center justify-end gap-3">
-    <button type="submit" class="px-4 py-2 rounded-lg bg-gray-900 text-white">
-      Submit Morning Shift Report
+    <button type="submit" class="px-4 py-2 rounded-lg bg-gray-900 text-white"
+            x-text="shiftType ? 'Submit ' + shiftType.charAt(0).toUpperCase() + shiftType.slice(1) + ' Shift Report' : 'Submit Shift Report'">
+      Submit Shift Report
     </button>
   </div>
 
@@ -192,7 +202,9 @@ require __DIR__.'/../includes/header.php';
 function shiftForm() {
   return {
     today: new Date().toISOString().slice(0,10),
-    checklist: [
+    shiftType: '',
+    checklist: [],
+    morningChecklist: [
       {label: 'Count your drawer – verify cash is correct and properly closed from previous night', done:false},
       {label: 'Prepare daily cleaning sheet – ensure all stylists are included', done:false},
       {label: 'Organize coffee area – stock K-cups, fill Keurig, restock cups, creamer, sugar, and snacks', done:false},
@@ -209,12 +221,44 @@ function shiftForm() {
       {label: 'Send end-of-shift summary email to managers and incoming front desk staff', done:false},
       {label: 'Close and balance drawer – notify Eliana of any discrepancies', done:false},
     ],
+    eveningChecklist: [
+      {label: 'Count your drawer – verify all transactions and cash match the system', done:false},
+      {label: 'Clean and sanitize all work stations and tools', done:false},
+      {label: 'Sweep and mop all floor areas including behind chairs', done:false},
+      {label: 'Take out all trash and replace liners', done:false},
+      {label: 'Wipe down and disinfect all surfaces, mirrors, and reception area', done:false},
+      {label: 'Secure all products and lock color bar and storage areas', done:false},
+      {label: 'Check that all equipment is turned off (washers, dryers, steamers)', done:false},
+      {label: 'Lock all doors and set security system', done:false},
+      {label: 'Turn off all lights except security lighting', done:false},
+      {label: 'Complete end-of-day sales reconciliation', done:false},
+      {label: 'Email daily summary report to management', done:false},
+      {label: 'Prepare closing notes for next day opening staff', done:false},
+      {label: 'Check and respond to any missed appointment requests', done:false},
+      {label: 'Update appointment book for next day arrivals', done:false},
+      {label: 'Lock cash drawer and secure all payment terminals', done:false},
+    ],
     progress: 0,
     jsonPayload: '',
+    init() {
+      // Set default to morning shift and populate checklist
+      this.shiftType = 'morning';
+      this.updateChecklist();
+    },
+    updateChecklist() {
+      if (this.shiftType === 'morning') {
+        this.checklist = [...this.morningChecklist];
+      } else if (this.shiftType === 'evening') {
+        this.checklist = [...this.eveningChecklist];
+      } else {
+        this.checklist = [];
+      }
+      this.calcProgress();
+    },
     calcProgress() {
       const total = this.checklist.length;
       const done = this.checklist.filter(i => i.done).length;
-      this.progress = Math.round((done/total)*100);
+      this.progress = total > 0 ? Math.round((done/total)*100) : 0;
     },
     preparePayload(e) {
       const form = new FormData(e.target);

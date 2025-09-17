@@ -11,55 +11,24 @@ require __DIR__.'/includes/header.php';
 
 <!-- Actions -->
 <div class="mb-8 space-x-4">
-  <a href="/forms/example-form.php" class="px-4 py-2 rounded-lg bg-gray-900 text-white">
-    Go to Example Form
-  </a>
   <a href="/forms/morning-shift.php" class="px-4 py-2 rounded-lg bg-blue-600 text-white">
-    Go to Morning Shift Report
+    Create Shift Report
+  </a>
+  <a href="/reports.php" class="px-4 py-2 rounded-lg bg-green-600 text-white">
+    View All Shift Reports
   </a>
   <a href="/logout.php" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-800">
     Logout
   </a>
 </div>
 
-<!-- Recent Example Form Submissions -->
-<h2 class="text-lg font-semibold mb-3">Recent Example Form Submissions</h2>
-<div class="bg-white rounded-xl border p-4 mb-8">
-  <?php
-  $file = __DIR__ . '/submissions.txt';
-  if (!file_exists($file) || filesize($file) === 0) {
-    echo "<p class='text-gray-500'>No submissions yet.</p>";
-  } else {
-    $lines = array_reverse(file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES));
-    echo "<ul class='divide-y'>";
-    foreach (array_slice($lines, 0, 5) as $line) {
-      $row = json_decode($line, true);
-      if (!$row) continue;
-      echo "<li class='py-2 text-sm'>";
-      echo "<span class='font-medium'>" . htmlspecialchars($row['user']) . "</span>";
-      echo " @ <span class='text-gray-500'>" . htmlspecialchars($row['time']) . "</span><br>";
-      echo "Location: " . htmlspecialchars($row['location']);
-      echo " | Shipments: " . htmlspecialchars($row['shipments']);
-      if (!empty($row['vendor'])) {
-        echo " | Vendor: " . htmlspecialchars($row['vendor']);
-      }
-      if (!empty($row['notes'])) {
-        echo " | Notes: " . htmlspecialchars($row['notes']);
-      }
-      echo "</li>";
-    }
-    echo "</ul>";
-  }
-  ?>
-</div>
-
-<!-- Recent Morning Shift Reports -->
-<h2 class="text-lg font-semibold mb-3">Recent Morning Shift Reports</h2>
+<!-- Recent Shift Reports -->
+<h2 class="text-lg font-semibold mb-3">Recent Shift Reports</h2>
 <div class="bg-white rounded-xl border p-4">
   <?php
   $file = __DIR__ . '/morning-shift.txt';
   if (!file_exists($file) || filesize($file) === 0) {
-    echo "<p class='text-gray-500'>No morning shift reports yet.</p>";
+    echo "<p class='text-gray-500'>No shift reports yet.</p>";
   } else {
     $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
     $total = count($lines);
@@ -75,10 +44,10 @@ require __DIR__.'/includes/header.php';
       echo "<li class='py-3 text-sm'>";
       echo "<span class='font-medium'>" . htmlspecialchars($row['user']) . "</span>";
       echo " @ <span class='text-gray-500'>" . htmlspecialchars($row['time']) . "</span><br>";
-      echo "Date: " . htmlspecialchars($row['shift_date']);
+      echo ucfirst(htmlspecialchars($row['shift_type'] ?? 'Morning')) . " Shift | Date: " . htmlspecialchars($row['shift_date']);
       echo " | Location: " . htmlspecialchars($row['location']);
       echo " | Reviews: " . htmlspecialchars($row['reviews']);
-      echo " | Checklist Done: " . count($row['checklist']) . " items";
+      echo " | Checklist Done: " . count(array_filter($row['checklist'], function($item) { return !empty($item); })) . " items";
       if (!empty($row['refunds'])) {
         echo " | Refunds: " . count($row['refunds']);
       }

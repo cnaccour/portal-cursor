@@ -23,7 +23,7 @@ if (!$row) {
 }
 ?>
 
-<h1 class="text-2xl font-semibold mb-6">Morning Shift Report</h1>
+<h1 class="text-2xl font-semibold mb-6"><?= ucfirst($row['shift_type'] ?? 'Morning') ?> Shift Report</h1>
 
 <div class="bg-white rounded-xl border p-6 space-y-6">
 
@@ -34,6 +34,7 @@ if (!$row) {
 
   <div>
     <h2 class="text-lg font-semibold mb-2">Shift Info</h2>
+    <p>Type: <?= ucfirst(htmlspecialchars($row['shift_type'] ?? 'Morning')) ?> Shift</p>
     <p>Date: <?= htmlspecialchars($row['shift_date']) ?></p>
     <p>Location: <?= htmlspecialchars($row['location']) ?></p>
   </div>

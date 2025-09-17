@@ -2,10 +2,17 @@
 require __DIR__.'/../includes/auth.php';
 require_login();
 
+// Filter refunds to remove empty entries
+$refunds = $_POST['refunds'] ?? [];
+$refunds = array_filter($refunds, function($r) {
+  return !empty($r['amount']) || !empty($r['reason']) || !empty($r['customer']) || !empty($r['service']) || !empty($r['notes']);
+});
+
 // Collect form data
 $data = [
   'user'       => $_SESSION['name'] ?? 'Unknown',
   'shift_date' => $_POST['shift_date'] ?? '',
+  'shift_type' => $_POST['shift_type'] ?? 'morning',
   'location'   => $_POST['location'] ?? '',
   'checklist'  => $_POST['checklist'] ?? [],
   'reviews'    => $_POST['reviews_count'] ?? 0,
@@ -14,12 +21,6 @@ $data = [
     'vendor' => $_POST['shipment_vendor'] ?? '',
     'notes'  => $_POST['shipment_notes'] ?? '',
   ],
-  // Filter refunds to remove empty entries
-  $refunds = $_POST['refunds'] ?? [];
-  $refunds = array_filter($refunds, function($r) {
-    return !empty($r['amount']) || !empty($r['reason']) || !empty($r['customer']) || !empty($r['service']) || !empty($r['notes']);
-  });
-
   'refunds'    => array_values($refunds),
   'notes'      => $_POST['notes'] ?? '',
   'time'       => date('Y-m-d H:i:s')
