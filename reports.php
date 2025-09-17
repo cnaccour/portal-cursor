@@ -204,10 +204,16 @@ sort($allUsers);
             </div>
           </div>
           
-          <a href="/reports/view.php?id=<?= $report['id'] ?>" 
-             class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors">
-            View Details
-          </a>
+          <div class="flex flex-col gap-2">
+            <a href="/reports/view.php?id=<?= $report['id'] ?>" 
+               class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors text-center">
+              View Details
+            </a>
+            <button onclick="printReport(<?= $report['id'] ?>)" 
+                    class="px-3 py-1 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded transition-colors">
+              🖨️ Print
+            </button>
+          </div>
         </div>
       </div>
     <?php endforeach; ?>
@@ -223,6 +229,24 @@ function updateUrl(param, value) {
     url.searchParams.delete(param);
   }
   window.location = url.toString();
+}
+
+function printReport(reportId) {
+  // Open the report view page in a new window
+  const printWindow = window.open(`/reports/view.php?id=${reportId}`, '_blank');
+  
+  // Wait for the page to load, then trigger print
+  printWindow.addEventListener('load', function() {
+    // Small delay to ensure the page is fully rendered
+    setTimeout(function() {
+      printWindow.print();
+      
+      // Close the window after printing (optional)
+      printWindow.addEventListener('afterprint', function() {
+        printWindow.close();
+      });
+    }, 500);
+  });
 }
 </script>
 
