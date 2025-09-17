@@ -1,0 +1,10 @@
+run = "php -S 0.0.0.0:3000"
+
+entrypoint = "index.php"
+
+[nix]
+channel = "stable-22_11"
+
+[[ports]]
+localPort = 3000
+externalPort = 80
