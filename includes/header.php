@@ -11,7 +11,13 @@
 <body class="bg-gray-50 text-gray-900">
 <header class="bg-white border-b">
   <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-    <a href="/" class="font-semibold">J. Joseph Salon — Team</a>
+    <a href="/" class="flex items-center gap-3">
+      <img src="/assets/images/logo.png" alt="J. Joseph Salon Logo" class="h-10 w-10">
+      <div>
+        <div class="font-semibold text-gray-900">J. Joseph Salon</div>
+        <div class="text-sm text-gray-600">Portal</div>
+      </div>
+    </a>
     <nav class="text-sm flex items-center gap-4">
       <?php if (!empty($_SESSION['user_id'])): ?>
         <a href="/dashboard.php" class="hover:underline">Dashboard</a>
