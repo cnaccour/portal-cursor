@@ -11,7 +11,7 @@ require __DIR__.'/includes/header.php';
 
 <!-- Actions -->
 <div class="mb-8 space-x-4">
-  <a href="/forms/morning-shift.php" class="px-4 py-2 rounded-lg bg-blue-600 text-white">
+  <a href="/forms/shift-reports.php" class="px-4 py-2 rounded-lg bg-blue-600 text-white">
     Create Shift Report
   </a>
   <a href="/reports.php" class="px-4 py-2 rounded-lg bg-green-600 text-white">
