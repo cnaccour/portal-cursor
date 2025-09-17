@@ -12,10 +12,10 @@
 <header class="bg-white border-b">
   <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
     <a href="/" class="flex items-center gap-3">
-      <img src="/assets/images/logo.png" alt="J. Joseph Salon Logo" class="h-10 w-10">
+      <img src="/assets/images/logo.png" alt="J. Joseph Salon Logo" class="h-10 w-auto">
       <div>
-        <div class="font-semibold text-gray-900">J. Joseph Salon</div>
-        <div class="text-sm text-gray-600">Portal</div>
+        <div class="font-semibold text-gray-900 leading-tight">J. Joseph Salon</div>
+        <div class="text-sm text-gray-600 -mt-1">Portal</div>
       </div>
     </a>
     <nav class="text-sm flex items-center gap-4">
