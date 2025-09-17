@@ -27,7 +27,7 @@ $data = [
 ];
 
 // Save as JSON line into text file
-$file = __DIR__ . '/../morning-shift.txt';
+$file = __DIR__ . '/../shift-reports.txt';
 $line = json_encode($data, JSON_UNESCAPED_UNICODE) . PHP_EOL;
 file_put_contents($file, $line, FILE_APPEND);
 

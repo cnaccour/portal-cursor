@@ -26,7 +26,7 @@ require __DIR__.'/includes/header.php';
 <h2 class="text-lg font-semibold mb-3">Recent Shift Reports</h2>
 <div class="bg-white rounded-xl border p-4">
   <?php
-  $file = __DIR__ . '/morning-shift.txt';
+  $file = __DIR__ . '/shift-reports.txt';
   if (!file_exists($file) || filesize($file) === 0) {
     echo "<p class='text-gray-500'>No shift reports yet.</p>";
   } else {

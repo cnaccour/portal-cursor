@@ -6,7 +6,7 @@ require __DIR__.'/../includes/header.php';
 
 <h1 class="text-2xl font-semibold mb-6">Shift Report</h1>
 
-<form x-data="shiftForm()" method="post" action="/api/save-morning-shift.php" @submit="preparePayload"
+<form x-data="shiftForm()" method="post" action="/api/save-shift-report.php" @submit="preparePayload"
       class="space-y-6">
 
   <!-- Shift Information -->

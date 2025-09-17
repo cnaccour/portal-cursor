@@ -4,7 +4,7 @@ require_login();
 require __DIR__.'/includes/header.php';
 
 // Load all reports
-$file = __DIR__ . '/morning-shift.txt';
+$file = __DIR__ . '/shift-reports.txt';
 $reports = [];
 if (file_exists($file)) {
   $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
