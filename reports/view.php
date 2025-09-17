@@ -93,8 +93,94 @@ if (!$row) {
 
 </div>
 
-<div class="mt-6">
-  <a href="/dashboard.php" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-800">← Back to Dashboard</a>
+<div class="mt-6 flex gap-3 print-hide">
+  <a href="/reports.php" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors">← Back to Reports</a>
+  <button onclick="printReport()" class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">🖨️ Print Report</button>
 </div>
+
+<style>
+@media print {
+  /* Hide non-essential elements when printing */
+  header, nav, .print-hide {
+    display: none !important;
+  }
+  
+  /* Optimize page layout for printing */
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 12pt;
+    line-height: 1.4;
+  }
+  
+  .bg-white {
+    background: white !important;
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+  
+  /* Improve typography for print */
+  h1 {
+    font-size: 18pt !important;
+    margin-bottom: 12pt !important;
+    color: black !important;
+  }
+  
+  h2 {
+    font-size: 14pt !important;
+    margin: 8pt 0 4pt 0 !important;
+    color: black !important;
+  }
+  
+  p, li {
+    font-size: 11pt !important;
+    margin: 2pt 0 !important;
+    color: black !important;
+  }
+  
+  /* Ensure proper spacing */
+  .space-y-6 > * + * {
+    margin-top: 16pt !important;
+  }
+  
+  /* Add page break controls */
+  .page-break-after {
+    page-break-after: always;
+  }
+  
+  .page-break-inside {
+    page-break-inside: avoid;
+  }
+  
+  /* Header for printed pages */
+  @page {
+    margin: 1in;
+    @top-center {
+      content: "J. Joseph Salon - Shift Report";
+      font-size: 10pt;
+      color: #666;
+    }
+    @bottom-right {
+      content: "Page " counter(page);
+      font-size: 10pt;
+      color: #666;
+    }
+  }
+}
+</style>
+
+<script>
+function printReport() {
+  // Add print-specific title
+  const originalTitle = document.title;
+  document.title = 'J. Joseph Salon - <?= ucfirst($row['shift_type'] ?? 'Morning') ?> Shift Report - <?= htmlspecialchars($row['shift_date']) ?>';
+  
+  // Print the page
+  window.print();
+  
+  // Restore original title
+  document.title = originalTitle;
+}
+</script>
 
 <?php require __DIR__.'/../includes/footer.php'; ?>

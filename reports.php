@@ -21,9 +21,25 @@ if (file_exists($file)) {
 $sortBy = $_GET['sort'] ?? 'date';
 $filterLocation = $_GET['location'] ?? '';
 $filterUser = $_GET['user'] ?? '';
+$searchQuery = $_GET['search'] ?? '';
 
 // Filter reports
 $filteredReports = $reports;
+
+// Search filter
+if ($searchQuery) {
+  $searchQuery = trim($searchQuery);
+  $filteredReports = array_filter($filteredReports, function($r) use ($searchQuery) {
+    $searchText = strtolower($searchQuery);
+    return (
+      stripos(($r['user'] ?? ''), $searchText) !== false ||
+      stripos(($r['location'] ?? ''), $searchText) !== false ||
+      stripos(($r['notes'] ?? ''), $searchText) !== false ||
+      stripos(implode(' ', (array)($r['checklist'] ?? [])), $searchText) !== false
+    );
+  });
+}
+
 if ($filterLocation) {
   $filteredReports = array_filter($filteredReports, function($r) use ($filterLocation) {
     return $r['location'] === $filterLocation;
@@ -65,32 +81,56 @@ sort($allUsers);
   </div>
 </div>
 
-<!-- Filters & Sort -->
+<!-- Search & Filters -->
 <div class="bg-white p-4 rounded-xl border mb-6" x-data="{ showFilters: false }">
-  <div class="flex flex-wrap items-center gap-4">
-    <!-- Sort dropdown -->
-    <div>
-      <label class="text-sm text-gray-600 mr-2">Sort by:</label>
-      <select onchange="updateUrl('sort', this.value)" class="border rounded px-3 py-1 text-sm">
-        <option value="date" <?= $sortBy === 'date' ? 'selected' : '' ?>>Date (Newest)</option>
-        <option value="time" <?= $sortBy === 'time' ? 'selected' : '' ?>>Submitted (Newest)</option>
-        <option value="user" <?= $sortBy === 'user' ? 'selected' : '' ?>>User (A-Z)</option>
-        <option value="location" <?= $sortBy === 'location' ? 'selected' : '' ?>>Location (A-Z)</option>
-      </select>
+  <div class="flex justify-between items-center gap-4">
+    <!-- Left side: Search bar -->
+    <div class="flex-grow max-w-md">
+      <form method="GET" class="relative flex">
+        <div class="relative flex-grow">
+          <input type="text" 
+                 name="search" 
+                 value="<?= htmlspecialchars($searchQuery) ?>"
+                 placeholder="Search reports..." 
+                 class="w-full border rounded-l-lg px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <svg class="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+        <button type="submit" class="px-3 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 text-sm font-medium border border-l-0 border-blue-600">Search</button>
+        <!-- Preserve other parameters -->
+        <input type="hidden" name="sort" value="<?= htmlspecialchars($sortBy) ?>">
+        <?php if ($filterLocation): ?><input type="hidden" name="location" value="<?= htmlspecialchars($filterLocation) ?>"><?php endif; ?>
+        <?php if ($filterUser): ?><input type="hidden" name="user" value="<?= htmlspecialchars($filterUser) ?>"><?php endif; ?>
+      </form>
     </div>
 
-    <!-- Filter toggles -->
-    <button @click="showFilters = !showFilters" 
-            class="px-3 py-1 text-sm border rounded hover:bg-gray-50"
-            :class="showFilters ? 'bg-gray-100' : ''">
-      Filters <?= ($filterLocation || $filterUser) ? '(' . (($filterLocation ? 1 : 0) + ($filterUser ? 1 : 0)) . ')' : '' ?>
-    </button>
+    <!-- Right side: Sort & Filters -->
+    <div class="flex items-center gap-4">
+      <!-- Sort dropdown -->
+      <div class="flex items-center">
+        <label class="text-sm text-gray-600 mr-2">Sort:</label>
+        <select onchange="updateUrl('sort', this.value)" class="border rounded px-3 py-1 text-sm">
+          <option value="date" <?= $sortBy === 'date' ? 'selected' : '' ?>>Date</option>
+          <option value="time" <?= $sortBy === 'time' ? 'selected' : '' ?>>Submitted</option>
+          <option value="user" <?= $sortBy === 'user' ? 'selected' : '' ?>>User</option>
+          <option value="location" <?= $sortBy === 'location' ? 'selected' : '' ?>>Location</option>
+        </select>
+      </div>
 
-    <!-- Clear filters -->
-    <?php if ($filterLocation || $filterUser): ?>
-      <a href="?sort=<?= htmlspecialchars($sortBy) ?>" 
-         class="text-sm text-red-600 hover:underline">Clear Filters</a>
-    <?php endif; ?>
+      <!-- Filter toggles -->
+      <button @click="showFilters = !showFilters" 
+              class="px-3 py-1 text-sm border rounded hover:bg-gray-50"
+              :class="showFilters ? 'bg-gray-100' : ''">
+        Filters <?= ($filterLocation || $filterUser) ? '(' . (($filterLocation ? 1 : 0) + ($filterUser ? 1 : 0)) . ')' : '' ?>
+      </button>
+
+      <!-- Clear filters -->
+      <?php if ($filterLocation || $filterUser || $searchQuery): ?>
+        <a href="?sort=<?= htmlspecialchars($sortBy) ?>" 
+           class="text-sm text-red-600 hover:underline">Clear All</a>
+      <?php endif; ?>
+    </div>
   </div>
 
   <!-- Filter dropdowns -->
