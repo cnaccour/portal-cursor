@@ -97,7 +97,7 @@ sort($allUsers);
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
           </svg>
         </div>
-        <button type="submit" class="px-3 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700 text-sm font-medium border border-l-0 border-blue-600">Search</button>
+        <button type="submit" class="px-3 py-2 bg-black text-white rounded-r-lg hover:bg-gray-800 text-sm font-medium border border-l-0 border-black">Search</button>
         <!-- Preserve other parameters -->
         <input type="hidden" name="sort" value="<?= htmlspecialchars($sortBy) ?>">
         <?php if ($filterLocation): ?><input type="hidden" name="location" value="<?= htmlspecialchars($filterLocation) ?>"><?php endif; ?>
@@ -210,8 +210,8 @@ sort($allUsers);
               View Details
             </a>
             <button onclick="printReport(<?= $report['id'] ?>)" 
-                    class="px-3 py-1 text-sm bg-blue-600 text-white hover:bg-blue-700 rounded transition-colors">
-              🖨️ Print
+                    class="px-3 py-1 text-sm bg-black text-white hover:bg-gray-800 rounded-lg transition-colors font-medium">
+              Print
             </button>
           </div>
         </div>
