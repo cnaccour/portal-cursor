@@ -25,6 +25,8 @@ $categories = array_unique(array_column($activeAnnouncements, 'category'));
 sort($categories);
 ?>
 
+<div x-data="{ selectedCategory: 'all', searchTerm: '' }">
+
 <!-- Search and Filter Header -->
 <div class="flex gap-4 mb-6">
     <!-- Search Bar -->
@@ -35,6 +37,7 @@ sort($categories);
             </svg>
         </div>
         <input type="text" 
+               x-model="searchTerm"
                placeholder="Search announcements..."
                class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
     </div>
@@ -45,35 +48,28 @@ sort($categories);
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707v4.586a1 1 0 01-.293.707l-2 2A1 1 0 0110 21v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
             </svg>
-            <span>All Types</span>
-            <span class="text-gray-500 text-sm"><?= count($activeAnnouncements) ?> Total</span>
+            <span x-text="selectedCategory === 'all' ? 'All Types' : selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)"></span>
+            <span class="text-gray-500 text-sm">
+                <span x-text="document.querySelectorAll('.announcement-item:not([style*=\"display: none\"])').length"></span> Total
+            </span>
         </button>
     </div>
 </div>
 
 <!-- Category Filter Buttons -->
 <div class="flex gap-2 mb-6 overflow-x-auto">
-    <button class="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+    <button @click="selectedCategory = 'all'"
+            :class="selectedCategory === 'all' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
         All
     </button>
-    <button class="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
-        General
+    <?php foreach ($categories as $category): ?>
+    <button @click="selectedCategory = '<?= strtolower($category) ?>'"
+            :class="selectedCategory === '<?= strtolower($category) ?>' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap capitalize">
+        <?= htmlspecialchars($category) ?>
     </button>
-    <button class="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
-        Training
-    </button>
-    <button class="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
-        Schedule
-    </button>
-    <button class="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
-        Policy
-    </button>
-    <button class="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
-        Events
-    </button>
-    <button class="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
-        Safety
-    </button>
+    <?php endforeach; ?>
 </div>
 
 <?php if (empty($activeAnnouncements)): ?>
@@ -84,7 +80,11 @@ sort($categories);
     <!-- Announcements List -->
     <div class="space-y-4">
         <?php foreach ($activeAnnouncements as $announcement): ?>
-        <div class="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+        <div class="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors announcement-item"
+             data-category="<?= strtolower($announcement['category']) ?>"
+             data-search="<?= strtolower($announcement['title'] . ' ' . $announcement['content']) ?>"
+             x-show="(selectedCategory === 'all' || selectedCategory === $el.dataset.category) && (searchTerm === '' || $el.dataset.search.includes(searchTerm.toLowerCase()))"
+             style="display: block">
             <div class="p-6">
                 <div class="flex items-start gap-4">
                     <!-- Pin Icon -->
@@ -133,8 +133,6 @@ sort($categories);
     </div>
 <?php endif; ?>
 
-<div class="mt-6 text-sm text-gray-500">
-    <p>Note: Search and filter functionality will be added in the next update.</p>
 </div>
 
 <?php require __DIR__.'/includes/footer.php'; ?>
