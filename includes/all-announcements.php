@@ -2,23 +2,11 @@
 /**
  * Combined Announcements Loader
  * Loads both static and dynamic announcements
+ * 
+ * @deprecated Use loadAllAnnouncements() from announcement-helpers.php instead
  */
 
-// Load static announcements
-$staticAnnouncements = include __DIR__.'/static-announcements.php';
+require_once __DIR__.'/announcement-helpers.php';
 
-// Load dynamic announcements
-$dynamicAnnouncements = [];
-$dynamicFile = __DIR__.'/../storage/dynamic-announcements.json';
-
-if (file_exists($dynamicFile)) {
-    $content = file_get_contents($dynamicFile);
-    if ($content) {
-        $dynamicAnnouncements = json_decode($content, true) ?: [];
-    }
-}
-
-// Combine both arrays
-$allAnnouncements = array_merge($staticAnnouncements, $dynamicAnnouncements);
-
-return $allAnnouncements;
+// Use the improved loader function
+return loadAllAnnouncements();

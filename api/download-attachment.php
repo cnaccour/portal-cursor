@@ -14,7 +14,7 @@ if (empty($announcementId) || empty($filename)) {
 $safeAnnouncementId = preg_replace('/[^a-zA-Z0-9-_]/', '', $announcementId);
 $safeFilename = preg_replace('/[^a-zA-Z0-9-_\.]/', '', $filename);
 
-$filePath = __DIR__.'/../../attachments/'.$safeAnnouncementId.'/'.$safeFilename;
+$filePath = __DIR__.'/../attached_assets/announcements/'.$safeAnnouncementId.'/'.$safeFilename;
 
 // Check if file exists
 if (!file_exists($filePath)) {

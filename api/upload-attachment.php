@@ -68,8 +68,8 @@ if (!in_array($mimeType, $allowedMimeTypes)) {
     exit;
 }
 
-// Create directory for this announcement outside web root
-$attachmentDir = __DIR__.'/../../attachments/'.preg_replace('/[^a-zA-Z0-9-_]/', '', $announcementId);
+// Create directory for this announcement attachments
+$attachmentDir = __DIR__.'/../attached_assets/announcements/'.preg_replace('/[^a-zA-Z0-9-_]/', '', $announcementId);
 if (!is_dir($attachmentDir)) {
     if (!mkdir($attachmentDir, 0755, true)) {
         http_response_code(500);
@@ -106,7 +106,7 @@ if (file_exists($dynamicFile)) {
         foreach ($dynamicAnnouncements as &$announcement) {
             if ($announcement['id'] === $announcementId) {
                 // Rebuild attachments list by scanning directory
-                $attachmentScanDir = __DIR__.'/../../attachments/'.$announcementId;
+                $attachmentScanDir = __DIR__.'/../attached_assets/announcements/'.$announcementId;
                 $attachments = [];
                 if (is_dir($attachmentScanDir)) {
                     $files = scandir($attachmentScanDir);
