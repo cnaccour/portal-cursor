@@ -1,4 +1,5 @@
 <?php
+session_start(); // Start session at the beginning
 require __DIR__.'/includes/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -15,11 +16,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   }
 
   if ($u && password_verify($pass, $u['password_hash'])) {
-    session_start();
     session_regenerate_id(true); // Prevent session fixation attacks
     $_SESSION['user_id'] = $u['id'];
     $_SESSION['name'] = $u['name'];
     $_SESSION['role'] = $u['role'] ?? 'staff'; // Default to staff if no role set
+    $_SESSION['email'] = $u['email']; // Add email to session
     header('Location: /dashboard.php');
     exit;
   } else {
