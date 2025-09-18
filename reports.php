@@ -74,11 +74,8 @@ sort($allLocations);
 sort($allUsers);
 ?>
 
-<div class="flex justify-between items-center mb-6">
+<div class="mb-6">
   <h1 class="text-2xl font-semibold">Shift Reports</h1>
-  <div class="text-sm text-gray-600">
-    <?= count($filteredReports) ?> of <?= count($reports) ?> reports
-  </div>
 </div>
 
 <!-- Mobile-First Search & Controls -->
@@ -87,23 +84,17 @@ sort($allUsers);
   <div class="p-4 border-b">
     <form method="GET" class="relative">
       <div class="relative">
-        <input type="text" 
+        <input type="search" 
                name="search" 
                value="<?= htmlspecialchars($searchQuery) ?>"
                placeholder="Search reports by user, location, notes..." 
+               aria-label="Search reports"
+               enterkeyhint="search"
                class="w-full border rounded-md px-4 py-3 pl-10 text-sm focus:outline-none focus:ring-2 focus:border-transparent" 
                style="--tw-ring-color: #AF831A;">
         <svg class="absolute left-3 top-3.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
         </svg>
-      </div>
-      
-      <!-- Search Button - Full Width on Mobile -->
-      <div class="mt-3 sm:flex sm:justify-end">
-        <button type="submit" 
-                class="w-full sm:w-auto px-4 py-3 bg-black text-white rounded-md hover:bg-gray-800 text-sm font-medium transition-colors">
-          Search Reports
-        </button>
       </div>
       
       <!-- Preserve other parameters -->
@@ -228,11 +219,21 @@ sort($allUsers);
             <div class="flex flex-col sm:flex-row sm:items-center gap-2">
               <h3 class="text-lg font-semibold text-gray-900"><?= htmlspecialchars($report['user']) ?></h3>
               <div class="flex items-center gap-2">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white" 
-                      style="background-color: #AF831A;">
-                  <?= ucfirst(htmlspecialchars($report['shift_type'] ?? 'Morning')) ?> Shift
+                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full text-white" 
+                      style="background-color: #AF831A;"
+                      role="img"
+                      aria-label="<?= ucfirst(($report['shift_type'] ?? 'morning')) ?> Shift"
+                      title="<?= ucfirst(($report['shift_type'] ?? 'morning')) ?> Shift">
+                  <?php if (($report['shift_type'] ?? 'morning') === 'morning'): ?>
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                  <?php else: ?>
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+                    </svg>
+                  <?php endif; ?>
                 </span>
-                <span class="text-sm text-gray-600 font-medium"><?= htmlspecialchars($report['shift_date']) ?></span>
               </div>
             </div>
             
