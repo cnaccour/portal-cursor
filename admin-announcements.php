@@ -22,7 +22,7 @@ $message = '';
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-semibold">Announcement Management</h1>
         <button @click="openAddModal()" 
-                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                class="px-4 py-2 text-white rounded-md transition-colors" style="background-color: #AF831A;" onmouseover="this.style.backgroundColor='#8B6914'" onmouseout="this.style.backgroundColor='#AF831A'">
             <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
@@ -51,7 +51,7 @@ $message = '';
                 <p class="mt-1 text-sm text-gray-500">Get started by creating your first announcement.</p>
                 <div class="mt-6">
                     <button @click="openAddModal()" 
-                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                            class="px-4 py-2 text-white rounded-md transition-colors" style="background-color: #AF831A;" onmouseover="this.style.backgroundColor='#8B6914'" onmouseout="this.style.backgroundColor='#AF831A'">
                         Add Announcement
                     </button>
                 </div>
@@ -126,7 +126,7 @@ $message = '';
                                             Expiring Soon
                                         </span>
                                     <?php else: ?>
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-black text-white">
                                             Active
                                         </span>
                                     <?php endif; ?>
@@ -319,11 +319,11 @@ $message = '';
                     <!-- Modal Footer -->
                     <div class="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
                         <button type="button" @click="closeModal()" 
-                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg">
+                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">
                             Cancel
                         </button>
                         <button type="submit" 
-                                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
+                                class="px-4 py-2 text-sm font-medium text-white rounded-md" style="background-color: #AF831A;" onmouseover="this.style.backgroundColor='#8B6914'" onmouseout="this.style.backgroundColor='#AF831A'">
                             <span x-text="modalMode === 'add' ? 'Create Announcement' : 'Update Announcement'"></span>
                         </button>
                     </div>

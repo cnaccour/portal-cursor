@@ -152,7 +152,7 @@ sort($categories);
                         
                         <!-- Attachment Indicator -->
                         <?php if (!empty($announcement['attachments']) && count($announcement['attachments']) > 0): ?>
-                            <div class="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded" title="<?= count($announcement['attachments']) ?> attachment(s)">
+                            <div class="flex items-center gap-1 px-2 py-1 text-xs font-medium rounded text-white" style="background-color: #AF831A;" title="<?= count($announcement['attachments']) ?> attachment(s)">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
                                 </svg>
@@ -249,9 +249,9 @@ sort($categories);
                                 <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
                                     <div class="flex items-center space-x-3">
                                         <!-- File Type Icon -->
-                                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                        <div class="w-8 h-8 rounded-md flex items-center justify-center" style="background-color: #FDF7E7;">
                                             <template x-if="file.mime_type && file.mime_type.startsWith('image/')">
-                                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="w-4 h-4" style="color: #AF831A;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                                 </svg>
                                             </template>
@@ -261,12 +261,12 @@ sort($categories);
                                                 </svg>
                                             </template>
                                             <template x-if="file.mime_type && (file.mime_type.includes('word') || file.mime_type.includes('document'))">
-                                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="w-4 h-4" style="color: #AF831A;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                                 </svg>
                                             </template>
                                             <template x-if="file.mime_type && (file.mime_type.includes('excel') || file.mime_type.includes('spreadsheet'))">
-                                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <svg class="w-4 h-4 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
                                                 </svg>
                                             </template>
@@ -291,7 +291,7 @@ sort($categories);
                                     
                                     <!-- Download Button -->
                                     <a :href="`/api/download-attachment.php?announcement_id=${selectedAnnouncement.id}&filename=${encodeURIComponent(file.filename)}`"
-                                       class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 text-xs font-medium rounded hover:bg-blue-200 transition-colors"
+                                       class="inline-flex items-center px-3 py-1.5 text-xs font-medium rounded text-white transition-colors" style="background-color: #AF831A;" onmouseover="this.style.backgroundColor='#8B6914'" onmouseout="this.style.backgroundColor='#AF831A'"
                                        download>
                                         <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>

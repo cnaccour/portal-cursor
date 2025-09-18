@@ -168,7 +168,7 @@ sort($allUsers);
   <div class="bg-white rounded-xl border p-8 text-center">
     <p class="text-gray-500">No reports found matching your criteria.</p>
     <?php if ($filterLocation || $filterUser): ?>
-      <a href="?sort=<?= htmlspecialchars($sortBy) ?>" class="text-blue-600 hover:underline mt-2 inline-block">
+      <a href="?sort=<?= htmlspecialchars($sortBy) ?>" class="mt-2 inline-block hover:underline" style="color: #AF831A;">
         Clear filters to see all reports
       </a>
     <?php endif; ?>
@@ -181,7 +181,7 @@ sort($allUsers);
           <div class="flex-grow">
             <div class="flex items-center gap-4 mb-2">
               <h3 class="font-semibold"><?= htmlspecialchars($report['user']) ?></h3>
-              <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+              <span class="px-2 py-1 text-xs rounded text-white" style="background-color: #AF831A;">
                 <?= ucfirst(htmlspecialchars($report['shift_type'] ?? 'Morning')) ?> Shift
               </span>
               <span class="text-sm text-gray-600"><?= htmlspecialchars($report['shift_date']) ?></span>
@@ -195,7 +195,7 @@ sort($allUsers);
                 <span>Refunds: <?= count($report['refunds']) ?></span>
               <?php endif; ?>
               <?php if (!empty($report['shipments']['status']) && $report['shipments']['status'] === 'yes'): ?>
-                <span class="text-green-600">✓ Shipments</span>
+                <span class="text-black">✓ Shipments</span>
               <?php endif; ?>
             </div>
             

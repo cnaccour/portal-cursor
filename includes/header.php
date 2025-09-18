@@ -203,7 +203,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         </a>
         <a href="/login.php" 
            @click="mobileMenuOpen = false"
-           class="block px-3 py-2 rounded-lg text-blue-700 hover:bg-blue-50 hover:text-blue-900 transition-colors">
+           class="block px-3 py-2 rounded-md transition-colors" style="color: #AF831A;" onmouseover="this.style.backgroundColor='#FDF7E7'; this.style.color='#8B6914';" onmouseout="this.style.backgroundColor='transparent'; this.style.color='#AF831A';">
           🔑 Login
         </a>
       <?php endif; ?>
