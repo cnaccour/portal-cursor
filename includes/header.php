@@ -27,13 +27,53 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         <a href="/dashboard.php" class="hover:underline">Dashboard</a>
         <a href="/forms.php" class="hover:underline">Forms</a>
         <a href="/reports.php" class="hover:underline">Reports</a>
-        <?php if (has_role('admin')): ?>
-          <a href="/admin.php" class="hover:underline text-blue-600">Admin</a>
-        <?php endif; ?>
-        <span class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
-          <?= htmlspecialchars(get_role_display_name($_SESSION['role'] ?? 'viewer')) ?>
-        </span>
-        <a href="/logout.php" class="hover:underline">Logout</a>
+        
+        <!-- User Account Dropdown -->
+        <div class="relative" x-data="{ open: false }">
+          <button @click="open = !open" @click.away="open = false" 
+                  class="flex items-center justify-center w-8 h-8 bg-gray-800 text-white rounded-full text-sm font-medium hover:bg-gray-700 transition-colors">
+            <?= strtoupper(substr($_SESSION['name'] ?? 'U', 0, 1)) ?>
+          </button>
+          
+          <div x-show="open" x-transition 
+               class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border py-2 z-50">
+            <!-- Account Info -->
+            <div class="px-4 py-3 border-b">
+              <div class="font-medium text-gray-900">Account</div>
+              <div class="text-sm text-gray-500"><?= htmlspecialchars($_SESSION['email'] ?? 'user@example.com') ?></div>
+            </div>
+            
+            <!-- Settings -->
+            <a href="/dashboard.php" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+              <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              Settings
+            </a>
+            
+            <?php if (has_role('admin')): ?>
+            <!-- Admin Tools -->
+            <a href="/admin.php" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+              <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+              </svg>
+              Admin Tools
+              <svg class="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </a>
+            <?php endif; ?>
+            
+            <!-- Sign Out -->
+            <a href="/logout.php" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+              <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+              </svg>
+              Sign Out
+            </a>
+          </div>
+        </div>
       <?php else: ?>
         <a href="/" class="hover:underline">Home</a>
         <a href="/login.php" class="hover:underline">Login</a>
