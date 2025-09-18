@@ -37,6 +37,13 @@ sort($categories);
     closeModal() {
         this.modalOpen = false;
         this.selectedAnnouncement = null;
+    },
+    formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
     }
 }">
 
@@ -227,6 +234,75 @@ sort($categories);
                 <div class="prose prose-sm max-w-none">
                     <div class="text-gray-700 leading-relaxed" x-html="selectedAnnouncement?.content"></div>
                 </div>
+                
+                <!-- Attachments section -->
+                <template x-if="selectedAnnouncement && selectedAnnouncement.attachments && selectedAnnouncement.attachments.length > 0">
+                    <div class="mt-6 p-4 bg-gray-50 rounded-lg border">
+                        <h4 class="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                            </svg>
+                            Attachments (<span x-text="selectedAnnouncement.attachments.length"></span>)
+                        </h4>
+                        <div class="space-y-2">
+                            <template x-for="(file, index) in selectedAnnouncement.attachments" :key="index">
+                                <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+                                    <div class="flex items-center space-x-3">
+                                        <!-- File Type Icon -->
+                                        <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                            <template x-if="file.mime_type && file.mime_type.startsWith('image/')">
+                                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                                </svg>
+                                            </template>
+                                            <template x-if="file.mime_type === 'application/pdf'">
+                                                <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                                                </svg>
+                                            </template>
+                                            <template x-if="file.mime_type && (file.mime_type.includes('word') || file.mime_type.includes('document'))">
+                                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                </svg>
+                                            </template>
+                                            <template x-if="file.mime_type && (file.mime_type.includes('excel') || file.mime_type.includes('spreadsheet'))">
+                                                <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                                </svg>
+                                            </template>
+                                            <template x-if="!file.mime_type || (!file.mime_type.startsWith('image/') && file.mime_type !== 'application/pdf' && !file.mime_type.includes('word') && !file.mime_type.includes('document') && !file.mime_type.includes('excel') && !file.mime_type.includes('spreadsheet'))">
+                                                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                </svg>
+                                            </template>
+                                        </div>
+                                        
+                                        <!-- File Info -->
+                                        <div>
+                                            <p class="text-sm font-medium text-gray-900" x-text="file.original_name"></p>
+                                            <p class="text-xs text-gray-500">
+                                                <span x-text="formatFileSize(file.file_size)"></span>
+                                                <template x-if="file.upload_date">
+                                                    · <span x-text="new Date(file.upload_date).toLocaleDateString()"></span>
+                                                </template>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Download Button -->
+                                    <a :href="`/api/download-attachment.php?announcement_id=${selectedAnnouncement.id}&filename=${encodeURIComponent(file.filename)}`"
+                                       class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 text-xs font-medium rounded hover:bg-blue-200 transition-colors"
+                                       download>
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                        Download
+                                    </a>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
                 
                 <!-- Expiration notice if applicable -->
                 <template x-if="selectedAnnouncement && selectedAnnouncement.expiration_date">
