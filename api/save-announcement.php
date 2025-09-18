@@ -113,12 +113,8 @@ if ($mode === 'add') {
 } elseif ($mode === 'edit') {
     $announcementId = $_POST['announcement_id'] ?? '';
     
-    // Prevent editing of static announcements
-    if (strpos($announcementId, 'demo-') === 0) {
-        http_response_code(403);
-        echo json_encode(['success' => false, 'error' => 'Cannot edit static announcements']);
-        exit;
-    }
+    // For now, all announcements are editable (we'll add static ones later)
+    // Future: Add check for truly static announcements here
     
     // Find and update the announcement
     $found = false;

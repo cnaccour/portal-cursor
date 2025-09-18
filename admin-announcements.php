@@ -50,6 +50,11 @@ $message = '';
             expiration_date: ''
         };
         this.showModal = true;
+        
+        // Initialize TinyMCE after modal opens
+        setTimeout(() => {
+            this.initTinyMCE();
+        }, 100);
     },
     
     openEditModal(announcement) {
@@ -63,15 +68,53 @@ $message = '';
             expiration_date: announcement.expiration_date || ''
         };
         this.showModal = true;
+        
+        // Initialize TinyMCE after modal opens
+        setTimeout(() => {
+            this.initTinyMCE();
+        }, 100);
     },
     
     closeModal() {
+        // Destroy TinyMCE instance before closing
+        if (tinymce.get('content')) {
+            tinymce.get('content').destroy();
+        }
         this.showModal = false;
         this.selectedAnnouncement = null;
     },
     
+    initTinyMCE() {
+        if (tinymce.get('content')) {
+            tinymce.get('content').destroy();
+        }
+        
+        tinymce.init({
+            selector: '#content',
+            height: 300,
+            menubar: false,
+            plugins: [
+                'lists', 'link', 'image', 'charmap', 'preview',
+                'searchreplace', 'visualblocks', 'fullscreen',
+                'insertdatetime', 'table', 'help', 'wordcount'
+            ],
+            toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | bullist numlist | link image | removeformat | help',
+            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+            setup: (editor) => {
+                editor.on('change', () => {
+                    this.formData.content = editor.getContent();
+                });
+            }
+        });
+    },
+    
     async submitForm() {
         try {
+            // Get content from TinyMCE
+            if (tinymce.get('content')) {
+                this.formData.content = tinymce.get('content').getContent();
+            }
+            
             const formData = new FormData();
             formData.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
             formData.append('mode', this.modalMode);
@@ -252,8 +295,8 @@ $message = '';
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <?php 
-                                // Check if this is a static announcement (starts with 'demo-' or has no dynamic ID pattern)
-                                $isStatic = strpos($announcement['id'], 'demo-') === 0;
+                                // For now, all announcements are editable (we'll add truly static ones later)
+                                $isStatic = false;
                                 ?>
                                 <?php if ($isStatic): ?>
                                     <span class="px-2 py-1 text-xs bg-gray-100 text-gray-500 rounded">
@@ -327,7 +370,7 @@ $message = '';
                         <!-- Content -->
                         <div>
                             <label for="content" class="block text-sm font-medium text-gray-700 mb-2">Content</label>
-                            <textarea id="content" name="content" rows="4" required
+                            <textarea id="content" name="content" rows="8" required
                                       x-model="formData.content"
                                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
                         </div>
@@ -391,8 +434,8 @@ $message = '';
 <div class="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
     <h3 class="font-semibold text-blue-800 mb-2">Announcement Management</h3>
     <p class="text-sm text-blue-700">
-        Static announcements (marked as "Locked") are managed by developers and cannot be edited. 
-        Dynamic announcements can be created, edited, and deleted through this interface.
+        All current announcements are editable. You can create, edit, and delete announcements through this interface. 
+        The rich text editor supports formatting, links, lists, and basic styling.
     </p>
 </div>
 

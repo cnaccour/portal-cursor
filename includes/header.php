@@ -10,6 +10,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
   <title>JJS Team Portal</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
 </head>
 <body class="bg-gray-50 text-gray-900">
 <header class="bg-white border-b">

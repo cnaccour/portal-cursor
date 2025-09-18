@@ -28,12 +28,8 @@ if (empty($announcementId)) {
     exit;
 }
 
-// Prevent deleting static announcements
-if (strpos($announcementId, 'demo-') === 0) {
-    http_response_code(403);
-    echo json_encode(['success' => false, 'error' => 'Cannot delete static announcements']);
-    exit;
-}
+// For now, all announcements are editable (we'll add static ones later)
+// Future: Add check for truly static announcements here
 
 // Load existing dynamic announcements (outside web root for security)
 $dynamicFile = __DIR__.'/../../storage/dynamic-announcements.json';
