@@ -143,6 +143,16 @@ sort($categories);
                             <span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">High</span>
                         <?php endif; ?>
                         
+                        <!-- Attachment Indicator -->
+                        <?php if (!empty($announcement['attachments']) && count($announcement['attachments']) > 0): ?>
+                            <div class="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded" title="<?= count($announcement['attachments']) ?> attachment(s)">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                                </svg>
+                                <span><?= count($announcement['attachments']) ?></span>
+                            </div>
+                        <?php endif; ?>
+                        
                         <!-- Category Tag -->
                         <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded capitalize"><?= htmlspecialchars($announcement['category']) ?></span>
                         
