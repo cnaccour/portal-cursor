@@ -1,16 +1,25 @@
 [
     {
-        "id": "demo-announcement-001",
         "title": "Welcome to the J. Joseph Salon Portal",
-        "content": "This is a demo announcement to showcase the new announcement system. You can view important updates, policy changes, and salon news here. This system supports rich formatting and categorization for better organization.",
+        "content": "<p>This is a demo announcement to showcase the new announcement system. You can view important updates, policy changes, and salon news here. This system supports rich formatting and categorization for better organization.<\/p>",
         "category": "general",
-        "author": "Management",
-        "date_created": "2024-01-15",
-        "expiration_date": null,
+        "author": "Admin User",
         "location_specific": false,
-        "pinned": true,
-        "priority": 1,
-        "date_modified": "2024-01-15 00:00:00"
+        "pinned": false,
+        "priority": 2,
+        "expiration_date": null,
+        "date_modified": "2025-09-18 17:27:22",
+        "attachments": [
+            {
+                "filename": "1758216457_fa82e375-36ce-49b9-94ff-1267202ae332.png",
+                "original_name": "fa82e375-36ce-49b9-94ff-1267202ae332.png",
+                "file_size": 1366,
+                "mime_type": "image\/png",
+                "upload_date": "2025-09-18 17:27:37"
+            }
+        ],
+        "id": "demo-announcement-001",
+        "date_created": "2024-01-15"
     },
     {
         "id": "demo-announcement-002",
@@ -24,19 +33,5 @@
         "pinned": false,
         "priority": 2,
         "date_modified": "2024-01-10 00:00:00"
-    },
-    {
-        "id": "dynamic-68cc37146f501",
-        "title": "this is a test by chris",
-        "content": "<p>hello world!<\/p>",
-        "category": "general",
-        "author": "Admin User",
-        "date_created": "2025-09-18",
-        "expiration_date": null,
-        "location_specific": false,
-        "pinned": true,
-        "priority": 1,
-        "date_modified": "2025-09-18 16:45:08",
-        "attachments": []
     }
 ]
