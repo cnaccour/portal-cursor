@@ -27,19 +27,7 @@ sort($categories);
 $message = '';
 ?>
 
-<div x-data="{
-    showModal: false,
-    modalMode: 'add',
-    selectedAnnouncement: null,
-    formData: {
-        title: '',
-        content: '',
-        category: 'general',
-        pinned: false,
-        expiration_date: ''
-    },
-    attachments: [],
-    uploadingFiles: false,
+<div x-data="announcementManager()">
     
     openAddModal() {
         this.modalMode = 'add';
@@ -342,8 +330,10 @@ $message = '';
         const sizes = ['Bytes', 'KB', 'MB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
     }
-}">
+}
+</script>
 
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-semibold">Announcement Management</h1>
