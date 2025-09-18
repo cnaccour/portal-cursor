@@ -51,10 +51,8 @@ $message = '';
         };
         this.showModal = true;
         
-        // Initialize TinyMCE after modal opens
-        setTimeout(() => {
-            this.initTinyMCE();
-        }, 100);
+        // Initialize Quill editor after modal opens
+        this.initQuillEditor();
     },
     
     openEditModal(announcement) {
@@ -69,50 +67,54 @@ $message = '';
         };
         this.showModal = true;
         
-        // Initialize TinyMCE after modal opens
-        setTimeout(() => {
-            this.initTinyMCE();
-        }, 100);
+        // Initialize Quill editor after modal opens
+        this.initQuillEditor();
     },
     
     closeModal() {
-        // Destroy TinyMCE instance before closing
-        if (tinymce.get('content')) {
-            tinymce.get('content').destroy();
+        // Destroy Quill instance before closing
+        if (this.quillEditor) {
+            this.quillEditor = null;
         }
         this.showModal = false;
         this.selectedAnnouncement = null;
     },
     
-    initTinyMCE() {
-        if (tinymce.get('content')) {
-            tinymce.get('content').destroy();
-        }
-        
-        tinymce.init({
-            selector: '#content',
-            height: 300,
-            menubar: false,
-            plugins: [
-                'lists', 'link', 'image', 'charmap', 'preview',
-                'searchreplace', 'visualblocks', 'fullscreen',
-                'insertdatetime', 'table', 'help', 'wordcount'
-            ],
-            toolbar: 'undo redo | blocks | bold italic | alignleft aligncenter alignright | bullist numlist | link image | removeformat | help',
-            content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
-            setup: (editor) => {
-                editor.on('change', () => {
-                    this.formData.content = editor.getContent();
+    initQuillEditor() {
+        // Wait for modal to be fully visible
+        setTimeout(() => {
+            if (document.getElementById('content-editor')) {
+                this.quillEditor = new Quill('#content-editor', {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            [{ 'header': [1, 2, 3, false] }],
+                            ['bold', 'italic', 'underline'],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['link'],
+                            ['clean']
+                        ]
+                    }
+                });
+                
+                // Set initial content
+                if (this.formData.content) {
+                    this.quillEditor.root.innerHTML = this.formData.content;
+                }
+                
+                // Update formData when editor content changes
+                this.quillEditor.on('text-change', () => {
+                    this.formData.content = this.quillEditor.root.innerHTML;
                 });
             }
-        });
+        }, 100);
     },
     
     async submitForm() {
         try {
-            // Get content from TinyMCE
-            if (tinymce.get('content')) {
-                this.formData.content = tinymce.get('content').getContent();
+            // Get content from Quill editor
+            if (this.quillEditor) {
+                this.formData.content = this.quillEditor.root.innerHTML;
             }
             
             const formData = new FormData();
@@ -370,9 +372,8 @@ $message = '';
                         <!-- Content -->
                         <div>
                             <label for="content" class="block text-sm font-medium text-gray-700 mb-2">Content</label>
-                            <textarea id="content" name="content" rows="8" required
-                                      x-model="formData.content"
-                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                            <div id="content-editor" class="bg-white border border-gray-300 rounded-lg" style="height: 200px;"></div>
+                            <textarea id="content" name="content" x-model="formData.content" class="hidden" required></textarea>
                         </div>
                         
                         <!-- Category and Pin Status -->
