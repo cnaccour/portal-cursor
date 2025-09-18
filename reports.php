@@ -98,10 +98,10 @@ sort($allUsers);
         </svg>
       </div>
       
-      <!-- Search Button -->
-      <div class="mt-3 flex justify-end">
+      <!-- Search Button - Full Width on Mobile -->
+      <div class="mt-3 sm:flex sm:justify-end">
         <button type="submit" 
-                class="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 text-sm font-medium transition-colors">
+                class="w-full sm:w-auto px-4 py-3 bg-black text-white rounded-md hover:bg-gray-800 text-sm font-medium transition-colors">
           Search Reports
         </button>
       </div>
@@ -114,12 +114,12 @@ sort($allUsers);
   </div>
 
   <!-- Controls Row - Mobile Responsive -->
-  <div class="p-4 space-y-4 sm:space-y-0 sm:flex sm:items-center sm:justify-between">
-    <!-- Sort Control -->
-    <div class="flex items-center gap-3">
-      <label class="text-sm font-medium text-gray-700">Sort by:</label>
+  <div class="p-4">
+    <!-- Sort Control - Full width on mobile -->
+    <div class="mb-4">
+      <label class="block text-sm font-medium text-gray-700 mb-2">Sort by:</label>
       <select onchange="updateUrl('sort', this.value)" 
-              class="border rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2" 
+              class="w-full border rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2" 
               style="--tw-ring-color: #AF831A;">
         <option value="date" <?= $sortBy === 'date' ? 'selected' : '' ?>>Latest Date</option>
         <option value="time" <?= $sortBy === 'time' ? 'selected' : '' ?>>Recently Submitted</option>
@@ -129,9 +129,9 @@ sort($allUsers);
     </div>
 
     <!-- Filter and Clear Controls -->
-    <div class="flex items-center gap-3">
+    <div class="flex items-center justify-between gap-3">
       <button @click="showFilters = !showFilters" 
-              class="flex items-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-50 text-sm font-medium transition-colors"
+              class="flex-1 flex items-center justify-center gap-2 px-4 py-2 border rounded-md hover:bg-gray-50 text-sm font-medium transition-colors"
               :class="showFilters ? 'bg-gray-100 border-gray-300' : 'bg-white'">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 2v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
@@ -146,7 +146,7 @@ sort($allUsers);
 
       <?php if ($filterLocation || $filterUser || $searchQuery): ?>
         <a href="?sort=<?= htmlspecialchars($sortBy) ?>" 
-           class="px-3 py-2 text-sm text-red-600 hover:text-red-800 font-medium transition-colors">
+           class="px-4 py-2 text-sm text-red-600 hover:text-red-800 font-medium transition-colors border border-red-200 rounded-md hover:bg-red-50">
           Clear All
         </a>
       <?php endif; ?>
@@ -214,9 +214,13 @@ sort($allUsers);
     </div>
   </div>
 <?php else: ?>
-  <div class="space-y-4">
-    <?php foreach ($filteredReports as $report): ?>
-      <div class="bg-white rounded-md border hover:border-gray-300 transition-all duration-200 overflow-hidden">
+  <div class="space-y-4" x-data="{ showAll: false, isMobile: window.innerWidth < 768 }" x-cloak>
+    <?php foreach ($filteredReports as $index => $report): ?>
+      <div class="bg-white rounded-md border hover:border-gray-300 transition-all duration-200 overflow-hidden report-card"
+           x-show="!isMobile || showAll || <?= $index ?> < 3"
+           x-transition
+           data-index="<?= $index ?>"
+           x-cloak>
         <!-- Header Section -->
         <div class="p-4 border-b bg-gray-50">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -307,6 +311,23 @@ sort($allUsers);
         </div>
       </div>
     <?php endforeach; ?>
+    
+    <!-- Load More Button - Only show on mobile when there are more than 3 reports -->
+    <?php if (count($filteredReports) > 3): ?>
+      <div class="text-center mt-6 block sm:hidden" x-show="!showAll">
+        <button @click="showAll = true" 
+                class="w-full px-6 py-3 bg-black text-white rounded-md hover:bg-gray-800 text-sm font-medium transition-colors">
+          Load More Reports (<?= count($filteredReports) - 3 ?> more)
+        </button>
+      </div>
+      
+      <div class="text-center mt-6 block sm:hidden" x-show="showAll">
+        <button @click="showAll = false; window.scrollTo({top: 0, behavior: 'smooth'})" 
+                class="w-full px-6 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 text-sm font-medium transition-colors">
+          Show Less Reports
+        </button>
+      </div>
+    <?php endif; ?>
   </div>
 <?php endif; ?>
 
