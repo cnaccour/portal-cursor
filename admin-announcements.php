@@ -1,0 +1,333 @@
+<?php
+require __DIR__.'/includes/auth.php';
+require_login();
+require_role('admin'); // Only admins can access this page
+require __DIR__.'/includes/header.php';
+
+// Generate CSRF token
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
+// Load static announcements
+$staticAnnouncements = include __DIR__.'/includes/static-announcements.php';
+
+// Sort announcements: pinned first, then by date (most recent first)
+usort($staticAnnouncements, function($a, $b) {
+    if ($a['pinned'] !== $b['pinned']) {
+        return $b['pinned'] <=> $a['pinned'];
+    }
+    return strtotime($b['date_created']) <=> strtotime($a['date_created']);
+});
+
+// Get unique categories for the dropdown
+$categories = array_unique(array_column($staticAnnouncements, 'category'));
+sort($categories);
+
+$message = '';
+?>
+
+<div x-data="{
+    showModal: false,
+    modalMode: 'add',
+    selectedAnnouncement: null,
+    formData: {
+        title: '',
+        content: '',
+        category: 'general',
+        pinned: false,
+        expiration_date: ''
+    },
+    
+    openAddModal() {
+        this.modalMode = 'add';
+        this.selectedAnnouncement = null;
+        this.formData = {
+            title: '',
+            content: '',
+            category: 'general',
+            pinned: false,
+            expiration_date: ''
+        };
+        this.showModal = true;
+    },
+    
+    openEditModal(announcement) {
+        this.modalMode = 'edit';
+        this.selectedAnnouncement = announcement;
+        this.formData = {
+            title: announcement.title,
+            content: announcement.content,
+            category: announcement.category,
+            pinned: announcement.pinned,
+            expiration_date: announcement.expiration_date || ''
+        };
+        this.showModal = true;
+    },
+    
+    closeModal() {
+        this.showModal = false;
+        this.selectedAnnouncement = null;
+    }
+}">
+
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-semibold">Announcement Management</h1>
+        <button @click="openAddModal()" 
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Add New Announcement
+        </button>
+    </div>
+
+    <?php if ($message): ?>
+        <?= $message ?>
+        <div class="mb-6"></div>
+    <?php endif; ?>
+
+    <!-- Announcements Table -->
+    <div class="bg-white rounded-xl border overflow-hidden">
+        <div class="p-6 border-b">
+            <h2 class="text-lg font-semibold">All Announcements</h2>
+            <p class="text-sm text-gray-600 mt-1">Manage your salon announcements and notifications.</p>
+        </div>
+        
+        <?php if (empty($staticAnnouncements)): ?>
+            <div class="p-12 text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No announcements</h3>
+                <p class="mt-1 text-sm text-gray-500">Get started by creating your first announcement.</p>
+                <div class="mt-6">
+                    <button @click="openAddModal()" 
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                        Add Announcement
+                    </button>
+                </div>
+            </div>
+        <?php else: ?>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Announcement
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Category
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Date
+                            </th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Actions
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <?php foreach ($staticAnnouncements as $index => $announcement): ?>
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4">
+                                <div class="flex items-start">
+                                    <?php if ($announcement['pinned']): ?>
+                                        <svg class="w-4 h-4 text-red-500 mr-2 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                                            <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                                        </svg>
+                                    <?php endif; ?>
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900"><?= htmlspecialchars($announcement['title']) ?></div>
+                                        <div class="text-sm text-gray-500 mt-1">
+                                            <?= htmlspecialchars(strlen($announcement['content']) > 80 ? substr($announcement['content'], 0, 80) . '...' : $announcement['content']) ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 capitalize">
+                                    <?= htmlspecialchars($announcement['category']) ?>
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex flex-col space-y-1">
+                                    <?php if ($announcement['pinned']): ?>
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                            Pinned
+                                        </span>
+                                    <?php endif; ?>
+                                    <?php 
+                                    $isExpired = !empty($announcement['expiration_date']) && strtotime($announcement['expiration_date']) < time();
+                                    $isExpiring = !empty($announcement['expiration_date']) && strtotime($announcement['expiration_date']) < strtotime('+7 days');
+                                    ?>
+                                    <?php if ($isExpired): ?>
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                            Expired
+                                        </span>
+                                    <?php elseif ($isExpiring): ?>
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            Expiring Soon
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            Active
+                                        </span>
+                                    <?php endif; ?>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div><?= date('M j, Y', strtotime($announcement['date_created'])) ?></div>
+                                <?php if (!empty($announcement['expiration_date'])): ?>
+                                    <div class="text-xs text-gray-400">Expires: <?= date('M j, Y', strtotime($announcement['expiration_date'])) ?></div>
+                                <?php endif; ?>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <?php 
+                                // Check if this is a static announcement (starts with 'demo-' or has no dynamic ID pattern)
+                                $isStatic = strpos($announcement['id'], 'demo-') === 0;
+                                ?>
+                                <?php if ($isStatic): ?>
+                                    <span class="px-2 py-1 text-xs bg-gray-100 text-gray-500 rounded">
+                                        <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                                        </svg>
+                                        Locked
+                                    </span>
+                                <?php else: ?>
+                                    <div class="flex space-x-2">
+                                        <button @click="openEditModal(<?= htmlspecialchars(json_encode($announcement), ENT_QUOTES) ?>)"
+                                                class="text-blue-600 hover:text-blue-900">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                            </svg>
+                                        </button>
+                                        <button onclick="if(confirm('Are you sure you want to delete this announcement?')) { /* TODO: Implement delete */ }"
+                                                class="text-red-600 hover:text-red-900">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div x-show="showModal" 
+         class="fixed inset-0 z-50 overflow-y-auto"
+         style="display: none;">
+        
+        <!-- Background overlay -->
+        <div class="fixed inset-0 bg-black bg-opacity-50" @click="closeModal()"></div>
+        
+        <!-- Modal panel -->
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative z-10">
+                
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900" x-text="modalMode === 'add' ? 'Add New Announcement' : 'Edit Announcement'"></h3>
+                    <button @click="closeModal()" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- Modal Body -->
+                <form method="POST" action="/api/save-announcement.php" class="p-6">
+                    <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
+                    <input type="hidden" name="mode" x-model="modalMode">
+                    <input type="hidden" name="announcement_id" x-model="selectedAnnouncement?.id">
+                    
+                    <div class="space-y-6">
+                        <!-- Title -->
+                        <div>
+                            <label for="title" class="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                            <input type="text" id="title" name="title" required
+                                   x-model="formData.title"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        </div>
+                        
+                        <!-- Content -->
+                        <div>
+                            <label for="content" class="block text-sm font-medium text-gray-700 mb-2">Content</label>
+                            <textarea id="content" name="content" rows="4" required
+                                      x-model="formData.content"
+                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                        </div>
+                        
+                        <!-- Category and Pin Status -->
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                                <select id="category" name="category" required
+                                        x-model="formData.category"
+                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <option value="general">General</option>
+                                    <option value="system">System</option>
+                                    <option value="training">Training</option>
+                                    <option value="schedule">Schedule</option>
+                                    <option value="policy">Policy</option>
+                                    <option value="events">Events</option>
+                                    <option value="safety">Safety</option>
+                                </select>
+                            </div>
+                            
+                            <div class="flex items-center pt-8">
+                                <input type="checkbox" id="pinned" name="pinned" value="1"
+                                       x-model="formData.pinned"
+                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                <label for="pinned" class="ml-2 block text-sm text-gray-700">Pin announcement</label>
+                            </div>
+                        </div>
+                        
+                        <!-- Expiration Date -->
+                        <div>
+                            <label for="expiration_date" class="block text-sm font-medium text-gray-700 mb-2">
+                                Expiration Date (Optional)
+                            </label>
+                            <input type="date" id="expiration_date" name="expiration_date"
+                                   x-model="formData.expiration_date"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <p class="text-xs text-gray-500 mt-1">Leave empty for announcements that don't expire</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Modal Footer -->
+                    <div class="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
+                        <button type="button" @click="closeModal()" 
+                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg">
+                            Cancel
+                        </button>
+                        <button type="submit" 
+                                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
+                            <span x-text="modalMode === 'add' ? 'Create Announcement' : 'Update Announcement'"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Development Note -->
+<div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+    <h3 class="font-semibold text-yellow-800 mb-2">Development Note</h3>
+    <p class="text-sm text-yellow-700">
+        This interface displays static announcements. CRUD operations will be implemented in the next steps to allow full management functionality.
+    </p>
+</div>
+
+<?php require __DIR__.'/includes/footer.php'; ?>
