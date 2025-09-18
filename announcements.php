@@ -87,12 +87,14 @@ sort($categories);
              style="display: block">
             <div class="p-6">
                 <div class="flex items-start gap-4">
-                    <!-- Pin Icon -->
+                    <!-- Pin Icon (only for pinned announcements) -->
+                    <?php if ($announcement['pinned']): ?>
                     <div class="flex-shrink-0 mt-1">
                         <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                         </svg>
                     </div>
+                    <?php endif; ?>
                     
                     <!-- Content -->
                     <div class="flex-1 min-w-0">
