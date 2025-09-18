@@ -19,10 +19,10 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
 <body class="bg-gray-50 text-gray-900">
 <header class="bg-white border-b" x-data="{ mobileMenuOpen: false }">
   <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-    <!-- Logo - always visible -->
+    <!-- Logo - icon only on mobile, with text on desktop -->
     <a href="/" class="flex items-center gap-3">
       <img src="/assets/images/logo.png" alt="J. Joseph Salon Logo" class="h-10 w-auto">
-      <div>
+      <div class="hidden md:block">
         <div class="font-semibold text-gray-900 leading-tight">J. Joseph Salon</div>
         <div class="text-sm text-gray-600 -mt-1">Portal</div>
       </div>
