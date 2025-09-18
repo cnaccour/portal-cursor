@@ -1,4 +1,7 @@
-<?php if (session_status() === PHP_SESSION_NONE) { session_start(); } ?>
+<?php 
+if (session_status() === PHP_SESSION_NONE) { session_start(); }
+require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_name functions
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,6 +27,12 @@
         <a href="/dashboard.php" class="hover:underline">Dashboard</a>
         <a href="/forms.php" class="hover:underline">Forms</a>
         <a href="/reports.php" class="hover:underline">Reports</a>
+        <?php if (has_role('admin')): ?>
+          <a href="/admin.php" class="hover:underline text-blue-600">Admin</a>
+        <?php endif; ?>
+        <span class="px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+          <?= htmlspecialchars(get_role_display_name($_SESSION['role'] ?? 'viewer')) ?>
+        </span>
         <a href="/logout.php" class="hover:underline">Logout</a>
       <?php else: ?>
         <a href="/" class="hover:underline">Home</a>

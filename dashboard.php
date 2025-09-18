@@ -4,7 +4,14 @@ require_login();
 require __DIR__.'/includes/header.php';
 ?>
 
-<h1 class="text-2xl font-semibold mb-4">Dashboard</h1>
+<div class="flex justify-between items-center mb-4">
+  <h1 class="text-2xl font-semibold">Dashboard</h1>
+  <div class="text-sm">
+    <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-lg">
+      <?= htmlspecialchars(get_role_display_name($_SESSION['role'] ?? 'viewer')) ?>
+    </span>
+  </div>
+</div>
 <p class="text-gray-600 mb-6">
   Hello, <?= htmlspecialchars($_SESSION['name'] ?? 'User') ?> — you are now logged in.
 </p>
