@@ -23,8 +23,7 @@ $message = '';
     <div class="mb-6">
         <h1 class="text-2xl font-semibold mb-4">Announcement Management</h1>
         <button @click="openAddModal()" 
-                class="w-full sm:w-auto px-4 py-3 text-white rounded-md transition-colors flex items-center justify-center gap-2 font-medium" 
-                style="background-color: #AF831A;" onmouseover="this.style.backgroundColor='#8B6914'" onmouseout="this.style.backgroundColor='#AF831A'">
+                class="w-full sm:w-auto px-4 py-3 text-white bg-black hover:bg-gray-800 rounded-md transition-colors flex items-center justify-center gap-2 font-medium">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
@@ -48,8 +47,7 @@ $message = '';
                     <h3 class="text-lg font-medium text-gray-900 mb-2">No announcements</h3>
                     <p class="text-sm text-gray-500 mb-4">Get started by creating your first announcement to communicate with your team.</p>
                     <button @click="openAddModal()" 
-                            class="inline-flex items-center px-4 py-2 text-white rounded-md transition-colors font-medium" 
-                            style="background-color: #AF831A;" onmouseover="this.style.backgroundColor='#8B6914'" onmouseout="this.style.backgroundColor='#AF831A'">
+                            class="inline-flex items-center px-4 py-2 text-white bg-black hover:bg-gray-800 rounded-md transition-colors font-medium">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                         </svg>
@@ -82,52 +80,25 @@ $message = '';
                                 </div>
                             </div>
                             
-                            <!-- Right: Category -->
-                            <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 capitalize shrink-0">
-                                <?= htmlspecialchars($announcement['category']) ?>
-                            </span>
+                            <!-- Right: Category and Attachment -->
+                            <div class="flex items-center gap-2 shrink-0">
+                                <?php if (!empty($announcement['attachments'])): ?>
+                                    <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700 flex items-center gap-1">
+                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                                        </svg>
+                                        <?= count($announcement['attachments']) ?>
+                                    </span>
+                                <?php endif; ?>
+                                <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 capitalize">
+                                    <?= htmlspecialchars($announcement['category']) ?>
+                                </span>
+                            </div>
                         </div>
                     </div>
                     
                     <!-- Content Section -->
                     <div class="p-4">
-                        <!-- Status and Date Info -->
-                        <div class="flex flex-wrap items-center gap-2 mb-4">
-                            <?php if ($announcement['pinned']): ?>
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
-                                    📌 Pinned
-                                </span>
-                            <?php endif; ?>
-                            
-                            <?php 
-                            $isExpired = !empty($announcement['expiration_date']) && strtotime($announcement['expiration_date']) < time();
-                            $isExpiring = !empty($announcement['expiration_date']) && strtotime($announcement['expiration_date']) < strtotime('+7 days');
-                            ?>
-                            <?php if ($isExpired): ?>
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">
-                                    ⏰ Expired
-                                </span>
-                            <?php elseif ($isExpiring): ?>
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                    ⚠️ Expiring Soon
-                                </span>
-                            <?php else: ?>
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-black text-white">
-                                    ✅ Active
-                                </span>
-                            <?php endif; ?>
-                            
-                            <span class="text-xs text-gray-500">
-                                Created: <?= date('M j, Y', strtotime($announcement['date_created'])) ?>
-                            </span>
-                            
-                            <?php if (!empty($announcement['expiration_date'])): ?>
-                                <span class="text-xs text-gray-500">
-                                    Expires: <?= date('M j, Y', strtotime($announcement['expiration_date'])) ?>
-                                </span>
-                            <?php endif; ?>
-                        </div>
-                        
                         <!-- Actions -->
                         <div class="flex flex-col sm:flex-row gap-3">
                             <button @click="openEditModal(<?= htmlspecialchars(json_encode($announcement), ENT_QUOTES) ?>)"
@@ -145,6 +116,38 @@ $message = '';
                                 </svg>
                                 Delete Announcement
                             </button>
+                        </div>
+                        
+                        <!-- Status and Date Info - Bottom -->
+                        <div class="mt-4 pt-3 border-t border-gray-100">
+                            <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500">
+                                <div class="flex items-center gap-2">
+                                    <?php if ($announcement['pinned']): ?>
+                                        <span class="text-red-600 font-medium">📌 Pinned</span>
+                                        <span class="text-gray-300">•</span>
+                                    <?php endif; ?>
+                                    
+                                    <?php 
+                                    $isExpired = !empty($announcement['expiration_date']) && strtotime($announcement['expiration_date']) < time();
+                                    $isExpiring = !empty($announcement['expiration_date']) && strtotime($announcement['expiration_date']) < strtotime('+7 days');
+                                    ?>
+                                    <?php if ($isExpired): ?>
+                                        <span class="text-gray-500 font-medium">⏰ Expired</span>
+                                    <?php elseif ($isExpiring): ?>
+                                        <span class="text-orange-600 font-medium">⚠️ Expiring Soon</span>
+                                    <?php else: ?>
+                                        <span class="text-green-600 font-medium">Active</span>
+                                    <?php endif; ?>
+                                </div>
+                                
+                                <div class="flex items-center gap-2">
+                                    <span>Created <?= date('M j, Y', strtotime($announcement['date_created'])) ?></span>
+                                    <?php if (!empty($announcement['expiration_date'])): ?>
+                                        <span class="text-gray-300">•</span>
+                                        <span>Expires <?= date('M j, Y', strtotime($announcement['expiration_date'])) ?></span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
