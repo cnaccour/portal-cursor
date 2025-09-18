@@ -36,10 +36,12 @@ Preferred communication style: Simple, everyday language.
 
 **File Organization**
 - `includes/` - Shared PHP components (database, auth, layout)
-- `api/` - Backend API endpoints
-- `forms/` - Form handling scripts
+- `api/` - Backend API endpoints (save-shift-report.php)
+- `forms/` - Form handling scripts (shift-reports.php)
+- `reports/` - Report viewing pages (view.php)
 - `assets/` - Static files (CSS, JS, images)
-- Root level - Main application pages
+- Root level - Main application pages (announcements.php, dashboard.php, etc.)
+- Data files - shift-reports.txt for local development storage
 
 ## External Dependencies
 

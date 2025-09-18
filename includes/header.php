@@ -19,6 +19,7 @@
       </div>
     </a>
     <nav class="text-sm flex items-center gap-4">
+      <a href="/announcements.php" class="hover:underline">Announcements</a>
       <?php if (!empty($_SESSION['user_id'])): ?>
         <a href="/dashboard.php" class="hover:underline">Dashboard</a>
         <a href="/forms.php" class="hover:underline">Forms</a>
