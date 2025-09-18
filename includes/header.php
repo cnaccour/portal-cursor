@@ -12,6 +12,9 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <style>
+    [x-cloak] { display: none !important; }
+  </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
 <header class="bg-white border-b" x-data="{ mobileMenuOpen: false }">
@@ -34,12 +37,12 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         
         <!-- User Account Dropdown -->
         <div class="relative" x-data="{ open: false }">
-          <button @click="open = !open" @click.away="open = false" 
+          <button @click="open = !open" @click.outside="open = false" 
                   class="flex items-center justify-center w-8 h-8 bg-gray-800 text-white rounded-full text-sm font-medium hover:bg-gray-700 transition-colors">
             <?= strtoupper(substr($_SESSION['name'] ?? 'U', 0, 1)) ?>
           </button>
           
-          <div x-show="open" x-transition 
+          <div x-show="open" x-cloak x-transition 
                class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border py-2 z-50">
             <!-- Account Info -->
             <div class="px-4 py-3 border-b">
@@ -115,14 +118,14 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
     <button @click="mobileMenuOpen = !mobileMenuOpen" 
             class="md:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors">
       <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
-        <path x-show="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        <path x-show="!mobileMenuOpen" x-cloak stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        <path x-show="mobileMenuOpen" x-cloak stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
       </svg>
     </button>
   </div>
 
   <!-- Mobile Menu - slides down when open -->
-  <div x-show="mobileMenuOpen" 
+  <div x-show="mobileMenuOpen" x-cloak
        x-transition:enter="transition ease-out duration-200"
        x-transition:enter-start="opacity-0 transform -translate-y-2"
        x-transition:enter-end="opacity-100 transform translate-y-0"
