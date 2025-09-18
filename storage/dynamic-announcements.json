@@ -24,5 +24,18 @@
         "pinned": false,
         "priority": 2,
         "date_modified": "2024-01-10 00:00:00"
+    },
+    {
+        "title": "this is a test by chris",
+        "content": "<p>hello world!<\/p>",
+        "category": "general",
+        "author": "Admin User",
+        "location_specific": false,
+        "pinned": true,
+        "priority": 1,
+        "expiration_date": null,
+        "date_modified": "2025-09-18 16:45:08",
+        "id": "dynamic-68cc37146f501",
+        "date_created": "2025-09-18"
     }
 ]
