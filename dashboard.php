@@ -13,10 +13,10 @@ require __DIR__.'/includes/header.php';
 
 <!-- Actions -->
 <div class="mb-8 space-x-4">
-  <a href="/forms/shift-reports.php" class="px-4 py-2 rounded-lg bg-blue-600 text-white">
+  <a href="/forms/shift-reports.php" class="px-4 py-2 rounded-md" style="background-color: #AF831A; color: white;">
     Create Shift Report
   </a>
-  <a href="/reports.php" class="px-4 py-2 rounded-lg bg-green-600 text-white">
+  <a href="/reports.php" class="px-4 py-2 rounded-md bg-black text-white">
     View All Shift Reports
   </a>
 </div>
@@ -50,7 +50,7 @@ require __DIR__.'/includes/header.php';
       if (!empty($row['refunds'])) {
         echo " | Refunds: " . count($row['refunds']);
       }
-      echo " <a href='/reports/view.php?id={$id}' class='text-blue-600 underline ml-2'>View</a>";
+      echo " <a href='/reports/view.php?id={$id}' class='underline ml-2' style='color: #AF831A;'>View</a>";
       echo "</li>";
     }
     echo "</ul>";
