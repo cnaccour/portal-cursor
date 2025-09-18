@@ -110,14 +110,14 @@ if (file_exists($dynamicFile)) {
                 $attachments = [];
                 if (is_dir($attachmentScanDir)) {
                     $files = scandir($attachmentScanDir);
-                    foreach ($files as $file) {
-                        if ($file !== '.' && $file !== '..' && is_file($attachmentScanDir.'/'.$file)) {
-                            $parts = explode('_', $file, 2);
-                            $originalNameFromFile = isset($parts[1]) ? $parts[1] : $file;
-                            $filePathForScan = $attachmentScanDir.'/'.$file;
+                    foreach ($files as $filename) {
+                        if ($filename !== '.' && $filename !== '..' && is_file($attachmentScanDir.'/'.$filename)) {
+                            $parts = explode('_', $filename, 2);
+                            $originalNameFromFile = isset($parts[1]) ? $parts[1] : $filename;
+                            $filePathForScan = $attachmentScanDir.'/'.$filename;
                             
                             $attachments[] = [
-                                'filename' => $file,
+                                'filename' => $filename,
                                 'original_name' => $originalNameFromFile,
                                 'file_size' => filesize($filePathForScan),
                                 'mime_type' => mime_content_type($filePathForScan),
