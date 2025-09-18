@@ -69,8 +69,8 @@ if (!empty($_POST['expiration_date'])) {
     }
 }
 
-// Load existing dynamic announcements (outside web root for security)
-$dynamicFile = __DIR__.'/../../storage/dynamic-announcements.json';
+// Load existing dynamic announcements
+$dynamicFile = __DIR__.'/../storage/dynamic-announcements.json';
 $dynamicAnnouncements = [];
 if (file_exists($dynamicFile)) {
     $fileHandle = fopen($dynamicFile, 'r');

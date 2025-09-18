@@ -7,9 +7,10 @@
 // Load static announcements
 $staticAnnouncements = include __DIR__.'/static-announcements.php';
 
-// Load dynamic announcements (outside web root for security)
+// Load dynamic announcements
 $dynamicAnnouncements = [];
-$dynamicFile = __DIR__.'/../../storage/dynamic-announcements.json';
+$dynamicFile = __DIR__.'/../storage/dynamic-announcements.json';
+
 if (file_exists($dynamicFile)) {
     $content = file_get_contents($dynamicFile);
     if ($content) {

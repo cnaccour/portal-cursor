@@ -31,8 +31,8 @@ if (empty($announcementId)) {
 // For now, all announcements are editable (we'll add static ones later)
 // Future: Add check for truly static announcements here
 
-// Load existing dynamic announcements (outside web root for security)
-$dynamicFile = __DIR__.'/../../storage/dynamic-announcements.json';
+// Load existing dynamic announcements
+$dynamicFile = __DIR__.'/../storage/dynamic-announcements.json';
 $dynamicAnnouncements = [];
 if (file_exists($dynamicFile)) {
     $fileHandle = fopen($dynamicFile, 'r');
