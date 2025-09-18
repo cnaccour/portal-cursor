@@ -52,7 +52,9 @@ $message = '';
         this.showModal = true;
         
         // Initialize Quill editor after modal opens
-        this.initQuillEditor();
+        setTimeout(() => {
+            this.initQuillEditor();
+        }, 150);
     },
     
     openEditModal(announcement) {
@@ -68,46 +70,77 @@ $message = '';
         this.showModal = true;
         
         // Initialize Quill editor after modal opens
-        this.initQuillEditor();
+        setTimeout(() => {
+            this.initQuillEditor();
+        }, 150);
     },
     
     closeModal() {
-        // Destroy Quill instance before closing
+        // Properly destroy Quill instance before closing
         if (this.quillEditor) {
-            this.quillEditor = null;
+            try {
+                // Clear the editor container
+                const container = document.getElementById('content-editor');
+                if (container) {
+                    container.innerHTML = '';
+                }
+                this.quillEditor = null;
+            } catch (e) {
+                console.log('Error destroying editor:', e);
+            }
         }
         this.showModal = false;
         this.selectedAnnouncement = null;
     },
     
     initQuillEditor() {
-        // Wait for modal to be fully visible
-        setTimeout(() => {
-            if (document.getElementById('content-editor')) {
-                this.quillEditor = new Quill('#content-editor', {
-                    theme: 'snow',
-                    modules: {
-                        toolbar: [
-                            [{ 'header': [1, 2, 3, false] }],
-                            ['bold', 'italic', 'underline'],
-                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                            ['link'],
-                            ['clean']
-                        ]
-                    }
-                });
-                
-                // Set initial content
-                if (this.formData.content) {
-                    this.quillEditor.root.innerHTML = this.formData.content;
+        // Destroy any existing editor first
+        if (this.quillEditor) {
+            try {
+                const container = document.getElementById('content-editor');
+                if (container) {
+                    container.innerHTML = '';
                 }
-                
-                // Update formData when editor content changes
-                this.quillEditor.on('text-change', () => {
-                    this.formData.content = this.quillEditor.root.innerHTML;
-                });
+                this.quillEditor = null;
+            } catch (e) {
+                console.log('Error cleaning up previous editor:', e);
             }
-        }, 100);
+        }
+        
+        // Wait for DOM to be ready
+        const container = document.getElementById('content-editor');
+        if (container) {
+            // Clear any existing content
+            container.innerHTML = '';
+            
+            // Create new Quill instance
+            this.quillEditor = new Quill('#content-editor', {
+                theme: 'snow',
+                modules: {
+                    toolbar: [
+                        [{ 'header': [1, 2, 3, false] }],
+                        ['bold', 'italic', 'underline'],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        ['link'],
+                        ['clean']
+                    ]
+                }
+            });
+            
+            // Set initial content (only for edit mode)
+            if (this.modalMode === 'edit' && this.formData.content) {
+                this.quillEditor.root.innerHTML = this.formData.content;
+            } else {
+                // For add mode, ensure content is empty
+                this.quillEditor.root.innerHTML = '';
+                this.formData.content = '';
+            }
+            
+            // Update formData when editor content changes
+            this.quillEditor.on('text-change', () => {
+                this.formData.content = this.quillEditor.root.innerHTML;
+            });
+        }
     },
     
     async submitForm() {
