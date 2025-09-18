@@ -14,8 +14,9 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 </head>
 <body class="bg-gray-50 text-gray-900">
-<header class="bg-white border-b">
+<header class="bg-white border-b" x-data="{ mobileMenuOpen: false }">
   <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+    <!-- Logo - always visible -->
     <a href="/" class="flex items-center gap-3">
       <img src="/assets/images/logo.png" alt="J. Joseph Salon Logo" class="h-10 w-auto">
       <div>
@@ -23,7 +24,9 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         <div class="text-sm text-gray-600 -mt-1">Portal</div>
       </div>
     </a>
-    <nav class="text-sm flex items-center gap-4">
+
+    <!-- Desktop Navigation - hidden on mobile -->
+    <nav class="hidden md:flex text-sm items-center gap-4">
       <a href="/announcements.php" class="hover:underline">Announcements</a>
       <?php if (!empty($_SESSION['user_id'])): ?>
         <a href="/dashboard.php" class="hover:underline">Dashboard</a>
@@ -105,6 +108,101 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
       <?php else: ?>
         <a href="/" class="hover:underline">Home</a>
         <a href="/login.php" class="hover:underline">Login</a>
+      <?php endif; ?>
+    </nav>
+
+    <!-- Mobile Menu Button - visible only on mobile -->
+    <button @click="mobileMenuOpen = !mobileMenuOpen" 
+            class="md:hidden flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors">
+      <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        <path x-show="mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Mobile Menu - slides down when open -->
+  <div x-show="mobileMenuOpen" 
+       x-transition:enter="transition ease-out duration-200"
+       x-transition:enter-start="opacity-0 transform -translate-y-2"
+       x-transition:enter-end="opacity-100 transform translate-y-0"
+       x-transition:leave="transition ease-in duration-150"
+       x-transition:leave-start="opacity-100 transform translate-y-0"
+       x-transition:leave-end="opacity-0 transform -translate-y-2"
+       class="md:hidden bg-white border-t shadow-lg">
+    <nav class="px-4 py-4 space-y-1">
+      <a href="/announcements.php" 
+         @click="mobileMenuOpen = false"
+         class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+        📢 Announcements
+      </a>
+      
+      <?php if (!empty($_SESSION['user_id'])): ?>
+        <a href="/dashboard.php" 
+           @click="mobileMenuOpen = false"
+           class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+          🏠 Dashboard
+        </a>
+        <a href="/forms.php" 
+           @click="mobileMenuOpen = false"
+           class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+          📋 Forms
+        </a>
+        
+        <!-- Mobile User Account Section -->
+        <div class="pt-2 mt-2 border-t border-gray-200">
+          <div class="px-3 py-2">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-gray-800 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                <?= strtoupper(substr($_SESSION['name'] ?? 'U', 0, 1)) ?>
+              </div>
+              <div>
+                <div class="font-medium text-gray-900 text-sm">Account</div>
+                <div class="text-xs text-gray-500"><?= htmlspecialchars($_SESSION['email'] ?? 'user@example.com') ?></div>
+              </div>
+            </div>
+          </div>
+          
+          <?php if (has_role('admin')): ?>
+          <!-- Mobile Admin Tools -->
+          <div class="space-y-1">
+            <div class="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">Admin Tools</div>
+            <a href="/admin-announcements.php" 
+               @click="mobileMenuOpen = false"
+               class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+              📝 Manage Announcements
+            </a>
+            <a href="/reports.php" 
+               @click="mobileMenuOpen = false"
+               class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+              📊 Reports
+            </a>
+            <a href="/admin.php" 
+               @click="mobileMenuOpen = false"
+               class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+              👥 User Management
+            </a>
+          </div>
+          <?php endif; ?>
+          
+          <!-- Mobile Sign Out -->
+          <a href="/logout.php" 
+             class="block px-3 py-2 mt-2 rounded-lg text-red-700 hover:bg-red-50 hover:text-red-900 transition-colors">
+            🚪 Sign Out
+          </a>
+        </div>
+        
+      <?php else: ?>
+        <a href="/" 
+           @click="mobileMenuOpen = false"
+           class="block px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+          🏠 Home
+        </a>
+        <a href="/login.php" 
+           @click="mobileMenuOpen = false"
+           class="block px-3 py-2 rounded-lg text-blue-700 hover:bg-blue-50 hover:text-blue-900 transition-colors">
+          🔑 Login
+        </a>
       <?php endif; ?>
     </nav>
   </div>
