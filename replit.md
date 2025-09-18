@@ -29,10 +29,13 @@ Preferred communication style: Simple, everyday language.
 - Session data stored server-side for authentication state
 
 **Authentication & Authorization**
-- PHP session-based authentication
-- No external authentication services
-- Role-based access control likely implemented through session variables
+- PHP session-based authentication with session regeneration for security
+- Five-tier role hierarchy: Administrator → Manager → Support → Staff → Viewer
+- Comprehensive role-based access control with numerical permission levels
+- CSRF protection on sensitive administrative actions
 - Secure password handling with built-in PHP functions
+- Admin interface for user role management
+- No external authentication services
 
 **File Organization**
 - `includes/` - Shared PHP components (database, auth, layout)
@@ -40,8 +43,18 @@ Preferred communication style: Simple, everyday language.
 - `forms/` - Form handling scripts (shift-reports.php)
 - `reports/` - Report viewing pages (view.php)
 - `assets/` - Static files (CSS, JS, images)
-- Root level - Main application pages (announcements.php, dashboard.php, etc.)
+- Root level - Main application pages (announcements.php, dashboard.php, admin.php, etc.)
 - Data files - shift-reports.txt for local development storage
+
+**User Role Management**
+- **Administrator**: Full system access, user management, all features
+- **Manager**: Location management, staff oversight, operational controls
+- **Support**: Customer support functions, limited administrative access
+- **Staff**: Basic access to shift reporting and standard features
+- **Viewer**: Read-only access to permitted content
+- Role indicators visible in header and dashboard
+- Admin panel (/admin.php) for role management (admin-only access)
+- Secure role updates with CSRF protection
 
 ## External Dependencies
 
