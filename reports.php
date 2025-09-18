@@ -214,35 +214,21 @@ sort($allUsers);
            x-cloak>
         <!-- Header Section -->
         <div class="p-4 border-b bg-gray-50">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <!-- User and Date Info -->
-            <div class="flex flex-col sm:flex-row sm:items-center gap-2">
-              <h3 class="text-lg font-semibold text-gray-900"><?= htmlspecialchars($report['user']) ?></h3>
-              <div class="flex items-center gap-2">
-                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full text-white" 
-                      style="background-color: #AF831A;"
-                      role="img"
-                      aria-label="<?= ucfirst(($report['shift_type'] ?? 'morning')) ?> Shift"
-                      title="<?= ucfirst(($report['shift_type'] ?? 'morning')) ?> Shift">
-                  <?php if (($report['shift_type'] ?? 'morning') === 'morning'): ?>
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                    </svg>
-                  <?php else: ?>
-                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
-                    </svg>
-                  <?php endif; ?>
-                </span>
-              </div>
+          <div class="flex items-center justify-between gap-3">
+            <!-- Left: User info with shift indicator -->
+            <div class="flex items-center gap-3 flex-1 min-w-0">
+              <h3 class="text-lg font-semibold text-gray-900 truncate"><?= htmlspecialchars($report['user']) ?></h3>
+              <span class="inline-flex items-center justify-center w-7 h-5 rounded text-xs font-bold shrink-0 px-1" 
+                    style="<?= ($report['shift_type'] ?? 'morning') === 'morning' ? 'background-color: #8B6914; color: white;' : 'background-color: #374151; color: white;' ?>"
+                    aria-label="<?= ucfirst(($report['shift_type'] ?? 'morning')) ?> Shift"
+                    title="<?= ucfirst(($report['shift_type'] ?? 'morning')) ?> Shift">
+                <?= ($report['shift_type'] ?? 'morning') === 'morning' ? 'AM' : 'PM' ?>
+                <span class="sr-only"><?= ucfirst(($report['shift_type'] ?? 'morning')) ?> shift</span>
+              </span>
             </div>
             
-            <!-- Location -->
-            <div class="flex items-center text-sm text-gray-500">
-              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-              </svg>
+            <!-- Right: Location (compact) -->
+            <div class="text-sm text-gray-500 font-medium text-right truncate max-w-[40%] ml-3">
               <?= htmlspecialchars($report['location']) ?>
             </div>
           </div>
