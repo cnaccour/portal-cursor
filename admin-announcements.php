@@ -80,7 +80,7 @@ $message = '';
                                 </div>
                             </div>
                             
-                            <!-- Right: Category and Attachment -->
+                            <!-- Right: Attachment Indicator Only -->
                             <div class="flex items-center gap-2 shrink-0">
                                 <?php if (!empty($announcement['attachments'])): ?>
                                     <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-700 flex items-center gap-1">
@@ -90,9 +90,6 @@ $message = '';
                                         <?= count($announcement['attachments']) ?>
                                     </span>
                                 <?php endif; ?>
-                                <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 capitalize">
-                                    <?= htmlspecialchars($announcement['category']) ?>
-                                </span>
                             </div>
                         </div>
                     </div>
@@ -118,10 +115,14 @@ $message = '';
                             </button>
                         </div>
                         
-                        <!-- Status and Date Info - Bottom -->
+                        <!-- Status, Category and Date Info - Bottom -->
                         <div class="mt-4 pt-3 border-t border-gray-100">
                             <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500">
                                 <div class="flex items-center gap-2">
+                                    <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 capitalize">
+                                        <?= htmlspecialchars($announcement['category']) ?>
+                                    </span>
+                                    
                                     <?php if ($announcement['pinned']): ?>
                                         <span class="text-red-600 font-medium">📌 Pinned</span>
                                         <span class="text-gray-300">•</span>
@@ -136,12 +137,12 @@ $message = '';
                                     <?php elseif ($isExpiring): ?>
                                         <span class="text-orange-600 font-medium">⚠️ Expiring Soon</span>
                                     <?php else: ?>
-                                        <span class="text-green-600 font-medium">Active</span>
+                                        <span class="text-black font-medium">Active</span>
                                     <?php endif; ?>
                                 </div>
                                 
                                 <div class="flex items-center gap-2">
-                                    <span>Created <?= date('M j, Y', strtotime($announcement['date_created'])) ?></span>
+                                    <span><?= date('M j, Y', strtotime($announcement['date_created'])) ?></span>
                                     <?php if (!empty($announcement['expiration_date'])): ?>
                                         <span class="text-gray-300">•</span>
                                         <span>Expires <?= date('M j, Y', strtotime($announcement['expiration_date'])) ?></span>
