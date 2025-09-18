@@ -84,7 +84,14 @@ sort($categories);
     <!-- Announcements List -->
     <div class="space-y-4">
         <?php foreach ($activeAnnouncements as $announcement): ?>
-        <div class="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+        <div class="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors announcement-item"
+             data-category="<?= htmlspecialchars($announcement['category']) ?>"
+             data-title="<?= htmlspecialchars($announcement['title']) ?>"
+             data-content="<?= htmlspecialchars($announcement['content']) ?>"
+             x-show="(selectedCategory === 'all' || selectedCategory === '<?= htmlspecialchars($announcement['category']) ?>') && 
+                     (searchTerm === '' || 
+                      '<?= addslashes($announcement['title']) ?>'.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                      '<?= addslashes($announcement['content']) ?>'.toLowerCase().includes(searchTerm.toLowerCase()))">
             <div class="p-6">
                 <div class="flex items-start gap-4">
                     <!-- Pin Icon -->
@@ -131,6 +138,8 @@ sort($categories);
         </div>
         <?php endforeach; ?>
     </div>
+
+</div>
 <?php endif; ?>
 
 <?php require __DIR__.'/includes/footer.php'; ?>
