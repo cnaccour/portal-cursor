@@ -9,11 +9,11 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-// Load static announcements
-$staticAnnouncements = include __DIR__.'/includes/static-announcements.php';
+// Load all announcements (static + dynamic)
+$allAnnouncements = include __DIR__.'/includes/all-announcements.php';
 
 // Sort announcements: pinned first, then by date (most recent first)
-usort($staticAnnouncements, function($a, $b) {
+usort($allAnnouncements, function($a, $b) {
     if ($a['pinned'] !== $b['pinned']) {
         return $b['pinned'] <=> $a['pinned'];
     }
@@ -21,7 +21,7 @@ usort($staticAnnouncements, function($a, $b) {
 });
 
 // Get unique categories for the dropdown
-$categories = array_unique(array_column($staticAnnouncements, 'category'));
+$categories = array_unique(array_column($allAnnouncements, 'category'));
 sort($categories);
 
 $message = '';
@@ -68,6 +68,71 @@ $message = '';
     closeModal() {
         this.showModal = false;
         this.selectedAnnouncement = null;
+    },
+    
+    async submitForm() {
+        try {
+            const formData = new FormData();
+            formData.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
+            formData.append('mode', this.modalMode);
+            formData.append('title', this.formData.title);
+            formData.append('content', this.formData.content);
+            formData.append('category', this.formData.category);
+            formData.append('expiration_date', this.formData.expiration_date);
+            
+            if (this.formData.pinned) {
+                formData.append('pinned', '1');
+            }
+            
+            if (this.modalMode === 'edit' && this.selectedAnnouncement) {
+                formData.append('announcement_id', this.selectedAnnouncement.id);
+            }
+            
+            const response = await fetch('/api/save-announcement.php', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                // Show success message and reload page
+                alert(result.message);
+                window.location.reload();
+            } else {
+                alert('Error: ' + result.error);
+            }
+        } catch (error) {
+            alert('An error occurred: ' + error.message);
+        }
+    },
+    
+    async deleteAnnouncement(announcementId) {
+        if (!confirm('Are you sure you want to delete this announcement?')) {
+            return;
+        }
+        
+        try {
+            const formData = new FormData();
+            formData.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
+            formData.append('announcement_id', announcementId);
+            
+            const response = await fetch('/api/delete-announcement.php', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                alert(result.message);
+                window.location.reload();
+            } else {
+                alert('Error: ' + result.error);
+            }
+        } catch (error) {
+            alert('An error occurred: ' + error.message);
+        }
     }
 }">
 
@@ -94,7 +159,7 @@ $message = '';
             <p class="text-sm text-gray-600 mt-1">Manage your salon announcements and notifications.</p>
         </div>
         
-        <?php if (empty($staticAnnouncements)): ?>
+        <?php if (empty($allAnnouncements)): ?>
             <div class="p-12 text-center">
                 <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
@@ -131,7 +196,7 @@ $message = '';
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
-                        <?php foreach ($staticAnnouncements as $index => $announcement): ?>
+                        <?php foreach ($allAnnouncements as $index => $announcement): ?>
                         <tr class="hover:bg-gray-50">
                             <td class="px-6 py-4">
                                 <div class="flex items-start">
@@ -205,7 +270,7 @@ $message = '';
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                             </svg>
                                         </button>
-                                        <button onclick="if(confirm('Are you sure you want to delete this announcement?')) { /* TODO: Implement delete */ }"
+                                        <button @click="deleteAnnouncement('<?= htmlspecialchars($announcement['id']) ?>')"
                                                 class="text-red-600 hover:text-red-900">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -245,7 +310,7 @@ $message = '';
                 </div>
                 
                 <!-- Modal Body -->
-                <form method="POST" action="/api/save-announcement.php" class="p-6">
+                <form @submit.prevent="submitForm" class="p-6">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <input type="hidden" name="mode" x-model="modalMode">
                     <input type="hidden" name="announcement_id" x-model="selectedAnnouncement?.id">
@@ -322,11 +387,12 @@ $message = '';
 
 </div>
 
-<!-- Development Note -->
-<div class="mt-6 bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-    <h3 class="font-semibold text-yellow-800 mb-2">Development Note</h3>
-    <p class="text-sm text-yellow-700">
-        This interface displays static announcements. CRUD operations will be implemented in the next steps to allow full management functionality.
+<!-- Information Note -->
+<div class="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
+    <h3 class="font-semibold text-blue-800 mb-2">Announcement Management</h3>
+    <p class="text-sm text-blue-700">
+        Static announcements (marked as "Locked") are managed by developers and cannot be edited. 
+        Dynamic announcements can be created, edited, and deleted through this interface.
     </p>
 </div>
 

@@ -2,11 +2,11 @@
 // Note: No auth required - announcements are public
 require __DIR__.'/includes/header.php';
 
-// Load static announcements
-$staticAnnouncements = include __DIR__.'/includes/static-announcements.php';
+// Load all announcements (static + dynamic)
+$allAnnouncements = include __DIR__.'/includes/all-announcements.php';
 
 // Filter out expired announcements
-$activeAnnouncements = array_filter($staticAnnouncements, function($announcement) {
+$activeAnnouncements = array_filter($allAnnouncements, function($announcement) {
     return empty($announcement['expiration_date']) || strtotime($announcement['expiration_date']) > time();
 });
 
