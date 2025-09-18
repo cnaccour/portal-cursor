@@ -25,30 +25,6 @@ $categories = array_unique(array_column($activeAnnouncements, 'category'));
 sort($categories);
 ?>
 
-<div x-data="{ 
-    selectedCategory: 'all', 
-    searchTerm: '',
-    get filteredAnnouncements() {
-        let filtered = <?= json_encode($activeAnnouncements) ?>;
-        
-        // Filter by category
-        if (this.selectedCategory !== 'all') {
-            filtered = filtered.filter(a => a.category.toLowerCase() === this.selectedCategory.toLowerCase());
-        }
-        
-        // Filter by search term
-        if (this.searchTerm) {
-            const term = this.searchTerm.toLowerCase();
-            filtered = filtered.filter(a => 
-                a.title.toLowerCase().includes(term) || 
-                a.content.toLowerCase().includes(term)
-            );
-        }
-        
-        return filtered;
-    }
-}">
-
 <!-- Search and Filter Header -->
 <div class="flex gap-4 mb-6">
     <!-- Search Bar -->
@@ -59,7 +35,6 @@ sort($categories);
             </svg>
         </div>
         <input type="text" 
-               x-model="searchTerm"
                placeholder="Search announcements..."
                class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
     </div>
@@ -70,53 +45,34 @@ sort($categories);
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707v4.586a1 1 0 01-.293.707l-2 2A1 1 0 0110 21v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
             </svg>
-            <span x-text="selectedCategory === 'all' ? 'All Types' : selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)"></span>
-            <span x-text="filteredAnnouncements.length + ' Total'" class="text-gray-500 text-sm"></span>
+            <span>All Types</span>
+            <span class="text-gray-500 text-sm"><?= count($activeAnnouncements) ?> Total</span>
         </button>
     </div>
 </div>
 
 <!-- Category Filter Buttons -->
 <div class="flex gap-2 mb-6 overflow-x-auto">
-    <button @click="selectedCategory = 'all'"
-            :class="selectedCategory === 'all' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+    <button class="px-4 py-2 bg-gray-900 text-white rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
         All
     </button>
-    <button @click="selectedCategory = 'general'"
-            :class="selectedCategory === 'general' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+    <button class="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
         General
     </button>
-    <button @click="selectedCategory = 'training'"
-            :class="selectedCategory === 'training' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+    <button class="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
         Training
     </button>
-    <button @click="selectedCategory = 'schedule'"
-            :class="selectedCategory === 'schedule' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+    <button class="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
         Schedule
     </button>
-    <button @click="selectedCategory = 'policy'"
-            :class="selectedCategory === 'policy' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+    <button class="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
         Policy
     </button>
-    <button @click="selectedCategory = 'events'"
-            :class="selectedCategory === 'events' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+    <button class="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
         Events
     </button>
-    <button @click="selectedCategory = 'safety'"
-            :class="selectedCategory === 'safety' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+    <button class="px-4 py-2 bg-gray-100 text-gray-700 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
         Safety
-    </button>
-    <button @click="selectedCategory = 'system'"
-            :class="selectedCategory === 'system' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
-        System
     </button>
 </div>
 
@@ -127,65 +83,54 @@ sort($categories);
 <?php else: ?>
     <!-- Announcements List -->
     <div class="space-y-4">
-        <template x-for="announcement in filteredAnnouncements" :key="announcement.id">
-            <div class="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
-                <div class="p-6">
-                    <div class="flex items-start gap-4">
-                        <!-- Pin Icon -->
-                        <div class="flex-shrink-0 mt-1">
-                            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
-                            </svg>
-                        </div>
+        <?php foreach ($activeAnnouncements as $announcement): ?>
+        <div class="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors">
+            <div class="p-6">
+                <div class="flex items-start gap-4">
+                    <!-- Pin Icon -->
+                    <div class="flex-shrink-0 mt-1">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                        </svg>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div class="flex-1 min-w-0">
+                        <!-- Title -->
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2"><?= htmlspecialchars($announcement['title']) ?></h3>
                         
-                        <!-- Content -->
-                        <div class="flex-1 min-w-0">
-                            <!-- Title -->
-                            <h3 class="text-lg font-semibold text-gray-900 mb-2" x-text="announcement.title"></h3>
-                            
-                            <!-- Description -->
-                            <p class="text-gray-600 text-sm leading-relaxed mb-4" x-text="announcement.content"></p>
-                            
-                            <!-- Date -->
-                            <div class="flex items-center text-xs text-gray-500">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                <span x-text="new Date(announcement.date_created).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })"></span>
-                            </div>
-                        </div>
+                        <!-- Description -->
+                        <p class="text-gray-600 text-sm leading-relaxed mb-4"><?= htmlspecialchars($announcement['content']) ?></p>
                         
-                        <!-- Right Side Tags and Arrow -->
-                        <div class="flex items-center gap-2">
-                            <!-- Priority Badge -->
-                            <template x-if="announcement.pinned">
-                                <span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">High</span>
-                            </template>
-                            
-                            <!-- Category Tag -->
-                            <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded capitalize" x-text="announcement.category"></span>
-                            
-                            <!-- Arrow -->
-                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        <!-- Date -->
+                        <div class="flex items-center text-xs text-gray-500">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
+                            <span><?= date('M j, Y', strtotime($announcement['date_created'])) ?></span>
                         </div>
+                    </div>
+                    
+                    <!-- Right Side Tags and Arrow -->
+                    <div class="flex items-center gap-2">
+                        <!-- Priority Badge -->
+                        <?php if ($announcement['pinned']): ?>
+                            <span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">High</span>
+                        <?php endif; ?>
+                        
+                        <!-- Category Tag -->
+                        <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded capitalize"><?= htmlspecialchars($announcement['category']) ?></span>
+                        
+                        <!-- Arrow -->
+                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
                     </div>
                 </div>
             </div>
-        </template>
+        </div>
+        <?php endforeach; ?>
     </div>
-
-    <!-- Empty State -->
-    <div x-show="filteredAnnouncements.length === 0" class="text-center py-12">
-        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-        </svg>
-        <h3 class="mt-2 text-sm font-medium text-gray-900">No announcements found</h3>
-        <p class="mt-1 text-sm text-gray-500">Try adjusting your search or filter criteria.</p>
-    </div>
-
-</div>
 <?php endif; ?>
 
 <?php require __DIR__.'/includes/footer.php'; ?>
