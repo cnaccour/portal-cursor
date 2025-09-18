@@ -191,6 +191,11 @@ function announcementManager() {
             const result = await response.json();
             
             if (result.success) {
+                // Upload pending attachments for new announcements
+                if (this.modalMode === 'add' && result.announcement && this.attachments.length > 0) {
+                    await this.uploadPendingFiles(result.announcement.id);
+                }
+                
                 alert(result.message);
                 window.location.reload();
             } else {
@@ -403,6 +408,25 @@ function announcementManager() {
         },
         
         // Utility Functions
+        async uploadPendingFiles(announcementId) {
+            const pendingFiles = this.attachments.filter(att => att.pending && att.file);
+            
+            if (pendingFiles.length === 0) return;
+            
+            this.uploadingFiles = true;
+            
+            try {
+                for (const attachment of pendingFiles) {
+                    await this.uploadSingleFile(attachment.file, announcementId);
+                }
+            } catch (error) {
+                console.error('Error uploading pending files:', error);
+                alert('Some attachments could not be uploaded: ' + error.message);
+            } finally {
+                this.uploadingFiles = false;
+            }
+        },
+
         formatFileSize(bytes) {
             if (bytes === 0) return '0 Bytes';
             const k = 1024;
