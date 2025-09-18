@@ -59,12 +59,12 @@ sort($categories);
         <input type="text" 
                x-model="searchTerm"
                placeholder="Search announcements..."
-               class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent" style="--tw-ring-color: #AF831A;"
+               class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
     </div>
     
     <!-- Filter Dropdown -->
     <div class="relative">
-        <button class="flex items-center gap-2 px-4 py-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2" style="--tw-ring-color: #AF831A;"
+        <button class="flex items-center gap-2 px-4 py-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707v4.586a1 1 0 01-.293.707l-2 2A1 1 0 0110 21v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
             </svg>
@@ -152,7 +152,7 @@ sort($categories);
                         
                         <!-- Attachment Indicator -->
                         <?php if (!empty($announcement['attachments']) && count($announcement['attachments']) > 0): ?>
-                            <div class="flex items-center gap-1 px-2 py-1 text-xs font-medium rounded" style="background-color: #FEF3E2; color: #8B5A00;" title="<?= count($announcement['attachments']) ?> attachment(s)"
+                            <div class="flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded" title="<?= count($announcement['attachments']) ?> attachment(s)">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
                                 </svg>

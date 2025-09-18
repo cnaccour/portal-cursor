@@ -32,7 +32,7 @@ $message = '';
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-2xl font-semibold">Announcement Management</h1>
         <button @click="openAddModal()" 
-                class="px-4 py-2 text-white rounded-lg hover:opacity-90 transition-colors" style="background-color: #AF831A;"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
             <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
@@ -61,7 +61,7 @@ $message = '';
                 <p class="mt-1 text-sm text-gray-500">Get started by creating your first announcement.</p>
                 <div class="mt-6">
                     <button @click="openAddModal()" 
-                            class="px-4 py-2 text-white rounded-lg hover:opacity-90 transition-colors" style="background-color: #AF831A;"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
                         Add Announcement
                     </button>
                 </div>
@@ -163,7 +163,7 @@ $message = '';
                                 <?php else: ?>
                                     <div class="flex space-x-2">
                                         <button @click="openEditModal(<?= htmlspecialchars(json_encode($announcement), ENT_QUOTES) ?>)"
-                                                class="hover:opacity-75" style="color: #AF831A;"
+                                                class="text-blue-600 hover:text-blue-900">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                             </svg>
@@ -249,7 +249,7 @@ $message = '';
                             <div class="flex items-center pt-8">
                                 <input type="checkbox" id="pinned" name="pinned" value="1"
                                        x-model="formData.pinned"
-                                       class="h-4 w-4 border-gray-300 rounded" style="color: #AF831A; --tw-ring-color: #AF831A;"
+                                       class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
                                 <label for="pinned" class="ml-2 block text-sm text-gray-700">Pin announcement</label>
                             </div>
                         </div>
@@ -277,7 +277,7 @@ $message = '';
                                 <svg class="w-8 h-8 text-gray-400 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
                                 </svg>
-                                <p class="text-sm text-gray-600">Drop files here or <span class="font-medium" style="color: #AF831A;">click to upload</span></p>
+                                <p class="text-sm text-gray-600">Drop files here or <span class="text-blue-600 font-medium">click to upload</span></p>
                                 <p class="text-xs text-gray-500 mt-1">PDF, Word, Excel, Images (max 10MB each)</p>
                             </div>
                             
@@ -291,8 +291,8 @@ $message = '';
                                 <template x-for="(file, index) in attachments" :key="index">
                                     <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                                         <div class="flex items-center space-x-3">
-                                            <div class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: #FEF3E2;">
-                                                <svg class="w-4 h-4" style="color: #AF831A;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                                 </svg>
                                             </div>
@@ -313,13 +313,13 @@ $message = '';
                             
                             <!-- Upload Progress -->
                             <div x-show="uploadingFiles" class="mt-2">
-                                <div class="rounded-lg p-3" style="background-color: #FEF3E2; border: 1px solid #F4D7A7;">
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
                                     <div class="flex items-center">
-                                        <svg class="animate-spin w-4 h-4 mr-2" style="color: #AF831A;" fill="none" viewBox="0 0 24 24">
+                                        <svg class="animate-spin w-4 h-4 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24">
                                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                         </svg>
-                                        <span class="text-sm" style="color: #8B5A00;">Uploading files...</span>
+                                        <span class="text-sm text-blue-700">Uploading files...</span>
                                     </div>
                                 </div>
                             </div>
@@ -333,7 +333,7 @@ $message = '';
                             Cancel
                         </button>
                         <button type="submit" 
-                                class="px-4 py-2 text-sm font-medium text-white rounded-lg hover:opacity-90" style="background-color: #AF831A;"
+                                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg">
                             <span x-text="modalMode === 'add' ? 'Create Announcement' : 'Update Announcement'"></span>
                         </button>
                     </div>
@@ -345,9 +345,9 @@ $message = '';
 </div>
 
 <!-- Information Note -->
-<div class="mt-6 rounded-xl p-4" style="background-color: #FEF3E2; border: 1px solid #F4D7A7;">
-    <h3 class="font-semibold mb-2" style="color: #8B5A00;">Announcement Management</h3>
-    <p class="text-sm" style="color: #A0621A;">
+<div class="mt-6 bg-blue-50 border border-blue-200 rounded-xl p-4">
+    <h3 class="font-semibold text-blue-800 mb-2">Announcement Management</h3>
+    <p class="text-sm text-blue-700">
         All current announcements are editable. You can create, edit, and delete announcements through this interface. 
         The rich text editor supports formatting, links, lists, and basic styling.
     </p>
