@@ -1,6 +1,5 @@
 <?php
-require __DIR__.'/../includes/auth.php';
-require_login(); // Users must be logged in to download attachments
+// No authentication required for downloading attachments since announcements are public
 
 $announcementId = $_GET['announcement_id'] ?? '';
 $filename = $_GET['filename'] ?? '';
@@ -15,7 +14,7 @@ if (empty($announcementId) || empty($filename)) {
 $safeAnnouncementId = preg_replace('/[^a-zA-Z0-9-_]/', '', $announcementId);
 $safeFilename = preg_replace('/[^a-zA-Z0-9-_\.]/', '', $filename);
 
-$filePath = __DIR__.'/../storage/attachments/'.$safeAnnouncementId.'/'.$safeFilename;
+$filePath = __DIR__.'/../../attachments/'.$safeAnnouncementId.'/'.$safeFilename;
 
 // Check if file exists
 if (!file_exists($filePath)) {

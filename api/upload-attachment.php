@@ -68,8 +68,8 @@ if (!in_array($mimeType, $allowedMimeTypes)) {
     exit;
 }
 
-// Create directory for this announcement
-$attachmentDir = __DIR__.'/../storage/attachments/'.preg_replace('/[^a-zA-Z0-9-_]/', '', $announcementId);
+// Create directory for this announcement outside web root
+$attachmentDir = __DIR__.'/../../attachments/'.preg_replace('/[^a-zA-Z0-9-_]/', '', $announcementId);
 if (!is_dir($attachmentDir)) {
     if (!mkdir($attachmentDir, 0755, true)) {
         http_response_code(500);
@@ -95,6 +95,51 @@ if (!move_uploaded_file($file['tmp_name'], $filePath)) {
     exit;
 }
 
+// Update announcement metadata to include new attachment
+$dynamicFile = __DIR__.'/../storage/dynamic-announcements.json';
+if (file_exists($dynamicFile)) {
+    $content = file_get_contents($dynamicFile);
+    if ($content) {
+        $dynamicAnnouncements = json_decode($content, true) ?: [];
+        
+        // Find the announcement and update its attachments
+        foreach ($dynamicAnnouncements as &$announcement) {
+            if ($announcement['id'] === $announcementId) {
+                // Rebuild attachments list by scanning directory
+                $attachmentScanDir = __DIR__.'/../../attachments/'.$announcementId;
+                $attachments = [];
+                if (is_dir($attachmentScanDir)) {
+                    $files = scandir($attachmentScanDir);
+                    foreach ($files as $file) {
+                        if ($file !== '.' && $file !== '..' && is_file($attachmentScanDir.'/'.$file)) {
+                            $parts = explode('_', $file, 2);
+                            $originalNameFromFile = isset($parts[1]) ? $parts[1] : $file;
+                            $filePathForScan = $attachmentScanDir.'/'.$file;
+                            
+                            $attachments[] = [
+                                'filename' => $file,
+                                'original_name' => $originalNameFromFile,
+                                'file_size' => filesize($filePathForScan),
+                                'mime_type' => mime_content_type($filePathForScan),
+                                'upload_date' => date('Y-m-d H:i:s', filemtime($filePathForScan))
+                            ];
+                        }
+                    }
+                }
+                $announcement['attachments'] = $attachments;
+                break;
+            }
+        }
+        unset($announcement);
+        
+        // Save updated announcements atomically
+        $tempFile = $dynamicFile . '.tmp';
+        if (file_put_contents($tempFile, json_encode($dynamicAnnouncements, JSON_PRETTY_PRINT), LOCK_EX) !== false) {
+            rename($tempFile, $dynamicFile);
+        }
+    }
+}
+
 // Return file metadata
 echo json_encode([
     'success' => true,
@@ -103,7 +148,7 @@ echo json_encode([
         'original_name' => $originalName,
         'file_size' => $file['size'],
         'mime_type' => $mimeType,
-        'uploaded_date' => date('Y-m-d H:i:s')
+        'upload_date' => date('Y-m-d H:i:s')
     ]
 ]);
 ?>

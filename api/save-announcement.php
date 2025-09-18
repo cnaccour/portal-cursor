@@ -108,6 +108,29 @@ if ($mode === 'add') {
     $announcementData['id'] = 'dynamic-' . uniqid();
     $announcementData['date_created'] = date('Y-m-d');
     
+    // Scan for existing attachments for new announcements
+    $attachmentDir = __DIR__.'/../../attachments/'.$announcementData['id'];
+    if (is_dir($attachmentDir)) {
+        $attachments = [];
+        $files = scandir($attachmentDir);
+        foreach ($files as $file) {
+            if ($file !== '.' && $file !== '..' && is_file($attachmentDir.'/'.$file)) {
+                $parts = explode('_', $file, 2);
+                $originalName = isset($parts[1]) ? $parts[1] : $file;
+                $filePath = $attachmentDir.'/'.$file;
+                
+                $attachments[] = [
+                    'filename' => $file,
+                    'original_name' => $originalName,
+                    'file_size' => filesize($filePath),
+                    'mime_type' => mime_content_type($filePath),
+                    'upload_date' => date('Y-m-d H:i:s', filemtime($filePath))
+                ];
+            }
+        }
+        $announcementData['attachments'] = $attachments;
+    }
+    
     // Add to dynamic announcements
     $dynamicAnnouncements[] = $announcementData;
     
@@ -121,10 +144,32 @@ if ($mode === 'add') {
     $found = false;
     foreach ($dynamicAnnouncements as &$announcement) {
         if ($announcement['id'] === $announcementId) {
-            // Preserve original creation date, ID, and existing attachments
+            // Preserve original creation date and ID
             $announcementData['id'] = $announcement['id'];
             $announcementData['date_created'] = $announcement['date_created'];
-            $announcementData['attachments'] = $announcement['attachments'] ?? [];
+            
+            // Scan for current attachments
+            $attachmentDir = __DIR__.'/../../attachments/'.$announcementId;
+            $attachments = [];
+            if (is_dir($attachmentDir)) {
+                $files = scandir($attachmentDir);
+                foreach ($files as $file) {
+                    if ($file !== '.' && $file !== '..' && is_file($attachmentDir.'/'.$file)) {
+                        $parts = explode('_', $file, 2);
+                        $originalName = isset($parts[1]) ? $parts[1] : $file;
+                        $filePath = $attachmentDir.'/'.$file;
+                        
+                        $attachments[] = [
+                            'filename' => $file,
+                            'original_name' => $originalName,
+                            'file_size' => filesize($filePath),
+                            'mime_type' => mime_content_type($filePath),
+                            'upload_date' => date('Y-m-d H:i:s', filemtime($filePath))
+                        ];
+                    }
+                }
+            }
+            $announcementData['attachments'] = $attachments;
             
             // Update the announcement
             $announcement = $announcementData;
