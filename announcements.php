@@ -25,7 +25,20 @@ $categories = array_unique(array_column($activeAnnouncements, 'category'));
 sort($categories);
 ?>
 
-<div x-data="{ selectedCategory: 'all', searchTerm: '' }">
+<div x-data="{ 
+    selectedCategory: 'all', 
+    searchTerm: '',
+    modalOpen: false,
+    selectedAnnouncement: null,
+    openModal(announcement) {
+        this.selectedAnnouncement = announcement;
+        this.modalOpen = true;
+    },
+    closeModal() {
+        this.modalOpen = false;
+        this.selectedAnnouncement = null;
+    }
+}">
 
 <!-- Search and Filter Header -->
 <div class="flex gap-4 mb-6">
@@ -80,10 +93,11 @@ sort($categories);
     <!-- Announcements List -->
     <div class="space-y-4">
         <?php foreach ($activeAnnouncements as $announcement): ?>
-        <div class="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors announcement-item"
+        <div class="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors announcement-item cursor-pointer"
              data-category="<?= strtolower($announcement['category']) ?>"
              data-search="<?= strtolower($announcement['title'] . ' ' . $announcement['content']) ?>"
              x-show="(selectedCategory === 'all' || selectedCategory === $el.dataset.category) && (searchTerm === '' || $el.dataset.search.includes(searchTerm.toLowerCase()))"
+             @click="openModal(<?= htmlspecialchars(json_encode($announcement), ENT_QUOTES) ?>)"
              style="display: block">
             <div class="p-6">
                 <div class="flex items-start gap-4">
@@ -101,8 +115,15 @@ sort($categories);
                         <!-- Title -->
                         <h3 class="text-lg font-semibold text-gray-900 mb-2"><?= htmlspecialchars($announcement['title']) ?></h3>
                         
-                        <!-- Description -->
-                        <p class="text-gray-600 text-sm leading-relaxed mb-4"><?= htmlspecialchars($announcement['content']) ?></p>
+                        <!-- Description (Excerpt) -->
+                        <p class="text-gray-600 text-sm leading-relaxed mb-4">
+                            <?php 
+                            $excerpt = strlen($announcement['content']) > 150 
+                                ? substr($announcement['content'], 0, 150) . '...' 
+                                : $announcement['content'];
+                            echo htmlspecialchars($excerpt);
+                            ?>
+                        </p>
                         
                         <!-- Date -->
                         <div class="flex items-center text-xs text-gray-500">
@@ -134,6 +155,101 @@ sort($categories);
         <?php endforeach; ?>
     </div>
 <?php endif; ?>
+
+<!-- Modal for Full Announcement -->
+<div x-show="modalOpen" 
+     x-transition:enter="transition ease-out duration-300"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-200"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     class="fixed inset-0 z-50 overflow-y-auto"
+     style="display: none;">
+    
+    <!-- Background overlay -->
+    <div class="fixed inset-0 bg-black bg-opacity-50" @click="closeModal()"></div>
+    
+    <!-- Modal panel -->
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div x-show="modalOpen"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform scale-100"
+             x-transition:leave-end="opacity-0 transform scale-95"
+             class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <div class="flex items-center gap-3">
+                    <!-- Pin Icon -->
+                    <template x-if="selectedAnnouncement && selectedAnnouncement.pinned">
+                        <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                        </svg>
+                    </template>
+                    
+                    <!-- Title -->
+                    <h2 class="text-xl font-semibold text-gray-900" x-text="selectedAnnouncement?.title"></h2>
+                </div>
+                
+                <!-- Close button -->
+                <button @click="closeModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Modal Body -->
+            <div class="p-6">
+                <!-- Announcement metadata -->
+                <div class="flex items-center gap-4 mb-4 text-sm text-gray-500">
+                    <!-- Date -->
+                    <div class="flex items-center gap-1">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span x-text="selectedAnnouncement && new Date(selectedAnnouncement.date_created).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })"></span>
+                    </div>
+                    
+                    <!-- Category -->
+                    <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded capitalize" x-text="selectedAnnouncement?.category"></span>
+                    
+                    <!-- Priority -->
+                    <template x-if="selectedAnnouncement && selectedAnnouncement.pinned">
+                        <span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">High Priority</span>
+                    </template>
+                </div>
+                
+                <!-- Full content -->
+                <div class="prose prose-sm max-w-none">
+                    <p class="text-gray-700 leading-relaxed whitespace-pre-line" x-text="selectedAnnouncement?.content"></p>
+                </div>
+                
+                <!-- Expiration notice if applicable -->
+                <template x-if="selectedAnnouncement && selectedAnnouncement.expiration_date">
+                    <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p class="text-yellow-800 text-sm">
+                            <strong>Note:</strong> This announcement expires on 
+                            <span x-text="new Date(selectedAnnouncement.expiration_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })"></span>
+                        </p>
+                    </div>
+                </template>
+            </div>
+            
+            <!-- Modal Footer -->
+            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+                <button @click="closeModal()" 
+                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 </div>
 
