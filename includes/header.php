@@ -26,7 +26,6 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
       <?php if (!empty($_SESSION['user_id'])): ?>
         <a href="/dashboard.php" class="hover:underline">Dashboard</a>
         <a href="/forms.php" class="hover:underline">Forms</a>
-        <a href="/reports.php" class="hover:underline">Reports</a>
         
         <!-- User Account Dropdown -->
         <div class="relative" x-data="{ open: false }">
@@ -54,15 +53,36 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             
             <?php if (has_role('admin')): ?>
             <!-- Admin Tools -->
-            <a href="/admin.php" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
-              <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
-              </svg>
-              Admin Tools
-              <svg class="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-              </svg>
-            </a>
+            <div class="relative" x-data="{ submenuOpen: false }">
+              <button @mouseenter="submenuOpen = true" @mouseleave="submenuOpen = false"
+                      class="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                </svg>
+                Admin Tools
+                <svg class="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </button>
+              
+              <!-- Admin Submenu -->
+              <div x-show="submenuOpen" @mouseenter="submenuOpen = true" @mouseleave="submenuOpen = false"
+                   x-transition 
+                   class="absolute left-full top-0 ml-1 w-48 bg-white rounded-lg shadow-lg border py-2 z-50">
+                <a href="/reports.php" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                  <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                  Reports
+                </a>
+                <a href="/admin.php" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                  <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                  </svg>
+                  User Management
+                </a>
+              </div>
+            </div>
             <?php endif; ?>
             
             <!-- Sign Out -->
