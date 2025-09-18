@@ -19,6 +19,7 @@ function announcementManager() {
         attachments: [],
         uploadingFiles: false,
         quillEditor: null,
+        editorTimeout: null,
         
         // Modal Management
         openAddModal() {
@@ -68,15 +69,30 @@ function announcementManager() {
         
         // Rich Text Editor Management
         initializeEditor() {
-            setTimeout(() => {
+            // Clear any existing timeouts to prevent race conditions
+            if (this.editorTimeout) {
+                clearTimeout(this.editorTimeout);
+            }
+            
+            this.editorTimeout = setTimeout(() => {
                 this.initQuillEditor();
-            }, 150);
+            }, 200);
         },
         
         destroyEditor() {
+            // Clear timeout if pending
+            if (this.editorTimeout) {
+                clearTimeout(this.editorTimeout);
+                this.editorTimeout = null;
+            }
+            
             if (this.quillEditor) {
                 try {
-                    delete this.quillEditor;
+                    // Properly destroy Quill instance
+                    const container = document.getElementById('content-editor');
+                    if (container) {
+                        container.innerHTML = '';
+                    }
                     this.quillEditor = null;
                 } catch (e) {
                     console.log('Error destroying editor:', e);
@@ -85,55 +101,83 @@ function announcementManager() {
         },
         
         initQuillEditor() {
-            this.destroyEditor();
+            // Prevent double initialization
+            if (this.quillEditor) {
+                return;
+            }
             
-            setTimeout(() => {
-                const container = document.getElementById('content-editor');
-                if (container && !this.quillEditor) {
-                    this.prepareEditorContainer(container);
-                    this.createQuillInstance();
-                    this.setupEditorContent();
-                    this.bindEditorEvents();
-                }
-            }, 100);
+            const container = document.getElementById('content-editor');
+            if (!container) {
+                console.log('Editor container not found');
+                return;
+            }
+            
+            this.prepareEditorContainer(container);
+            this.createQuillInstance();
+            this.setupEditorContent();
+            this.bindEditorEvents();
         },
         
         prepareEditorContainer(container) {
+            // Clear any existing content and Quill instances
             container.innerHTML = '';
-            const existingQuill = container.querySelector('.ql-container');
-            if (existingQuill) {
-                container.innerHTML = '';
-            }
-        },
-        
-        createQuillInstance() {
-            this.quillEditor = new Quill('#content-editor', {
-                theme: 'snow',
-                modules: {
-                    toolbar: [
-                        [{ 'header': [1, 2, 3, false] }],
-                        ['bold', 'italic', 'underline'],
-                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                        ['link'],
-                        ['clean']
-                    ]
+            
+            // Remove any stray Quill instances
+            const existingQuillInstances = document.querySelectorAll('.ql-container');
+            existingQuillInstances.forEach(instance => {
+                if (instance.closest('#content-editor')) {
+                    instance.remove();
                 }
             });
         },
         
+        createQuillInstance() {
+            try {
+                this.quillEditor = new Quill('#content-editor', {
+                    theme: 'snow',
+                    modules: {
+                        toolbar: [
+                            [{ 'header': [1, 2, 3, false] }],
+                            ['bold', 'italic', 'underline'],
+                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                            ['link'],
+                            ['clean']
+                        ]
+                    }
+                });
+            } catch (error) {
+                console.error('Error creating Quill instance:', error);
+                this.quillEditor = null;
+            }
+        },
+        
         setupEditorContent() {
-            if (this.modalMode === 'edit' && this.formData.content) {
-                this.quillEditor.root.innerHTML = this.formData.content;
-            } else {
-                this.quillEditor.root.innerHTML = '';
-                this.formData.content = '';
+            if (!this.quillEditor) return;
+            
+            try {
+                if (this.modalMode === 'edit' && this.formData.content) {
+                    this.quillEditor.root.innerHTML = this.formData.content;
+                } else {
+                    this.quillEditor.root.innerHTML = '';
+                    this.formData.content = '';
+                }
+            } catch (error) {
+                console.error('Error setting up editor content:', error);
             }
         },
         
         bindEditorEvents() {
-            this.quillEditor.on('text-change', () => {
-                this.formData.content = this.quillEditor.root.innerHTML;
-            });
+            if (!this.quillEditor) return;
+            
+            try {
+                this.quillEditor.on('text-change', () => {
+                    if (this.quillEditor) {
+                        this.formData.content = this.quillEditor.root.innerHTML;
+                    }
+                });
+            } catch (error) {
+                console.error('Error binding editor events:', error);
+            }
         },
         
         // Form Submission
