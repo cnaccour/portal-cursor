@@ -193,56 +193,116 @@ sort($allUsers);
   </div>
 </div>
 
-<!-- Reports List -->
+<!-- Modern Mobile-First Reports List -->
 <?php if (empty($filteredReports)): ?>
-  <div class="bg-white rounded-xl border p-8 text-center">
-    <p class="text-gray-500">No reports found matching your criteria.</p>
-    <?php if ($filterLocation || $filterUser): ?>
-      <a href="?sort=<?= htmlspecialchars($sortBy) ?>" class="mt-2 inline-block hover:underline" style="color: #AF831A;">
-        Clear filters to see all reports
-      </a>
-    <?php endif; ?>
+  <div class="bg-white rounded-md border p-8 text-center">
+    <div class="max-w-sm mx-auto">
+      <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      </svg>
+      <p class="text-gray-500 text-lg font-medium mb-2">No reports found</p>
+      <p class="text-sm text-gray-400 mb-4">No shift reports match your current search criteria.</p>
+      <?php if ($filterLocation || $filterUser || $searchQuery): ?>
+        <a href="?sort=<?= htmlspecialchars($sortBy) ?>" 
+           class="inline-flex items-center px-4 py-2 rounded-md text-sm font-medium text-white transition-colors" 
+           style="background-color: #AF831A;" 
+           onmouseover="this.style.backgroundColor='#8B6914'" 
+           onmouseout="this.style.backgroundColor='#AF831A'">
+          Clear filters to see all reports
+        </a>
+      <?php endif; ?>
+    </div>
   </div>
 <?php else: ?>
-  <div class="space-y-3">
+  <div class="space-y-4">
     <?php foreach ($filteredReports as $report): ?>
-      <div class="bg-white rounded-xl border p-4 hover:border-gray-300 transition-colors">
-        <div class="flex justify-between items-start">
-          <div class="flex-grow">
-            <div class="flex items-center gap-4 mb-2">
-              <h3 class="font-semibold"><?= htmlspecialchars($report['user']) ?></h3>
-              <span class="px-2 py-1 text-xs rounded text-white" style="background-color: #AF831A;">
-                <?= ucfirst(htmlspecialchars($report['shift_type'] ?? 'Morning')) ?> Shift
-              </span>
-              <span class="text-sm text-gray-600"><?= htmlspecialchars($report['shift_date']) ?></span>
-              <span class="text-sm text-gray-500"><?= htmlspecialchars($report['location']) ?></span>
+      <div class="bg-white rounded-md border hover:border-gray-300 transition-all duration-200 overflow-hidden">
+        <!-- Header Section -->
+        <div class="p-4 border-b bg-gray-50">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <!-- User and Date Info -->
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+              <h3 class="text-lg font-semibold text-gray-900"><?= htmlspecialchars($report['user']) ?></h3>
+              <div class="flex items-center gap-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-white" 
+                      style="background-color: #AF831A;">
+                  <?= ucfirst(htmlspecialchars($report['shift_type'] ?? 'Morning')) ?> Shift
+                </span>
+                <span class="text-sm text-gray-600 font-medium"><?= htmlspecialchars($report['shift_date']) ?></span>
+              </div>
             </div>
             
-            <div class="text-sm text-gray-600 space-x-4">
-              <span>Reviews: <?= htmlspecialchars($report['reviews']) ?></span>
-              <span>Checklist: <?= count(array_filter($report['checklist'] ?? [])) ?> items</span>
-              <?php if (!empty($report['refunds']) && is_array($report['refunds'])): ?>
-                <span>Refunds: <?= count($report['refunds']) ?></span>
-              <?php endif; ?>
-              <?php if (!empty($report['shipments']['status']) && $report['shipments']['status'] === 'yes'): ?>
-                <span class="text-black">✓ Shipments</span>
-              <?php endif; ?>
+            <!-- Location -->
+            <div class="flex items-center text-sm text-gray-500">
+              <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              </svg>
+              <?= htmlspecialchars($report['location']) ?>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Content Section -->
+        <div class="p-4">
+          <!-- Quick Stats Row -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+            <div class="text-center p-3 bg-gray-50 rounded-md">
+              <div class="text-lg font-semibold text-gray-900"><?= htmlspecialchars($report['reviews'] ?? '0') ?></div>
+              <div class="text-xs text-gray-500 font-medium">Reviews</div>
             </div>
             
-            <div class="text-xs text-gray-400 mt-1">
-              Submitted: <?= htmlspecialchars($report['time']) ?>
+            <div class="text-center p-3 bg-gray-50 rounded-md">
+              <div class="text-lg font-semibold text-gray-900"><?= count(array_filter($report['checklist'] ?? [])) ?></div>
+              <div class="text-xs text-gray-500 font-medium">Checklist Items</div>
+            </div>
+            
+            <?php if (!empty($report['refunds']) && is_array($report['refunds'])): ?>
+              <div class="text-center p-3 bg-red-50 rounded-md">
+                <div class="text-lg font-semibold text-red-600"><?= count($report['refunds']) ?></div>
+                <div class="text-xs text-red-500 font-medium">Refunds</div>
+              </div>
+            <?php else: ?>
+              <div class="text-center p-3 bg-green-50 rounded-md">
+                <div class="text-lg font-semibold text-green-600">0</div>
+                <div class="text-xs text-green-500 font-medium">Refunds</div>
+              </div>
+            <?php endif; ?>
+            
+            <div class="text-center p-3 rounded-md <?= (!empty($report['shipments']['status']) && $report['shipments']['status'] === 'yes') ? 'bg-green-50' : 'bg-gray-50' ?>">
+              <div class="text-lg font-semibold <?= (!empty($report['shipments']['status']) && $report['shipments']['status'] === 'yes') ? 'text-green-600' : 'text-gray-400' ?>">
+                <?= (!empty($report['shipments']['status']) && $report['shipments']['status'] === 'yes') ? '✓' : '—' ?>
+              </div>
+              <div class="text-xs font-medium <?= (!empty($report['shipments']['status']) && $report['shipments']['status'] === 'yes') ? 'text-green-500' : 'text-gray-500' ?>">Shipments</div>
             </div>
           </div>
           
-          <div class="flex flex-col gap-2">
+          <!-- Action Buttons -->
+          <div class="flex flex-col sm:flex-row gap-3">
             <a href="/reports/view.php?id=<?= $report['id'] ?>" 
-               class="px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors text-center">
-              View Details
+               class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+              </svg>
+              View Full Details
             </a>
+            
             <button onclick="printReport(<?= $report['id'] ?>)" 
-                    class="px-3 py-1 text-sm bg-black text-white hover:bg-gray-800 rounded-r-md transition-colors font-medium">
-              Print
+                    class="flex-1 inline-flex items-center justify-center px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-black hover:bg-gray-800 transition-colors">
+              <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+              </svg>
+              Print Report
             </button>
+          </div>
+          
+          <!-- Metadata Footer -->
+          <div class="mt-4 pt-3 border-t flex items-center text-xs text-gray-400">
+            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Submitted: <?= htmlspecialchars($report['time']) ?>
           </div>
         </div>
       </div>
