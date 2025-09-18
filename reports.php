@@ -92,7 +92,7 @@ sort($allUsers);
                  name="search" 
                  value="<?= htmlspecialchars($searchQuery) ?>"
                  placeholder="Search reports..." 
-                 class="w-full border rounded-l-lg px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                 class="w-full border rounded-l-lg px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2" style="--tw-ring-color: #AF831A;"
           <svg class="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
           </svg>
@@ -168,7 +168,7 @@ sort($allUsers);
   <div class="bg-white rounded-xl border p-8 text-center">
     <p class="text-gray-500">No reports found matching your criteria.</p>
     <?php if ($filterLocation || $filterUser): ?>
-      <a href="?sort=<?= htmlspecialchars($sortBy) ?>" class="text-blue-600 hover:underline mt-2 inline-block">
+      <a href="?sort=<?= htmlspecialchars($sortBy) ?>" class="hover:underline mt-2 inline-block hover:opacity-75" style="color: #AF831A;"
         Clear filters to see all reports
       </a>
     <?php endif; ?>
@@ -181,7 +181,7 @@ sort($allUsers);
           <div class="flex-grow">
             <div class="flex items-center gap-4 mb-2">
               <h3 class="font-semibold"><?= htmlspecialchars($report['user']) ?></h3>
-              <span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+              <span class="px-2 py-1 text-xs rounded" style="background-color: #FEF3E2; color: #8B5A00;"
                 <?= ucfirst(htmlspecialchars($report['shift_type'] ?? 'Morning')) ?> Shift
               </span>
               <span class="text-sm text-gray-600"><?= htmlspecialchars($report['shift_date']) ?></span>

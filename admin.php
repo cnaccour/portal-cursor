@@ -80,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
                                 <?php 
                                 switch ($user['role']) {
                                     case 'admin': echo 'bg-red-100 text-red-800'; break;
-                                    case 'manager': echo 'bg-blue-100 text-blue-800'; break;
+                                    case 'manager': echo 'bg-orange-100 text-orange-800'; break;
                                     case 'support': echo 'bg-green-100 text-green-800'; break;
                                     case 'staff': echo 'bg-gray-100 text-gray-800'; break;
                                     default: echo 'bg-gray-100 text-gray-600';
