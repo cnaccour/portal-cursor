@@ -19,11 +19,13 @@ $message = '';
 
 <div x-data="announcementManager()">
 
-    <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-semibold">Announcement Management</h1>
+    <!-- Mobile-First Header -->
+    <div class="mb-6">
+        <h1 class="text-2xl font-semibold mb-4">Announcement Management</h1>
         <button @click="openAddModal()" 
-                class="px-4 py-2 text-white rounded-md transition-colors" style="background-color: #AF831A;" onmouseover="this.style.backgroundColor='#8B6914'" onmouseout="this.style.backgroundColor='#AF831A'">
-            <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                class="w-full sm:w-auto px-4 py-3 text-white rounded-md transition-colors flex items-center justify-center gap-2 font-medium" 
+                style="background-color: #AF831A;" onmouseover="this.style.backgroundColor='#8B6914'" onmouseout="this.style.backgroundColor='#AF831A'">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
             Add New Announcement
@@ -35,147 +37,122 @@ $message = '';
         <div class="mb-6"></div>
     <?php endif; ?>
 
-    <!-- Announcements Table -->
-    <div class="bg-white rounded-xl border overflow-hidden">
-        <div class="p-6 border-b">
-            <h2 class="text-lg font-semibold">All Announcements</h2>
-            <p class="text-sm text-gray-600 mt-1">Manage your salon announcements and notifications.</p>
-        </div>
-        
+    <!-- Mobile-First Announcements Cards -->
+    <div class="space-y-4">
         <?php if (empty($allAnnouncements)): ?>
-            <div class="p-12 text-center">
-                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
-                </svg>
-                <h3 class="mt-2 text-sm font-medium text-gray-900">No announcements</h3>
-                <p class="mt-1 text-sm text-gray-500">Get started by creating your first announcement.</p>
-                <div class="mt-6">
+            <div class="bg-white rounded-md border p-8 text-center">
+                <div class="max-w-sm mx-auto">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
+                    </svg>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">No announcements</h3>
+                    <p class="text-sm text-gray-500 mb-4">Get started by creating your first announcement to communicate with your team.</p>
                     <button @click="openAddModal()" 
-                            class="px-4 py-2 text-white rounded-md transition-colors" style="background-color: #AF831A;" onmouseover="this.style.backgroundColor='#8B6914'" onmouseout="this.style.backgroundColor='#AF831A'">
-                        Add Announcement
+                            class="inline-flex items-center px-4 py-2 text-white rounded-md transition-colors font-medium" 
+                            style="background-color: #AF831A;" onmouseover="this.style.backgroundColor='#8B6914'" onmouseout="this.style.backgroundColor='#AF831A'">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Add Your First Announcement
                     </button>
                 </div>
             </div>
         <?php else: ?>
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Announcement
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Category
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Status
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Date
-                            </th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Actions
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        <?php foreach ($allAnnouncements as $index => $announcement): ?>
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4">
-                                <div class="flex items-start">
-                                    <?php if ($announcement['pinned']): ?>
-                                        <svg class="w-4 h-4 text-red-500 mr-2 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                                            <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
-                                        </svg>
-                                    <?php endif; ?>
-                                    <div>
-                                        <div class="text-sm font-medium text-gray-900"><?= htmlspecialchars($announcement['title']) ?></div>
-                                        <div class="text-sm text-gray-500 mt-1">
-                                            <?php 
-                                            // Strip HTML tags for preview and show plain text
-                                            $plainContent = strip_tags($announcement['content']);
-                                            $preview = strlen($plainContent) > 80 ? substr($plainContent, 0, 80) . '...' : $plainContent;
-                                            echo htmlspecialchars($preview);
-                                            ?>
-                                        </div>
-                                    </div>
+            <?php foreach ($allAnnouncements as $index => $announcement): ?>
+                <div class="bg-white rounded-md border hover:border-gray-300 transition-all duration-200 overflow-hidden">
+                    <!-- Header Section -->
+                    <div class="p-4 border-b bg-gray-50">
+                        <div class="flex items-start justify-between gap-3">
+                            <!-- Left: Title and Pin -->
+                            <div class="flex items-start gap-2 flex-1 min-w-0">
+                                <?php if ($announcement['pinned']): ?>
+                                    <svg class="w-4 h-4 text-red-500 mt-1 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                                    </svg>
+                                <?php endif; ?>
+                                <div class="min-w-0 flex-1">
+                                    <h3 class="text-lg font-semibold text-gray-900 truncate"><?= htmlspecialchars($announcement['title']) ?></h3>
+                                    <p class="text-sm text-gray-600 mt-1 line-clamp-2">
+                                        <?php 
+                                        $plainContent = strip_tags($announcement['content']);
+                                        $preview = strlen($plainContent) > 100 ? substr($plainContent, 0, 100) . '...' : $plainContent;
+                                        echo htmlspecialchars($preview);
+                                        ?>
+                                    </p>
                                 </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800 capitalize">
-                                    <?= htmlspecialchars($announcement['category']) ?>
+                            </div>
+                            
+                            <!-- Right: Category -->
+                            <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800 capitalize shrink-0">
+                                <?= htmlspecialchars($announcement['category']) ?>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <!-- Content Section -->
+                    <div class="p-4">
+                        <!-- Status and Date Info -->
+                        <div class="flex flex-wrap items-center gap-2 mb-4">
+                            <?php if ($announcement['pinned']): ?>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                    📌 Pinned
                                 </span>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="flex flex-col space-y-1">
-                                    <?php if ($announcement['pinned']): ?>
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                            Pinned
-                                        </span>
-                                    <?php endif; ?>
-                                    <?php 
-                                    $isExpired = !empty($announcement['expiration_date']) && strtotime($announcement['expiration_date']) < time();
-                                    $isExpiring = !empty($announcement['expiration_date']) && strtotime($announcement['expiration_date']) < strtotime('+7 days');
-                                    ?>
-                                    <?php if ($isExpired): ?>
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                            Expired
-                                        </span>
-                                    <?php elseif ($isExpiring): ?>
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                            Expiring Soon
-                                        </span>
-                                    <?php else: ?>
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-black text-white">
-                                            Active
-                                        </span>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                <div><?= date('M j, Y', strtotime($announcement['date_created'])) ?></div>
-                                <?php if (!empty($announcement['expiration_date'])): ?>
-                                    <div class="text-xs text-gray-400">Expires: <?= date('M j, Y', strtotime($announcement['expiration_date'])) ?></div>
-                                <?php endif; ?>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <?php 
-                                // For now, all announcements are editable (we'll add truly static ones later)
-                                $isStatic = false;
-                                ?>
-                                <?php if ($isStatic): ?>
-                                    <span class="px-2 py-1 text-xs bg-gray-100 text-gray-500 rounded">
-                                        <svg class="w-3 h-3 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
-                                        </svg>
-                                        Locked
-                                    </span>
-                                <?php else: ?>
-                                    <div class="flex space-x-2">
-                                        <button @click="openEditModal(<?= htmlspecialchars(json_encode($announcement), ENT_QUOTES) ?>)"
-                                                style="color: #AF831A;" onmouseover="this.style.color='#8B6914'" onmouseout="this.style.color='#AF831A'">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                            </svg>
-                                        </button>
-                                        <button @click="deleteAnnouncement('<?= htmlspecialchars($announcement['id']) ?>')"
-                                                class="text-red-600 hover:text-red-900">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
+                            <?php endif; ?>
+                            
+                            <?php 
+                            $isExpired = !empty($announcement['expiration_date']) && strtotime($announcement['expiration_date']) < time();
+                            $isExpiring = !empty($announcement['expiration_date']) && strtotime($announcement['expiration_date']) < strtotime('+7 days');
+                            ?>
+                            <?php if ($isExpired): ?>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-600">
+                                    ⏰ Expired
+                                </span>
+                            <?php elseif ($isExpiring): ?>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                    ⚠️ Expiring Soon
+                                </span>
+                            <?php else: ?>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-black text-white">
+                                    ✅ Active
+                                </span>
+                            <?php endif; ?>
+                            
+                            <span class="text-xs text-gray-500">
+                                Created: <?= date('M j, Y', strtotime($announcement['date_created'])) ?>
+                            </span>
+                            
+                            <?php if (!empty($announcement['expiration_date'])): ?>
+                                <span class="text-xs text-gray-500">
+                                    Expires: <?= date('M j, Y', strtotime($announcement['expiration_date'])) ?>
+                                </span>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <!-- Actions -->
+                        <div class="flex flex-col sm:flex-row gap-3">
+                            <button @click="openEditModal(<?= htmlspecialchars(json_encode($announcement), ENT_QUOTES) ?>)"
+                                    class="w-full sm:flex-1 inline-flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Edit Announcement
+                            </button>
+                            
+                            <button @click="deleteAnnouncement('<?= htmlspecialchars($announcement['id']) ?>')"
+                                    class="w-full sm:flex-1 inline-flex items-center justify-center px-4 py-2 border border-red-300 rounded-md text-sm font-medium text-red-700 bg-red-50 hover:bg-red-100 transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                                Delete Announcement
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
         <?php endif; ?>
     </div>
 
-    <!-- Add/Edit Modal -->
+    <!-- Add/Edit Modal - Mobile Optimized -->
     <div x-show="showModal" 
          class="fixed inset-0 z-50 overflow-y-auto"
          style="display: none;">
@@ -184,13 +161,13 @@ $message = '';
         <div class="fixed inset-0 bg-black bg-opacity-50" @click="closeModal()"></div>
         
         <!-- Modal panel -->
-        <div class="flex items-center justify-center min-h-screen p-4">
-            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative z-10">
+        <div class="flex items-start justify-center min-h-screen p-2 sm:p-4 sm:pt-6">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[95vh] overflow-y-auto relative z-10">
                 
                 <!-- Modal Header -->
-                <div class="flex items-center justify-between p-6 border-b border-gray-200">
+                <div class="sticky top-0 bg-white flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 rounded-t-lg">
                     <h3 class="text-lg font-semibold text-gray-900" x-text="modalMode === 'add' ? 'Add New Announcement' : 'Edit Announcement'"></h3>
-                    <button @click="closeModal()" class="text-gray-400 hover:text-gray-600">
+                    <button @click="closeModal()" class="text-gray-400 hover:text-gray-600 p-1 rounded-md hover:bg-gray-100">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
@@ -198,7 +175,7 @@ $message = '';
                 </div>
                 
                 <!-- Modal Body -->
-                <form @submit.prevent="submitForm" class="p-6">
+                <form @submit.prevent="submitForm" class="p-4 sm:p-6">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <input type="hidden" name="mode" x-model="modalMode">
                     <input type="hidden" name="announcement_id" :value="selectedAnnouncement ? selectedAnnouncement.id : ''">
@@ -219,29 +196,26 @@ $message = '';
                             <textarea id="content" name="content" x-model="formData.content" class="hidden" required></textarea>
                         </div>
                         
-                        <!-- Category and Pin Status -->
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                                <select id="category" name="category" required
-                                        x-model="formData.category"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="--tw-ring-color: #AF831A;" focus:border-transparent">
-                                    <option value="general">General</option>
-                                    <option value="system">System</option>
-                                    <option value="training">Training</option>
-                                    <option value="schedule">Schedule</option>
-                                    <option value="policy">Policy</option>
-                                    <option value="events">Events</option>
-                                    <option value="safety">Safety</option>
-                                </select>
-                            </div>
-                            
-                            <div class="flex items-center pt-8">
-                                <input type="checkbox" id="pinned" name="pinned" value="1"
-                                       x-model="formData.pinned"
-                                       class="h-4 w-4 border-gray-300 rounded" style="color: #AF831A; --tw-ring-color: #AF831A;">
-                                <label for="pinned" class="ml-2 block text-sm text-gray-700">Pin announcement</label>
-                            </div>
+                        <!-- Category -->
+                        <div>
+                            <label for="category" class="block text-sm font-medium text-gray-700 mb-2">Category</label>
+                            <select id="category" name="category" required
+                                    x-model="formData.category"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2" style="--tw-ring-color: #AF831A;">
+                                <?php foreach ($categories as $category): ?>
+                                    <option value="<?= htmlspecialchars($category) ?>" class="capitalize">
+                                        <?= htmlspecialchars(ucfirst($category)) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+                        
+                        <!-- Pin Status -->
+                        <div class="flex items-center">
+                            <input type="checkbox" id="pinned" name="pinned" value="1"
+                                   x-model="formData.pinned"
+                                   class="h-4 w-4 border-gray-300 rounded" style="color: #AF831A; --tw-ring-color: #AF831A;">
+                            <label for="pinned" class="ml-2 block text-sm text-gray-700">Pin this announcement to the top</label>
                         </div>
                         
                         <!-- Expiration Date -->
@@ -316,16 +290,19 @@ $message = '';
                         </div>
                     </div>
                     
-                    <!-- Modal Footer -->
-                    <div class="flex justify-end space-x-3 mt-6 pt-6 border-t border-gray-200">
-                        <button type="button" @click="closeModal()" 
-                                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md">
-                            Cancel
-                        </button>
-                        <button type="submit" 
-                                class="px-4 py-2 text-sm font-medium text-white rounded-md" style="background-color: #AF831A;" onmouseover="this.style.backgroundColor='#8B6914'" onmouseout="this.style.backgroundColor='#AF831A'">
-                            <span x-text="modalMode === 'add' ? 'Create Announcement' : 'Update Announcement'"></span>
-                        </button>
+                    <!-- Modal Footer - Mobile Friendly -->
+                    <div class="sticky bottom-0 bg-white border-t border-gray-200 p-4 sm:p-6 rounded-b-lg">
+                        <div class="flex flex-col sm:flex-row gap-3 sm:justify-end">
+                            <button type="button" @click="closeModal()" 
+                                    class="w-full sm:w-auto px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
+                                Cancel
+                            </button>
+                            <button type="submit" 
+                                    class="w-full sm:w-auto px-4 py-2 text-sm font-medium text-white rounded-md transition-colors" 
+                                    style="background-color: #AF831A;" onmouseover="this.style.backgroundColor='#8B6914'" onmouseout="this.style.backgroundColor='#AF831A'">
+                                <span x-text="modalMode === 'add' ? 'Create Announcement' : 'Update Announcement'"></span>
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
