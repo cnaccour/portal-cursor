@@ -211,7 +211,7 @@ $message = '';
                 <form @submit.prevent="submitForm" class="p-6">
                     <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                     <input type="hidden" name="mode" x-model="modalMode">
-                    <input type="hidden" name="announcement_id" x-model="selectedAnnouncement?.id">
+                    <input type="hidden" name="announcement_id" :value="selectedAnnouncement ? selectedAnnouncement.id : ''">
                     
                     <div class="space-y-6">
                         <!-- Title -->
@@ -430,50 +430,56 @@ function announcementManager() {
             // Destroy any existing editor first
             if (this.quillEditor) {
                 try {
-                    const container = document.getElementById('content-editor');
-                    if (container) {
-                        container.innerHTML = '';
-                    }
+                    // Properly destroy the Quill instance
+                    delete this.quillEditor;
                     this.quillEditor = null;
                 } catch (e) {
                     console.log('Error cleaning up previous editor:', e);
                 }
             }
             
-            // Wait for DOM to be ready
-            const container = document.getElementById('content-editor');
-            if (container) {
-                // Clear any existing content
-                container.innerHTML = '';
-                
-                // Create new Quill instance
-                this.quillEditor = new Quill('#content-editor', {
-                    theme: 'snow',
-                    modules: {
-                        toolbar: [
-                            [{ 'header': [1, 2, 3, false] }],
-                            ['bold', 'italic', 'underline'],
-                            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                            ['link'],
-                            ['clean']
-                        ]
+            // Wait for DOM to be ready and ensure container exists
+            setTimeout(() => {
+                const container = document.getElementById('content-editor');
+                if (container && !this.quillEditor) {
+                    // Clear any existing content completely
+                    container.innerHTML = '';
+                    
+                    // Remove any existing Quill instances from this container
+                    const existingQuill = container.querySelector('.ql-container');
+                    if (existingQuill) {
+                        container.innerHTML = '';
                     }
-                });
-                
-                // Set initial content (only for edit mode)
-                if (this.modalMode === 'edit' && this.formData.content) {
-                    this.quillEditor.root.innerHTML = this.formData.content;
-                } else {
-                    // For add mode, ensure content is empty
-                    this.quillEditor.root.innerHTML = '';
-                    this.formData.content = '';
+                    
+                    // Create new Quill instance
+                    this.quillEditor = new Quill('#content-editor', {
+                        theme: 'snow',
+                        modules: {
+                            toolbar: [
+                                [{ 'header': [1, 2, 3, false] }],
+                                ['bold', 'italic', 'underline'],
+                                [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                                ['link'],
+                                ['clean']
+                            ]
+                        }
+                    });
+                    
+                    // Set initial content (only for edit mode)
+                    if (this.modalMode === 'edit' && this.formData.content) {
+                        this.quillEditor.root.innerHTML = this.formData.content;
+                    } else {
+                        // For add mode, ensure content is empty
+                        this.quillEditor.root.innerHTML = '';
+                        this.formData.content = '';
+                    }
+                    
+                    // Update formData when editor content changes
+                    this.quillEditor.on('text-change', () => {
+                        this.formData.content = this.quillEditor.root.innerHTML;
+                    });
                 }
-                
-                // Update formData when editor content changes
-                this.quillEditor.on('text-change', () => {
-                    this.formData.content = this.quillEditor.root.innerHTML;
-                });
-            }
+            }, 100);
         },
         
         async submitForm() {
@@ -583,7 +589,7 @@ function announcementManager() {
             }
             
             // If we're editing, upload files immediately
-            if (this.modalMode === 'edit' && this.selectedAnnouncement?.id) {
+            if (this.modalMode === 'edit' && this.selectedAnnouncement && this.selectedAnnouncement.id) {
                 await this.uploadFiles(files, this.selectedAnnouncement.id);
             } else {
                 // For new announcements, just add to pending list
