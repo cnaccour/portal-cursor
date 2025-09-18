@@ -126,26 +126,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     </p>
 </div>
 
-<div class="mt-8">
-    <h2 class="text-lg font-semibold mb-4">Role Descriptions</h2>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="bg-white rounded-xl border p-4">
-            <h3 class="font-medium text-red-800 mb-2">Administrator</h3>
-            <p class="text-sm text-gray-600">Full system access, can manage users, announcements, and all features.</p>
-        </div>
-        <div class="bg-white rounded-xl border p-4">
-            <h3 class="font-medium text-blue-800 mb-2">Manager</h3>
-            <p class="text-sm text-gray-600">Location management, staff oversight, and operational controls.</p>
-        </div>
-        <div class="bg-white rounded-xl border p-4">
-            <h3 class="font-medium text-green-800 mb-2">Support</h3>
-            <p class="text-sm text-gray-600">Customer support functions and limited administrative access.</p>
-        </div>
-        <div class="bg-white rounded-xl border p-4">
-            <h3 class="font-medium text-gray-800 mb-2">Staff</h3>
-            <p class="text-sm text-gray-600">Basic access to shift reporting and standard features.</p>
-        </div>
-    </div>
-</div>
 
 <?php require __DIR__.'/includes/footer.php'; ?>
