@@ -99,7 +99,8 @@ $announcementData = [
     'pinned' => isset($_POST['pinned']) && $_POST['pinned'] === '1',
     'priority' => isset($_POST['pinned']) && $_POST['pinned'] === '1' ? 1 : 2,
     'expiration_date' => !empty($_POST['expiration_date']) ? $_POST['expiration_date'] : null,
-    'date_modified' => date('Y-m-d H:i:s')
+    'date_modified' => date('Y-m-d H:i:s'),
+    'attachments' => []
 ];
 
 if ($mode === 'add') {
@@ -120,9 +121,10 @@ if ($mode === 'add') {
     $found = false;
     foreach ($dynamicAnnouncements as &$announcement) {
         if ($announcement['id'] === $announcementId) {
-            // Preserve original creation date and ID
+            // Preserve original creation date, ID, and existing attachments
             $announcementData['id'] = $announcement['id'];
             $announcementData['date_created'] = $announcement['date_created'];
+            $announcementData['attachments'] = $announcement['attachments'] ?? [];
             
             // Update the announcement
             $announcement = $announcementData;
