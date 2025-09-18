@@ -92,7 +92,7 @@ sort($allUsers);
                  name="search" 
                  value="<?= htmlspecialchars($searchQuery) ?>"
                  placeholder="Search reports..." 
-                 class="w-full border rounded-l-lg px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                 class="w-full border rounded-l-md px-4 py-2 pl-10 text-sm focus:outline-none focus:ring-2" style="--tw-ring-color: #AF831A;">
           <svg class="absolute left-3 top-2.5 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
           </svg>
@@ -210,7 +210,7 @@ sort($allUsers);
               View Details
             </a>
             <button onclick="printReport(<?= $report['id'] ?>)" 
-                    class="px-3 py-1 text-sm bg-black text-white hover:bg-gray-800 rounded-lg transition-colors font-medium">
+                    class="px-3 py-1 text-sm bg-black text-white hover:bg-gray-800 rounded-r-md transition-colors font-medium">
               Print
             </button>
           </div>

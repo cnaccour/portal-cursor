@@ -59,12 +59,12 @@ sort($categories);
         <input type="text" 
                x-model="searchTerm"
                placeholder="Search announcements..."
-               class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+               class="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:border-transparent" style="--tw-ring-color: #AF831A;">
     </div>
     
     <!-- Filter Dropdown -->
     <div class="relative">
-        <button class="flex items-center gap-2 px-4 py-3 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <button class="flex items-center gap-2 px-4 py-3 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2" style="--tw-ring-color: #AF831A;">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707v4.586a1 1 0 01-.293.707l-2 2A1 1 0 0110 21v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
             </svg>
@@ -80,7 +80,7 @@ sort($categories);
 <div class="flex gap-2 mb-6 overflow-x-auto">
     <button @click="selectedCategory = 'all'"
             :class="selectedCategory === 'all' ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            class="px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap">
+            class="px-4 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap">
         All
     </button>
     <?php foreach ($categories as $category): ?>
