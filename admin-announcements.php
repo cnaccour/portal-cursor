@@ -286,7 +286,12 @@ $message = '';
                                     <div>
                                         <div class="text-sm font-medium text-gray-900"><?= htmlspecialchars($announcement['title']) ?></div>
                                         <div class="text-sm text-gray-500 mt-1">
-                                            <?= htmlspecialchars(strlen($announcement['content']) > 80 ? substr($announcement['content'], 0, 80) . '...' : $announcement['content']) ?>
+                                            <?php 
+                                            // Strip HTML tags for preview and show plain text
+                                            $plainContent = strip_tags($announcement['content']);
+                                            $preview = strlen($plainContent) > 80 ? substr($plainContent, 0, 80) . '...' : $plainContent;
+                                            echo htmlspecialchars($preview);
+                                            ?>
                                         </div>
                                     </div>
                                 </div>

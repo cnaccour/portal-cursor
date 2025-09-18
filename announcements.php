@@ -116,14 +116,16 @@ sort($categories);
                         <h3 class="text-lg font-semibold text-gray-900 mb-2"><?= htmlspecialchars($announcement['title']) ?></h3>
                         
                         <!-- Description (Excerpt) -->
-                        <p class="text-gray-600 text-sm leading-relaxed mb-4">
+                        <div class="text-gray-600 text-sm leading-relaxed mb-4">
                             <?php 
-                            $excerpt = strlen($announcement['content']) > 150 
-                                ? substr($announcement['content'], 0, 150) . '...' 
-                                : $announcement['content'];
+                            // For excerpts, strip HTML tags and show plain text
+                            $plainContent = strip_tags($announcement['content']);
+                            $excerpt = strlen($plainContent) > 150 
+                                ? substr($plainContent, 0, 150) . '...' 
+                                : $plainContent;
                             echo htmlspecialchars($excerpt);
                             ?>
-                        </p>
+                        </div>
                         
                         <!-- Date -->
                         <div class="flex items-center text-xs text-gray-500">
@@ -213,7 +215,7 @@ sort($categories);
                 
                 <!-- Full content -->
                 <div class="prose prose-sm max-w-none">
-                    <p class="text-gray-700 leading-relaxed whitespace-pre-line" x-text="selectedAnnouncement?.content"></p>
+                    <div class="text-gray-700 leading-relaxed" x-html="selectedAnnouncement?.content"></div>
                 </div>
                 
                 <!-- Expiration notice if applicable -->
