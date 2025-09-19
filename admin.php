@@ -250,7 +250,10 @@ $deleted_count = count(array_filter($deleted_users, fn($u) => isset($u['status']
                                 
                                 <div x-show="open" x-cloak x-transition 
                                      class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1 z-50">
-                                    <a href="#" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">Reset Password</a>
+                                    <button onclick="showResetPasswordModal(<?= $user['id'] ?>, '<?= htmlspecialchars($user['name']) ?>')" 
+                                            class="w-full text-left px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                                        Reset Password
+                                    </button>
                                     <div class="border-t my-1"></div>
                                     <?php if ($user['id'] != $_SESSION['user_id']): ?>
                                     <button onclick="deleteUser(<?= $user['id'] ?>, '<?= htmlspecialchars($user['name']) ?>')" 
@@ -755,6 +758,135 @@ document.addEventListener('DOMContentLoaded', function() {
     
     if (showDeleted === '1') {
         document.getElementById('viewDeletedBtn').textContent = 'View Active';
+    }
+});
+</script>
+
+<!-- Reset Password Modal -->
+<div id="resetPasswordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeResetPasswordModal()">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="bg-white rounded-lg max-w-md w-full p-6" onclick="event.stopPropagation()">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Reset Password</h3>
+            <p class="text-sm text-gray-600 mb-4">
+                Enter a new password for <span id="resetUserName" class="font-medium"></span>
+            </p>
+            
+            <form id="resetPasswordForm" onsubmit="resetPassword(event)">
+                <div class="mb-4">
+                    <label for="newPassword" class="block text-sm font-medium text-gray-700 mb-2">
+                        New Password
+                    </label>
+                    <input 
+                        type="password" 
+                        id="newPassword" 
+                        name="newPassword"
+                        required
+                        minlength="6"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Enter new password (min 6 characters)"
+                    >
+                </div>
+                
+                <div class="mb-6">
+                    <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">
+                        Confirm Password
+                    </label>
+                    <input 
+                        type="password" 
+                        id="confirmPassword" 
+                        name="confirmPassword"
+                        required
+                        minlength="6"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        placeholder="Confirm new password"
+                    >
+                </div>
+                
+                <div class="flex gap-3 justify-end">
+                    <button 
+                        type="button" 
+                        onclick="closeResetPasswordModal()"
+                        class="px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        type="submit" 
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                        Reset Password
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentResetUserId = null;
+
+function showResetPasswordModal(userId, userName) {
+    currentResetUserId = userId;
+    document.getElementById('resetUserName').textContent = userName;
+    document.getElementById('resetPasswordModal').classList.remove('hidden');
+    document.getElementById('newPassword').focus();
+}
+
+function closeResetPasswordModal() {
+    document.getElementById('resetPasswordModal').classList.add('hidden');
+    document.getElementById('resetPasswordForm').reset();
+    currentResetUserId = null;
+}
+
+async function resetPassword(event) {
+    event.preventDefault();
+    
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+    
+    // Validate password match
+    if (newPassword !== confirmPassword) {
+        alert('Passwords do not match. Please try again.');
+        return;
+    }
+    
+    // Validate password strength
+    if (newPassword.length < 6) {
+        alert('Password must be at least 6 characters long.');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/users/reset-password.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: currentResetUserId,
+                new_password: newPassword,
+                csrf_token: window.csrfToken
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Password reset successfully!');
+            closeResetPasswordModal();
+        } else {
+            alert('Error: ' + (data.error || 'Failed to reset password'));
+        }
+    } catch (error) {
+        console.error('Reset password error:', error);
+        alert('An error occurred while resetting the password.');
+    }
+}
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeResetPasswordModal();
     }
 });
 </script>
