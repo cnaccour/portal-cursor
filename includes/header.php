@@ -14,6 +14,8 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
   <style>
     [x-cloak] { display: none !important; }
+    .notification-dropdown { display: none; }
+    .notification-dropdown.show { display: flex; }
   </style>
   
   <?php if (!empty($_SESSION['user_id'])): ?>
@@ -212,7 +214,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         <div class="w-px h-4 bg-gray-300 mx-2"></div>
         
         <!-- Notification Bell -->
-        <div class="relative" x-data="notificationBell()" @click.outside="open = false">
+        <div class="relative" x-data="notificationBell()" @click.outside="open = false" x-init="open = false">
           <button @click="toggleDropdown()" 
                   class="relative flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors">
             <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -225,7 +227,8 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
           </button>
           
           <div x-show="open" x-cloak x-transition 
-               class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border py-2 z-50 max-h-96 overflow-hidden flex flex-col">
+               :class="{'show': open}"
+               class="notification-dropdown absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border py-2 z-50 max-h-96 overflow-hidden flex-col">
             <!-- Header -->
             <div class="px-4 py-3 border-b">
               <div class="flex items-center justify-between">
