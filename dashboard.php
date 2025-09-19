@@ -36,7 +36,7 @@ require __DIR__.'/includes/header.php';
     <div class="bg-white rounded-xl border shadow-sm">
       <div class="p-4 border-b border-gray-100">
         <div class="flex items-center justify-between">
-          <h3 class="font-semibold text-gray-900">Recent Reports with Refunds</h3>
+          <h3 class="font-semibold text-gray-900">Recent Shift Reports</h3>
           <a href="/reports.php" class="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1">
             View All
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -49,24 +49,20 @@ require __DIR__.'/includes/header.php';
         <?php
         require_once __DIR__ . '/includes/shift-report-manager.php';
         $shiftManager = ShiftReportManager::getInstance();
-        // Filter reports to only show those with refunds ≥1
-        $allReports = $shiftManager->getShiftReports(['limit' => 20]);
-        $reportsWithRefunds = array_values(array_filter($allReports, function($report) {
-          return !empty($report['refunds']) && is_array($report['refunds']) && count($report['refunds']) >= 1;
-        }));
-        $recentReports = array_slice($reportsWithRefunds, 0, 5);
+        // Get the latest 5 reports
+        $recentReports = $shiftManager->getShiftReports(['limit' => 5]);
         
         if (empty($recentReports)) {
           echo "<div class='text-center py-8 text-gray-500'>";
           echo "<svg class='w-12 h-12 mx-auto mb-3 text-gray-300' fill='none' stroke='currentColor' viewBox='0 0 24 24'>";
           echo "<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z'></path>";
           echo "</svg>";
-          echo "<p>No reports with refunds yet</p>";
+          echo "<p>No shift reports yet</p>";
           echo "</div>";
         } else {
           echo "<div class='space-y-3'>";
           foreach ($recentReports as $row) {
-            $refundCount = count($row['refunds']);
+            $refundCount = !empty($row['refunds']) && is_array($row['refunds']) ? count($row['refunds']) : 0;
             echo "<div class='flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors'>";
             echo "<div class='flex-1 min-w-0'>";
             echo "<div class='flex items-center gap-2'>";
@@ -76,9 +72,11 @@ require __DIR__.'/includes/header.php';
             echo "</div>";
             echo "<div class='flex items-center gap-3 text-xs text-gray-600 mt-1'>";
             echo "<span>📍 " . htmlspecialchars($row['location']) . "</span>";
-            echo "<span class='px-2 py-1 bg-orange-100 text-orange-800 rounded-full font-medium'>";
-            echo "💳 {$refundCount} refund" . ($refundCount > 1 ? 's' : '') . "";
-            echo "</span>";
+            if ($refundCount > 0) {
+              echo "<span class='px-2 py-1 bg-orange-100 text-orange-800 rounded-full font-medium'>";
+              echo "💳 {$refundCount} refund" . ($refundCount > 1 ? 's' : '') . "";
+              echo "</span>";
+            }
             echo "</div>";
             echo "</div>";
             echo "<a href='/reports/view.php?id=" . htmlspecialchars($row['id'], ENT_QUOTES) . "' class='ml-3 px-3 py-1 text-xs font-medium rounded-md border border-gray-300 hover:bg-gray-50 transition-colors'>";
