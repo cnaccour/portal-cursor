@@ -14,7 +14,6 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
   <style>
     [x-cloak] { display: none !important; }
-    .notification-dropdown-hidden { display: none !important; }
   </style>
   
   <?php if (!empty($_SESSION['user_id'])): ?>
@@ -32,7 +31,6 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         pollInterval: null,
         
         init() {
-          console.log('NotificationBell initialized');
           this.fetchNotifications();
           this.startPolling();
         },
@@ -65,12 +63,10 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
               throw new Error(`HTTP ${response.status}`);
             }
             const data = await response.json();
-            console.log('Notifications response:', data);
             
             if (data.success) {
               this.notifications = data.notifications || [];
               this.unreadCount = data.unread_count || 0;
-              console.log('Loaded notifications:', this.notifications.length);
             } else {
               console.error('Failed to fetch notifications:', data.error);
             }
@@ -229,7 +225,6 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
           </button>
           
           <div x-show="open" x-cloak x-transition 
-               :class="open ? '' : 'notification-dropdown-hidden'"
                class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border py-2 z-50 max-h-96 overflow-hidden flex flex-col">
             <!-- Header -->
             <div class="px-4 py-3 border-b">
