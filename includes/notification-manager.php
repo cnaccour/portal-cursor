@@ -376,10 +376,10 @@ class NotificationManager {
             global $pdo;
             
             // Insert notification
-            $stmt = $pdo->prepare(\"
+            $stmt = $pdo->prepare("
                 INSERT INTO notifications (type, title, message, link_url, icon, target_roles, created_by, expires_at)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            \");
+            ");
             
             $stmt->execute([
                 $notification_data['type'] ?? 'general',
@@ -396,7 +396,7 @@ class NotificationManager {
             
             // Get users with these roles and create user_notifications
             $placeholders = str_repeat('?,', count($roles) - 1) . '?';
-            $stmt = $pdo->prepare(\"SELECT id FROM users WHERE role IN ($placeholders)\");
+            $stmt = $pdo->prepare("SELECT id FROM users WHERE role IN ($placeholders)");
             $stmt->execute($roles);
             $user_ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
             
