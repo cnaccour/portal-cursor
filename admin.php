@@ -86,7 +86,7 @@ $deleted_count = count(array_filter($deleted_users, fn($u) => isset($u['status']
                 <p class="text-sm text-gray-600 mt-1">Manage user accounts, roles, and permissions.</p>
             </div>
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <button class="px-4 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base">
+                <button onclick="openInviteModal()" class="px-4 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
@@ -299,12 +299,98 @@ $deleted_count = count(array_filter($deleted_users, fn($u) => isset($u['status']
             <button class="w-full text-left px-3 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
                 📊 View User Activity Logs
             </button>
-            <button class="w-full text-left px-3 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+            <button onclick="showInvitationsTab()" class="w-full text-left px-3 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
                 📧 Manage Pending Invitations
             </button>
             <button class="w-full text-left px-3 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
                 🔐 Configure Role Permissions
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- Invite User Modal -->
+<div id="inviteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4">
+        <div class="p-6 border-b">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-semibold text-gray-900">Invite New User</h3>
+                <button onclick="closeInviteModal()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <form id="inviteForm" class="p-6">
+            <div class="space-y-4">
+                <div>
+                    <label for="inviteEmail" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                    <input type="email" id="inviteEmail" name="email" required
+                           class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="user@example.com">
+                </div>
+                
+                <div>
+                    <label for="inviteRole" class="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                    <select id="inviteRole" name="role" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Select a role...</option>
+                        <option value="viewer">Viewer - Read-only access</option>
+                        <option value="staff">Staff Member - Basic access</option>
+                        <option value="support">Support Specialist - Customer support functions</option>
+                        <option value="manager">Manager - Location and staff management</option>
+                        <option value="admin">Administrator - Full system access</option>
+                    </select>
+                </div>
+                
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div class="flex">
+                        <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                        </svg>
+                        <div>
+                            <p class="text-sm text-blue-800 font-medium">Invitation Details</p>
+                            <p class="text-xs text-blue-700 mt-1">The user will receive an email with a secure link to complete their registration. The invitation will expire in 7 days.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3 mt-6">
+                <button type="button" onclick="closeInviteModal()" 
+                        class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">
+                    Cancel
+                </button>
+                <button type="submit" 
+                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                    Send Invitation
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Invitations Management Section (Hidden by default) -->
+<div id="invitationsSection" class="hidden mt-6">
+    <div class="bg-white rounded-xl border">
+        <div class="p-4 sm:p-6 border-b">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-lg font-semibold text-gray-900">Pending Invitations</h2>
+                    <p class="text-sm text-gray-600 mt-1">Manage sent invitations and track their status.</p>
+                </div>
+                <button onclick="hideInvitationsTab()" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <div id="invitationsList" class="divide-y">
+            <!-- Invitations will be loaded here -->
         </div>
     </div>
 </div>
@@ -406,6 +492,245 @@ function toggleUserStatus(userId, newStatus) {
         showNotification('An error occurred while updating user status.', 'error');
     });
 }
+
+// Invitation Management Functions
+function openInviteModal() {
+    document.getElementById('inviteModal').classList.remove('hidden');
+    document.getElementById('inviteEmail').focus();
+}
+
+function closeInviteModal() {
+    document.getElementById('inviteModal').classList.add('hidden');
+    document.getElementById('inviteForm').reset();
+}
+
+function showInvitationsTab() {
+    document.getElementById('invitationsSection').classList.remove('hidden');
+    loadInvitations();
+    
+    // Scroll to invitations section
+    document.getElementById('invitationsSection').scrollIntoView({ 
+        behavior: 'smooth' 
+    });
+}
+
+function hideInvitationsTab() {
+    document.getElementById('invitationsSection').classList.add('hidden');
+}
+
+function loadInvitations() {
+    fetch('/api/invitations/list-invitations.php')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                displayInvitations(data.invitations);
+            } else {
+                showNotification('Failed to load invitations: ' + data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading invitations:', error);
+            showNotification('An error occurred while loading invitations.', 'error');
+        });
+}
+
+function displayInvitations(invitations) {
+    const container = document.getElementById('invitationsList');
+    
+    if (invitations.length === 0) {
+        container.innerHTML = `
+            <div class="p-8 text-center text-gray-500">
+                <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 7.89a2 2 0 002.83 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+                <p class="text-lg font-medium mb-2">No pending invitations</p>
+                <p class="text-sm">All invitations have been accepted or expired.</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const html = invitations.map(invitation => {
+        const expiresAt = new Date(invitation.expires_at);
+        const isExpired = expiresAt < new Date();
+        const statusClass = {
+            'pending': isExpired ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800',
+            'accepted': 'bg-green-100 text-green-800',
+            'expired': 'bg-red-100 text-red-800',
+            'revoked': 'bg-gray-100 text-gray-800'
+        };
+        
+        return `
+            <div class="p-4 sm:p-6 hover:bg-gray-50 transition-colors">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                    <div class="flex-grow">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                            <h3 class="font-semibold text-gray-900">${escapeHtml(invitation.email)}</h3>
+                            <span class="px-2 py-1 text-xs font-medium rounded-full ${statusClass[invitation.status] || 'bg-gray-100 text-gray-600'}">
+                                ${invitation.status.charAt(0).toUpperCase() + invitation.status.slice(1)}
+                            </span>
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+                                ${getRoleDisplayName(invitation.role)}
+                            </span>
+                        </div>
+                        <div class="mt-2 sm:mt-1">
+                            <p class="text-sm text-gray-500">
+                                Invited by ${escapeHtml(invitation.invited_by_name || 'Unknown')} • 
+                                Expires ${formatDate(invitation.expires_at)}
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                        ${invitation.status === 'pending' && !isExpired ? `
+                            <button onclick="copyInvitationLink('${invitation.token}')" 
+                                    class="px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                                Copy Link
+                            </button>
+                            <button onclick="revokeInvitation(${invitation.id}, '${escapeHtml(invitation.email)}')" 
+                                    class="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                                Revoke
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    container.innerHTML = html;
+}
+
+function copyInvitationLink(token) {
+    const domain = window.location.host;
+    const protocol = window.location.protocol;
+    const inviteUrl = `${protocol}//${domain}/signup.php?token=${encodeURIComponent(token)}`;
+    
+    navigator.clipboard.writeText(inviteUrl).then(() => {
+        showNotification('Invitation link copied to clipboard', 'success');
+    }).catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = inviteUrl;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showNotification('Invitation link copied to clipboard', 'success');
+    });
+}
+
+function revokeInvitation(invitationId, email) {
+    if (!confirm(`Are you sure you want to revoke the invitation for ${email}?`)) {
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('invitation_id', invitationId);
+    formData.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
+    
+    fetch('/api/invitations/revoke-invitation.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+            loadInvitations(); // Reload the list
+        } else {
+            showNotification(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred while revoking the invitation.', 'error');
+    });
+}
+
+// Utility functions
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function getRoleDisplayName(role) {
+    const roleNames = {
+        'admin': 'Administrator',
+        'manager': 'Manager',
+        'support': 'Support Specialist',
+        'staff': 'Staff Member',
+        'viewer': 'Viewer'
+    };
+    return roleNames[role] || role.charAt(0).toUpperCase() + role.slice(1);
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = date - now;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays < 0) {
+        return 'Expired';
+    } else if (diffDays === 0) {
+        return 'Today';
+    } else if (diffDays === 1) {
+        return 'Tomorrow';
+    } else {
+        return `in ${diffDays} days`;
+    }
+}
+
+// Handle invite form submission
+document.getElementById('inviteForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    formData.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
+    
+    // Disable submit button
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending...';
+    
+    fetch('/api/invitations/send-invitation.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+            closeInviteModal();
+            
+            // Refresh invitations list if it's visible
+            if (!document.getElementById('invitationsSection').classList.contains('hidden')) {
+                loadInvitations();
+            }
+        } else {
+            showNotification(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred while sending the invitation.', 'error');
+    })
+    .finally(() => {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.textContent = originalText;
+    });
+});
+
+// Close modal when clicking outside
+document.getElementById('inviteModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeInviteModal();
+    }
+});
 
 function showNotification(message, type) {
     // Create notification element
