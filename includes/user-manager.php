@@ -105,6 +105,14 @@ class UserManager {
     }
     
     /**
+     * Reset user password
+     */
+    public static function resetUserPassword($user_id, $new_password, $performed_by = null) {
+        $instance = self::getInstance();
+        return $instance->_resetUserPassword($user_id, $new_password, $performed_by);
+    }
+    
+    /**
      * Create audit log entry
      */
     public static function logUserAction($user_id, $action, $old_value, $new_value, $performed_by) {
@@ -168,6 +176,13 @@ class UserManager {
             return $this->mockUpdateUserStatus($user_id, $new_status, $performed_by);
         }
         return $this->databaseUpdateUserStatus($user_id, $new_status, $performed_by);
+    }
+    
+    private function _resetUserPassword($user_id, $new_password, $performed_by) {
+        if ($this->use_mock) {
+            return $this->mockResetUserPassword($user_id, $new_password, $performed_by);
+        }
+        return $this->databaseResetUserPassword($user_id, $new_password, $performed_by);
     }
     
     // Mock implementations (using existing mock_users)
@@ -299,6 +314,26 @@ class UserManager {
                 $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
                 $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
                 error_log("Mock Audit: User {$user_id} ({$user['email']}) status changed from {$old_status} to {$new_status} by user {$performed_by} from IP {$ip_address} UA: {$user_agent}");
+                return true;
+            }
+        }
+        unset($user); // Break reference
+        return false;
+    }
+    
+    private function mockResetUserPassword($user_id, $new_password, $performed_by) {
+        require_once __DIR__ . '/db.php';
+        global $mock_users;
+        
+        foreach ($mock_users as &$user) {
+            if ($user['id'] == $user_id) {
+                // Hash the new password securely
+                $user['password'] = password_hash($new_password, PASSWORD_DEFAULT);
+                
+                // Comprehensive audit log
+                $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+                $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
+                error_log("Mock Audit: User {$user_id} ({$user['email']}) password reset by user {$performed_by} from IP {$ip_address} UA: {$user_agent}");
                 return true;
             }
         }
@@ -501,6 +536,42 @@ class UserManager {
             return $success;
         } catch (Exception $e) {
             error_log('Database updateUserStatus error: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    private function databaseResetUserPassword($user_id, $new_password, $performed_by) {
+        try {
+            require_once __DIR__ . '/db.php';
+            global $pdo;
+            
+            // Get current user data for audit log
+            $current_user = $this->databaseGetUserById($user_id);
+            if (!$current_user) {
+                return false;
+            }
+            
+            // Hash the new password securely
+            $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+            
+            // Update password
+            $stmt = $pdo->prepare("UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?");
+            $success = $stmt->execute([$hashed_password, $user_id]);
+            
+            if ($success) {
+                // Log the action (without storing the actual password)
+                $this->databaseLogUserAction(
+                    $user_id, 
+                    'password_reset', 
+                    ['action' => 'password_reset_requested'], 
+                    ['action' => 'password_reset_completed'], 
+                    $performed_by
+                );
+            }
+            
+            return $success;
+        } catch (Exception $e) {
+            error_log('Database resetUserPassword error: ' . $e->getMessage());
             return false;
         }
     }
