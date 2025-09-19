@@ -7,6 +7,10 @@
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/invitation-manager.php';
 
+// Set security headers to prevent token leakage
+header('Referrer-Policy: no-referrer');
+header("Content-Security-Policy: default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'");
+
 // Initialize invitation manager
 $invitationManager = InvitationManager::getInstance();
 
@@ -15,6 +19,11 @@ session_start();
 if (isset($_SESSION['user_id'])) {
     header('Location: /dashboard.php');
     exit;
+}
+
+// Generate CSRF token for form
+if (!isset($_SESSION['signup_csrf_token'])) {
+    $_SESSION['signup_csrf_token'] = bin2hex(random_bytes(32));
 }
 
 // Get and validate token
@@ -39,10 +48,16 @@ if (empty($token)) {
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $invitation && empty($error_message)) {
     try {
-        // CSRF protection (basic check for signup form)
+        // CSRF protection 
         $provided_token = $_POST['csrf_token'] ?? '';
-        if (empty($provided_token)) {
+        $session_token = $_SESSION['signup_csrf_token'] ?? '';
+        
+        if (empty($provided_token) || empty($session_token)) {
             throw new InvalidArgumentException('Security token missing. Please refresh and try again.');
+        }
+        
+        if (!hash_equals($session_token, $provided_token)) {
+            throw new InvalidArgumentException('Invalid security token. Please refresh and try again.');
         }
         // Validate input
         $name = trim($_POST['name'] ?? '');
@@ -78,8 +93,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $invitation && empty($error_message
         $_SESSION['user_name'] = $name;
         $_SESSION['user_role'] = $invitation['role'];
         
-        // Generate CSRF token
+        // Generate CSRF token for authenticated session
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        
+        // Clear signup CSRF token
+        unset($_SESSION['signup_csrf_token']);
         
         // Regenerate session ID for security
         session_regenerate_id(true);
@@ -110,10 +128,130 @@ function getRoleDisplayName($role) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
     <title>Complete Your Registration - J. Joseph Salon</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Security: Self-hosted styles to prevent token leakage to CDNs -->
     <style>
+        /* Tailwind CSS Reset and Base Styles */
+        *, ::before, ::after { box-sizing: border-box; border-width: 0; border-style: solid; border-color: #e5e7eb; }
+        ::before, ::after { --tw-content: ''; }
+        html { line-height: 1.5; -webkit-text-size-adjust: 100%; -moz-tab-size: 4; tab-size: 4; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji"; }
+        body { margin: 0; line-height: inherit; }
+        
+        /* Tailwind Utilities - Custom subset for signup page */
+        .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-stops)); }
+        .from-blue-50 { --tw-gradient-from: #eff6ff; --tw-gradient-to: rgb(239 246 255 / 0); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+        .to-indigo-100 { --tw-gradient-to: #e0e7ff; }
+        .min-h-screen { min-height: 100vh; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .py-12 { padding-top: 3rem; padding-bottom: 3rem; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .sm\\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        .lg\\:px-8 { padding-left: 2rem; padding-right: 2rem; }
+        .max-w-md { max-width: 28rem; }
+        .w-full { width: 100%; }
+        .text-center { text-align: center; }
+        .mb-8 { margin-bottom: 2rem; }
+        .mx-auto { margin-left: auto; margin-right: auto; }
+        .h-16 { height: 4rem; }
+        .w-16 { width: 4rem; }
+        .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-stops)); }
+        .from-blue-600 { --tw-gradient-from: #2563eb; --tw-gradient-to: rgb(37 99 235 / 0); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+        .to-purple-600 { --tw-gradient-to: #9333ea; }
+        .rounded-full { border-radius: 9999px; }
+        .mb-4 { margin-bottom: 1rem; }
+        .h-8 { height: 2rem; }
+        .w-8 { width: 2rem; }
+        .text-white { color: rgb(255 255 255); }
+        .text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+        .font-bold { font-weight: 700; }
+        .text-gray-900 { color: rgb(17 24 39); }
+        .text-gray-600 { color: rgb(75 85 99); }
+        .mt-2 { margin-top: 0.5rem; }
+        .bg-white { background-color: rgb(255 255 255); }
+        .rounded-xl { border-radius: 0.75rem; }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1); }
+        .border { border-width: 1px; }
+        .border-red-200 { border-color: rgb(254 202 202); }
+        .p-6 { padding: 1.5rem; }
+        .justify-center { justify-content: center; }
+        .h-12 { height: 3rem; }
+        .w-12 { width: 3rem; }
+        .bg-red-100 { background-color: rgb(254 226 226); }
+        .h-6 { height: 1.5rem; }
+        .w-6 { width: 1.5rem; }
+        .text-red-600 { color: rgb(220 38 38); }
+        .text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+        .font-semibold { font-weight: 600; }
+        .mb-2 { margin-bottom: 0.5rem; }
+        .mb-6 { margin-bottom: 1.5rem; }
+        .text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+        .inline-flex { display: inline-flex; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .bg-gray-600 { background-color: rgb(75 85 99); }
+        .rounded-lg { border-radius: 0.5rem; }
+        .hover\\:bg-gray-700:hover { background-color: rgb(55 65 81); }
+        .transition-colors { transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; }
+        .w-4 { width: 1rem; }
+        .h-4 { height: 1rem; }
+        .mr-2 { margin-right: 0.5rem; }
+        .bg-blue-50 { background-color: rgb(239 246 255); }
+        .border-blue-200 { border-color: rgb(191 219 254); }
+        .mb-3 { margin-bottom: 0.75rem; }
+        .w-5 { width: 1.25rem; }
+        .h-5 { height: 1.25rem; }
+        .text-blue-600 { color: rgb(37 99 235); }
+        .text-blue-800 { color: rgb(30 64 175); }
+        .space-y-2 > * + * { margin-top: 0.5rem; }
+        .justify-between { justify-content: space-between; }
+        .text-blue-700 { color: rgb(29 78 216); }
+        .font-medium { font-weight: 500; }
+        .text-blue-900 { color: rgb(30 58 138); }
+        .space-y-6 > * + * { margin-top: 1.5rem; }
+        .block { display: block; }
+        .text-gray-700 { color: rgb(55 65 81); }
+        .py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+        .px-3 { padding-left: 0.75rem; padding-right: 0.75rem; }
+        .border-gray-300 { border-color: rgb(209 213 219); }
+        .focus\\:ring-2:focus { box-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color); }
+        .focus\\:ring-blue-500:focus { --tw-ring-color: rgb(59 130 246); }
+        .focus\\:border-blue-500:focus { border-color: rgb(59 130 246); }
+        .text-xs { font-size: 0.75rem; line-height: 1rem; }
+        .text-gray-500 { color: rgb(107 114 128); }
+        .mt-1 { margin-top: 0.25rem; }
+        .bg-gray-50 { background-color: rgb(249 250 251); }
+        .border-gray-200 { border-color: rgb(229 231 235); }
+        .items-start { align-items: flex-start; }
+        .mt-0\\.5 { margin-top: 0.125rem; }
+        .mr-3 { margin-right: 0.75rem; }
+        .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)); }
+        .hover\\:from-blue-700:hover { --tw-gradient-from: #1d4ed8; --tw-gradient-to: rgb(29 78 216 / 0); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+        .hover\\:to-purple-700:hover { --tw-gradient-to: #7c3aed; }
+        .focus\\:ring-offset-2:focus { --tw-ring-offset-width: 2px; }
+        .duration-200 { transition-duration: 200ms; }
+        .transform { transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y)); }
+        .hover\\:scale-\\[1\\.02\\]:hover { --tw-scale-x: 1.02; --tw-scale-y: 1.02; }
+        .mt-6 { margin-top: 1.5rem; }
+        .mt-8 { margin-top: 2rem; }
+        
+        /* Form input focus styles */
+        input:focus { outline: 2px solid transparent; outline-offset: 2px; }
+        
+        /* Button hover and focus styles */
+        button:focus { outline: 2px solid transparent; outline-offset: 2px; }
+        
+        @media (min-width: 640px) {
+            .sm\\:px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+        }
+        
+        @media (min-width: 1024px) {
+            .lg\\:px-8 { padding-left: 2rem; padding-right: 2rem; }
+        }
+        
         [x-cloak] { display: none !important; }
     </style>
 </head>
@@ -187,7 +325,7 @@ function getRoleDisplayName($role) {
 
                 <form method="POST" action="" class="space-y-6">
                     <?php if ($invitation): ?>
-                    <input type="hidden" name="csrf_token" value="<?= bin2hex(random_bytes(32)) ?>">
+                    <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['signup_csrf_token']) ?>">
                     <?php endif; ?>
                     <div>
                         <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>

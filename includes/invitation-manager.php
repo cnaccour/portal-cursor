@@ -12,7 +12,18 @@ class InvitationManager {
     private $use_mock;
     
     private function __construct() {
-        $this->use_mock = !$this->isDatabaseAvailable();
+        // Check if we're in development mode
+        $dev_mode = getenv('DEV_MODE') === 'true' || file_exists(__DIR__ . '/../.dev_mode');
+        
+        if ($dev_mode) {
+            $this->use_mock = !$this->isDatabaseAvailable();
+        } else {
+            // Production mode - database must be available
+            if (!$this->isDatabaseAvailable()) {
+                throw new RuntimeException('Database not available. Please run migrations and ensure database is properly configured.');
+            }
+            $this->use_mock = false;
+        }
     }
     
     public static function getInstance() {

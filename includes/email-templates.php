@@ -16,9 +16,9 @@ class EmailTemplates {
         $invited_by_name = $invitation_data['invited_by_name'] ?? 'Administrator';
         $expires_at = $invitation_data['expires_at'];
         
-        // Generate signup URL (you'll need to set your domain)
-        $domain = $_SERVER['HTTP_HOST'] ?? 'localhost:5000';
-        $signup_url = "http://{$domain}/signup.php?token=" . urlencode($token);
+        // Generate secure signup URL
+        require_once __DIR__ . '/config.php';
+        $signup_url = getSignupUrl($token);
         
         // Format expiration date
         $expires_formatted = date('F j, Y \a\t g:i A', strtotime($expires_at));
@@ -199,7 +199,7 @@ class EmailTemplates {
         </div>
         
         <div class=\"footer\">
-            <p>This invitation was sent by {$_SERVER['HTTP_HOST'] ?? 'J. Joseph Salon Team Portal'}</p>
+            <p>This invitation was sent by J. Joseph Salon Team Portal</p>
             <p>If you didn't expect this invitation, you can safely ignore this email.</p>
             <p>This invitation will expire and cannot be used after the expiration date.</p>
         </div>
@@ -258,8 +258,8 @@ class EmailTemplates {
         $invited_by_name = $invitation_data['invited_by_name'] ?? 'Administrator';
         $expires_at = $invitation_data['expires_at'];
         
-        $domain = $_SERVER['HTTP_HOST'] ?? 'localhost:5000';
-        $signup_url = "http://{$domain}/signup.php?token=" . urlencode($token);
+        require_once __DIR__ . '/config.php';
+        $signup_url = getSignupUrl($token);
         $expires_formatted = date('F j, Y \a\t g:i A', strtotime($expires_at));
         $role_display = self::getRoleDisplayName($role);
         
@@ -292,7 +292,7 @@ Best regards,
 The J. Joseph Salon Team
 
 ---
-This invitation was sent by " . ($_SERVER['HTTP_HOST'] ?? 'J. Joseph Salon Team Portal') . "
+This invitation was sent by J. Joseph Salon Team Portal
 If you didn't expect this invitation, you can safely ignore this email.
 This invitation will expire and cannot be used after the expiration date.";
     }
@@ -320,14 +320,16 @@ This invitation will expire and cannot be used after the expiration date.";
             $html_content = self::getInvitationEmailHTML($invitation_data);
             $text_content = self::getInvitationEmailText($invitation_data);
             
-            // For development mode, log the email content
-            error_log("=== INVITATION EMAIL SENT ===");
-            error_log("To: {$invitation_data['email']}");
-            error_log("Subject: You've been invited to join J. Joseph Salon Team Portal");
-            error_log("Role: {$invitation_data['role']}");
-            error_log("Signup URL: http://{$_SERVER['HTTP_HOST']}/signup.php?token=" . urlencode($invitation_data['token']));
-            error_log("Expires: {$invitation_data['expires_at']}");
-            error_log("==========================");
+            // Log email sending (development only, no sensitive data)
+            $dev_mode = getenv('DEV_MODE') === 'true' || file_exists(__DIR__ . '/../.dev_mode');
+            if ($dev_mode) {
+                error_log("=== INVITATION EMAIL SENT ===");
+                error_log("To: {$invitation_data['email']}");
+                error_log("Role: {$invitation_data['role']}");
+                error_log("Expires: {$invitation_data['expires_at']}");
+                error_log("Token: " . substr($invitation_data['token'], 0, 8) . "...[REDACTED]");
+                error_log("==========================");
+            }
             
             // In production, you would replace this with actual email sending:
             // Option 1: PHP's built-in mail() function

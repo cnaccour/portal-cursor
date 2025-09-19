@@ -2,7 +2,7 @@
 
 ## Overview
 
-This is a web-based shift management system built with a traditional PHP architecture. The application handles employee shift tracking, daily checklists, and administrative tasks for what appears to be a retail or service business with multiple locations. The system is designed to be simple, lightweight, and compatible with standard cPanel hosting environments.
+This is a web-based shift management system built with a traditional PHP architecture. The application handles employee shift tracking, daily checklists, administrative tasks, and comprehensive user management for what appears to be a retail or service business with multiple locations. The system features invitation-based user signup, role-based access control, and comprehensive audit logging. It is designed to be simple, lightweight, and compatible with standard cPanel hosting environments.
 
 ## User Preferences
 
@@ -56,6 +56,15 @@ Preferred communication style: Simple, everyday language.
 - Role indicators visible in header and dashboard
 - Admin panel (/admin.php) for role management (admin-only access)
 - Secure role updates with CSRF protection
+
+**Invitation-Based User Management (Phase 3)**
+- Secure invitation system with HTML email templates
+- Token-based signup with expiration handling
+- Admin invitation interface with role selection
+- Invitation status tracking (pending, accepted, expired, revoked)
+- CSRF protection and secure token handling
+- Comprehensive audit logging with IP tracking
+- Production-ready security measures
 
 ## External Dependencies
 
