@@ -299,26 +299,26 @@ function getRoleDisplayName($role) {
             <!-- Registration Form -->
             <div class="bg-white rounded-xl shadow-lg border p-6">
                 <!-- Invitation Details -->
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div class="bg-black text-white border border-gray-600 rounded-lg p-4 mb-6">
                     <div class="flex items-center mb-3">
-                        <svg class="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <svg class="w-5 h-5 text-white mr-2" fill="currentColor" viewBox="0 0 20 20">
                             <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
                             <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
                         </svg>
-                        <h3 class="text-sm font-semibold text-blue-800">Invitation Details</h3>
+                        <h3 class="text-sm font-semibold text-white">Invitation Details</h3>
                     </div>
                     <div class="space-y-2 text-sm">
                         <div class="flex justify-between">
-                            <span class="text-blue-700">Email:</span>
-                            <span class="font-medium text-blue-900"><?= htmlspecialchars($invitation['email']) ?></span>
+                            <span class="text-gray-300">Email:</span>
+                            <span class="font-medium text-white"><?= htmlspecialchars($invitation['email']) ?></span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-blue-700">Role:</span>
-                            <span class="font-medium text-blue-900"><?= htmlspecialchars(getRoleDisplayName($invitation['role'])) ?></span>
+                            <span class="text-gray-300">Role:</span>
+                            <span class="font-medium text-white"><?= htmlspecialchars(getRoleDisplayName($invitation['role'])) ?></span>
                         </div>
                         <div class="flex justify-between">
-                            <span class="text-blue-700">Expires:</span>
-                            <span class="font-medium text-blue-900"><?= date('M j, Y', strtotime($invitation['expires_at'])) ?></span>
+                            <span class="text-gray-300">Expires:</span>
+                            <span class="font-medium text-white"><?= date('M j, Y', strtotime($invitation['expires_at'])) ?></span>
                         </div>
                     </div>
                 </div>

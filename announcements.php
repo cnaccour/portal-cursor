@@ -306,7 +306,7 @@ sort($categories);
                 
                 <!-- Expiration notice if applicable -->
                 <template x-if="selectedAnnouncement && selectedAnnouncement.expiration_date">
-                    <div class="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                    <div class="mt-4 p-3 bg-black text-white border border-gray-600 rounded-lg">
                         <p class="text-yellow-800 text-sm">
                             <strong>Note:</strong> This announcement expires on 
                             <span x-text="new Date(selectedAnnouncement.expiration_date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })"></span>

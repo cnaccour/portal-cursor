@@ -8,21 +8,14 @@
         "pinned": false,
         "priority": 2,
         "expiration_date": null,
-        "date_modified": "2025-09-18 17:27:22",
+        "date_modified": "2025-09-19 16:32:05",
         "attachments": [
             {
-                "filename": "1758216457_fa82e375-36ce-49b9-94ff-1267202ae332.png",
+                "filename": "1758299523_fa82e375-36ce-49b9-94ff-1267202ae332.png",
                 "original_name": "fa82e375-36ce-49b9-94ff-1267202ae332.png",
                 "file_size": 1366,
                 "mime_type": "image\/png",
-                "upload_date": "2025-09-18 17:27:37"
-            },
-            {
-                "filename": "1758216507_Screenshot2025-09-18at12.43.16PM.png",
-                "original_name": "Screenshot2025-09-18at12.43.16PM.png",
-                "file_size": 217296,
-                "mime_type": "image\/png",
-                "upload_date": "2025-09-18 17:28:27"
+                "upload_date": "2025-09-19 16:32:03"
             }
         ],
         "id": "demo-announcement-001",

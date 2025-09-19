@@ -13,7 +13,7 @@ require __DIR__.'/includes/header.php';
   <div class="bg-white p-6 rounded-lg border hover:border-gray-300 transition-colors">
     <h3 class="text-lg font-semibold mb-2">Shift Report</h3>
     <p class="text-gray-600 mb-4">Complete daily shift checklist and report for morning or evening shifts.</p>
-    <a href="/forms/shift-reports.php" class="inline-flex px-4 py-2 rounded-md text-white transition-colors" style="background-color: #AF831A;" onmouseover="this.style.backgroundColor='#8B6914'" onmouseout="this.style.backgroundColor='#AF831A'">
+    <a href="/forms/shift-reports.php" class="inline-flex px-4 py-2 rounded-md bg-black text-white hover:bg-gray-800 transition-colors">
       Create Shift Report →
     </a>
   </div>
