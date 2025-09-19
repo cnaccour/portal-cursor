@@ -239,55 +239,150 @@ class ShiftReportManager {
     }
     
     /**
-     * Get analytics data for reporting
+     * Get comprehensive analytics data for the advanced dashboard
      */
     public function getAnalytics($filters = []) {
-        if ($this->use_mock) {
+        if (!$this->isDatabaseAvailable()) {
             return $this->getAnalyticsMock($filters);
         }
         
         try {
             $pdo = getPDO();
             
-            $sql = "SELECT 
-                        COUNT(*) as total_reports,
-                        SUM(reviews_count) as total_reviews,
-                        AVG(reviews_count) as avg_reviews,
-                        COUNT(DISTINCT user_id) as active_users,
-                        COUNT(DISTINCT location) as locations_covered,
-                        SUM(CASE WHEN shift_type = 'morning' THEN 1 ELSE 0 END) as morning_shifts,
-                        SUM(CASE WHEN shift_type = 'evening' THEN 1 ELSE 0 END) as evening_shifts
-                    FROM shift_reports 
-                    WHERE 1=1";
+            // Base WHERE conditions
+            $whereConditions = [];
             $params = [];
             
-            // Apply date filters for analytics
-            if (!empty($filters['date_from'])) {
-                $sql .= " AND shift_date >= ?";
-                $params[] = $filters['date_from'];
+            if (!empty($filters['start_date'])) {
+                $whereConditions[] = "sr.shift_date >= ?";
+                $params[] = $filters['start_date'];
+            }
+            if (!empty($filters['end_date'])) {
+                $whereConditions[] = "sr.shift_date <= ?";
+                $params[] = $filters['end_date'];
+            }
+            if (!empty($filters['location'])) {
+                $whereConditions[] = "sr.location = ?";
+                $params[] = $filters['location'];
             }
             
-            if (!empty($filters['date_to'])) {
-                $sql .= " AND shift_date <= ?";
-                $params[] = $filters['date_to'];
-            }
+            $whereClause = !empty($whereConditions) ? 'WHERE ' . implode(' AND ', $whereConditions) : '';
+            
+            // Get basic statistics
+            $sql = "SELECT 
+                COUNT(*) as total_reports,
+                SUM(sr.reviews_count) as total_reviews,
+                AVG(sr.reviews_count) as avg_reviews_per_report,
+                COUNT(DISTINCT sr.location) as unique_locations
+                FROM shift_reports sr 
+                JOIN users u ON sr.user_id = u.id 
+                $whereClause";
             
             $stmt = $pdo->prepare($sql);
             $stmt->execute($params);
+            $stats = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            // Calculate daily average
+            $startDate = !empty($filters['start_date']) ? new DateTime($filters['start_date']) : new DateTime('-30 days');
+            $endDate = !empty($filters['end_date']) ? new DateTime($filters['end_date']) : new DateTime();
+            $daysDiff = $endDate->diff($startDate)->days + 1;
+            $avgDailyReports = $daysDiff > 0 ? $stats['total_reports'] / $daysDiff : 0;
+            
+            // Get top performers
+            $sql = "SELECT 
+                u.name as user,
+                COUNT(*) as report_count,
+                AVG(sr.reviews_count) as avg_reviews
+                FROM shift_reports sr 
+                JOIN users u ON sr.user_id = u.id 
+                $whereClause 
+                GROUP BY u.id, u.name 
+                ORDER BY report_count DESC, avg_reviews DESC 
+                LIMIT 5";
+            
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+            $topPerformers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Get location performance
+            $sql = "SELECT 
+                sr.location,
+                COUNT(*) as report_count,
+                AVG(sr.reviews_count) as avg_reviews
+                FROM shift_reports sr 
+                JOIN users u ON sr.user_id = u.id 
+                $whereClause 
+                GROUP BY sr.location 
+                ORDER BY report_count DESC";
+            
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+            $locationPerformance = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Get daily reports for chart
+            $sql = "SELECT 
+                sr.shift_date as date,
+                COUNT(*) as count
+                FROM shift_reports sr 
+                JOIN users u ON sr.user_id = u.id 
+                $whereClause 
+                GROUP BY sr.shift_date 
+                ORDER BY sr.shift_date";
+            
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+            $dailyReports = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Get location distribution for pie chart
+            $locationDistribution = $locationPerformance; // Same data, different use
+            
+            // Get weekly trends
+            $sql = "SELECT 
+                DATE_TRUNC('week', sr.shift_date) as week_start,
+                COUNT(*) as report_count,
+                SUM(sr.reviews_count) as total_reviews,
+                AVG(sr.reviews_count) as avg_reviews
+                FROM shift_reports sr 
+                JOIN users u ON sr.user_id = u.id 
+                $whereClause 
+                GROUP BY DATE_TRUNC('week', sr.shift_date) 
+                ORDER BY week_start DESC 
+                LIMIT 8";
+            
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute($params);
+            $weeklyData = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Calculate trends for weekly data
+            $weeklyTrends = [];
+            for ($i = 0; $i < count($weeklyData); $i++) {
+                $current = $weeklyData[$i];
+                $previous = isset($weeklyData[$i + 1]) ? $weeklyData[$i + 1] : null;
+                
+                $trend = 0;
+                if ($previous && $previous['report_count'] > 0) {
+                    $trend = (($current['report_count'] - $previous['report_count']) / $previous['report_count']) * 100;
+                }
+                
+                $weeklyTrends[] = array_merge($current, ['trend' => $trend]);
+            }
+            
+            return [
+                'total_reports' => (int)$stats['total_reports'],
+                'avg_daily_reports' => round($avgDailyReports, 1),
+                'total_reviews' => (int)$stats['total_reviews'],
+                'avg_reviews_per_report' => round($stats['avg_reviews_per_report'], 1),
+                'unique_locations' => (int)$stats['unique_locations'],
+                'reports_change' => null, // Would need previous period comparison
+                'top_performers' => $topPerformers,
+                'location_performance' => $locationPerformance,
+                'daily_reports' => $dailyReports,
+                'location_distribution' => $locationDistribution,
+                'weekly_trends' => array_reverse($weeklyTrends) // Show oldest to newest
+            ];
             
         } catch (Exception $e) {
-            error_log("ShiftReportManager::getAnalytics error: " . $e->getMessage());
-            return [
-                'total_reports' => 0,
-                'total_reviews' => 0,
-                'avg_reviews' => 0,
-                'active_users' => 0,
-                'locations_covered' => 0,
-                'morning_shifts' => 0,
-                'evening_shifts' => 0
-            ];
+            return $this->getAnalyticsMock($filters);
         }
     }
     
@@ -366,14 +461,44 @@ class ShiftReportManager {
     private function getAnalyticsMock($filters = []) {
         $reports = $this->getShiftReportsMock();
         
+        // Apply date filters to reports
+        if (!empty($filters['start_date'])) {
+            $reports = array_filter($reports, function($r) use ($filters) {
+                return $r['shift_date'] >= $filters['start_date'];
+            });
+        }
+        if (!empty($filters['end_date'])) {
+            $reports = array_filter($reports, function($r) use ($filters) {
+                return $r['shift_date'] <= $filters['end_date'];
+            });
+        }
+        if (!empty($filters['location'])) {
+            $reports = array_filter($reports, function($r) use ($filters) {
+                return $r['location'] === $filters['location'];
+            });
+        }
+        
+        $totalReports = count($reports);
+        $totalReviews = array_sum(array_column($reports, 'reviews'));
+        $uniqueLocations = count(array_unique(array_column($reports, 'location')));
+        
+        // Calculate date range for daily average
+        $startDate = !empty($filters['start_date']) ? new DateTime($filters['start_date']) : new DateTime('-30 days');
+        $endDate = !empty($filters['end_date']) ? new DateTime($filters['end_date']) : new DateTime();
+        $daysDiff = $endDate->diff($startDate)->days + 1;
+        
         return [
-            'total_reports' => count($reports),
-            'total_reviews' => array_sum(array_column($reports, 'reviews')),
-            'avg_reviews' => count($reports) > 0 ? array_sum(array_column($reports, 'reviews')) / count($reports) : 0,
-            'active_users' => count(array_unique(array_column($reports, 'user'))),
-            'locations_covered' => count(array_unique(array_column($reports, 'location'))),
-            'morning_shifts' => count(array_filter($reports, fn($r) => $r['shift_type'] === 'morning')),
-            'evening_shifts' => count(array_filter($reports, fn($r) => $r['shift_type'] === 'evening'))
+            'total_reports' => $totalReports,
+            'avg_daily_reports' => $daysDiff > 0 ? $totalReports / $daysDiff : 0,
+            'total_reviews' => $totalReviews,
+            'avg_reviews_per_report' => $totalReports > 0 ? $totalReviews / $totalReports : 0,
+            'unique_locations' => $uniqueLocations,
+            'reports_change' => null, // Would need historical data
+            'top_performers' => [],
+            'location_performance' => [],
+            'daily_reports' => [],
+            'location_distribution' => [],
+            'weekly_trends' => []
         ];
     }
 }
