@@ -20,6 +20,13 @@ class UserManager {
     }
     
     /**
+     * Check if currently using mock mode
+     */
+    public function isUsingMockMode() {
+        return $this->use_mock;
+    }
+    
+    /**
      * Check if database is available for user management
      */
     private function isDatabaseAvailable() {
@@ -90,6 +97,14 @@ class UserManager {
     }
     
     /**
+     * Update user status (active/inactive)
+     */
+    public static function updateUserStatus($user_id, $new_status, $performed_by) {
+        $instance = self::getInstance();
+        return $instance->_updateUserStatus($user_id, $new_status, $performed_by);
+    }
+    
+    /**
      * Create audit log entry
      */
     public static function logUserAction($user_id, $action, $old_value, $new_value, $performed_by) {
@@ -148,13 +163,32 @@ class UserManager {
         return $this->databaseLogUserAction($user_id, $action, $old_value, $new_value, $performed_by);
     }
     
+    private function _updateUserStatus($user_id, $new_status, $performed_by) {
+        if ($this->use_mock) {
+            return $this->mockUpdateUserStatus($user_id, $new_status, $performed_by);
+        }
+        return $this->databaseUpdateUserStatus($user_id, $new_status, $performed_by);
+    }
+    
     // Mock implementations (using existing mock_users)
     
     private function mockGetAllUsers($include_deleted) {
         require_once __DIR__ . '/db.php';
         global $mock_users;
         
-        // For mock, we don't have deleted users, so just return all
+        // Initialize status field for mock users if not present
+        foreach ($mock_users as &$user) {
+            if (!isset($user['status'])) {
+                $user['status'] = 'active';
+            }
+        }
+        unset($user); // Break reference to avoid side effects
+        
+        // Filter based on deleted status if needed
+        if (!$include_deleted) {
+            return array_filter($mock_users, fn($user) => $user['status'] !== 'deleted');
+        }
+        
         return $mock_users;
     }
     
@@ -191,30 +225,85 @@ class UserManager {
                 $old_role = $user['role'];
                 $user['role'] = $new_role;
                 
-                // Mock audit log
-                error_log("Mock Audit: User {$user_id} role changed from {$old_role} to {$new_role} by user {$performed_by}");
+                // Mock audit log with IP address
+                $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+                $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
+                error_log("Mock Audit: User {$user_id} role changed from {$old_role} to {$new_role} by user {$performed_by} from IP {$ip_address} UA: {$user_agent}");
                 return true;
             }
         }
+        unset($user); // Break reference
         return false;
     }
     
     private function mockDeleteUser($user_id, $performed_by) {
-        // Mock implementation - just log the action
-        error_log("Mock Audit: User {$user_id} deleted by user {$performed_by}");
-        return true;
+        require_once __DIR__ . '/db.php';
+        global $mock_users;
+        
+        foreach ($mock_users as &$user) {
+            if ($user['id'] == $user_id) {
+                $old_status = $user['status'] ?? 'active';
+                $user['status'] = 'deleted';
+                
+                // Comprehensive audit log
+                $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+                $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
+                error_log("Mock Audit: User {$user_id} ({$user['email']}) deleted by user {$performed_by} from IP {$ip_address} UA: {$user_agent}");
+                return true;
+            }
+        }
+        unset($user); // Break reference
+        return false;
     }
     
     private function mockRestoreUser($user_id, $performed_by) {
-        // Mock implementation - just log the action
-        error_log("Mock Audit: User {$user_id} restored by user {$performed_by}");
-        return true;
+        require_once __DIR__ . '/db.php';
+        global $mock_users;
+        
+        foreach ($mock_users as &$user) {
+            if ($user['id'] == $user_id) {
+                $old_status = $user['status'] ?? 'deleted';
+                $user['status'] = 'active';
+                
+                // Comprehensive audit log
+                $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+                $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
+                error_log("Mock Audit: User {$user_id} ({$user['email']}) restored by user {$performed_by} from IP {$ip_address} UA: {$user_agent}");
+                return true;
+            }
+        }
+        unset($user); // Break reference
+        return false;
     }
     
     private function mockLogUserAction($user_id, $action, $old_value, $new_value, $performed_by) {
-        // Mock implementation - just log to error log
-        error_log("Mock Audit: User {$user_id} - {$action} by user {$performed_by}");
+        // Comprehensive mock audit log
+        $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+        $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
+        $old_json = json_encode($old_value);
+        $new_json = json_encode($new_value);
+        error_log("Mock Audit: User {$user_id} - {$action} by user {$performed_by} from IP {$ip_address} | Old: {$old_json} | New: {$new_json} | UA: {$user_agent}");
         return true;
+    }
+    
+    private function mockUpdateUserStatus($user_id, $new_status, $performed_by) {
+        require_once __DIR__ . '/db.php';
+        global $mock_users;
+        
+        foreach ($mock_users as &$user) {
+            if ($user['id'] == $user_id) {
+                $old_status = $user['status'] ?? 'active';
+                $user['status'] = $new_status;
+                
+                // Comprehensive audit log
+                $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+                $user_agent = $_SERVER['HTTP_USER_AGENT'] ?? 'unknown';
+                error_log("Mock Audit: User {$user_id} ({$user['email']}) status changed from {$old_status} to {$new_status} by user {$performed_by} from IP {$ip_address} UA: {$user_agent}");
+                return true;
+            }
+        }
+        unset($user); // Break reference
+        return false;
     }
     
     // Database implementations (for production)
@@ -379,6 +468,39 @@ class UserManager {
             ]);
         } catch (Exception $e) {
             error_log('Database logUserAction error: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    private function databaseUpdateUserStatus($user_id, $new_status, $performed_by) {
+        try {
+            require_once __DIR__ . '/db.php';
+            global $pdo;
+            
+            // Get current user data for audit log
+            $current_user = $this->databaseGetUserById($user_id);
+            if (!$current_user) {
+                return false;
+            }
+            
+            // Update status
+            $stmt = $pdo->prepare("UPDATE users SET status = ?, updated_at = NOW() WHERE id = ?");
+            $success = $stmt->execute([$new_status, $user_id]);
+            
+            if ($success) {
+                // Log the action
+                $this->databaseLogUserAction(
+                    $user_id, 
+                    'status_changed', 
+                    ['status' => $current_user['status']], 
+                    ['status' => $new_status], 
+                    $performed_by
+                );
+            }
+            
+            return $success;
+        } catch (Exception $e) {
+            error_log('Database updateUserStatus error: ' . $e->getMessage());
             return false;
         }
     }

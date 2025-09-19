@@ -161,6 +161,9 @@ Options -Indexes
 
 ### 2. User Management System  
 - [ ] Run user table migration scripts
+- [ ] Test user deletion and restoration functionality
+- [ ] Test user status management (active/inactive toggles)
+- [ ] Verify audit logging in user_audit_log table
 - [ ] Test invitation email sending
 - [ ] Configure SMTP settings for invitations
 - [ ] Verify role-based access controls

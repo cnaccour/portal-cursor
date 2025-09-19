@@ -71,7 +71,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 
 <?php 
 // Get all users using UserManager
-$all_users = UserManager::getAllUsers(false); // Don't include deleted users by default
+$show_deleted = isset($_GET['show_deleted']) && $_GET['show_deleted'] === '1';
+$all_users = UserManager::getAllUsers($show_deleted);
+$deleted_users = UserManager::getAllUsers(true); // Get all including deleted for count
+$deleted_count = count(array_filter($deleted_users, fn($u) => isset($u['status']) && $u['status'] === 'deleted'));
 ?>
 
 <!-- User Management Header with Actions -->
@@ -89,7 +92,7 @@ $all_users = UserManager::getAllUsers(false); // Don't include deleted users by 
                     </svg>
                     Invite User
                 </button>
-                <button class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                <button onclick="toggleDeletedUsers()" id="viewDeletedBtn" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
                     View Deleted
                 </button>
             </div>
@@ -115,6 +118,12 @@ $all_users = UserManager::getAllUsers(false); // Don't include deleted users by 
                 <div class="text-2xl font-bold text-gray-600"><?= count(array_filter($all_users, fn($u) => in_array($u['role'], ['staff', 'support']))) ?></div>
                 <div class="text-sm text-gray-600">Staff Members</div>
             </div>
+            <?php if ($deleted_count > 0): ?>
+            <div class="text-center">
+                <div class="text-2xl font-bold text-red-600"><?= $deleted_count ?></div>
+                <div class="text-sm text-gray-600">Deleted Users</div>
+            </div>
+            <?php endif; ?>
         </div>
     </div>
     
@@ -157,18 +166,28 @@ $all_users = UserManager::getAllUsers(false); // Don't include deleted users by 
                                     <?= htmlspecialchars(get_role_display_name($user['role'])) ?>
                                 </span>
                                 
-                                <!-- Status Badge -->
-                                <?php if (isset($user['status'])): ?>
-                                <span class="px-2 py-1 text-xs font-medium rounded-full
+                                <!-- Status Badge with Toggle -->
+                                <?php 
+                                $user_status = $user['status'] ?? 'active';
+                                $is_deleted = $user_status === 'deleted';
+                                $is_active = $user_status === 'active';
+                                ?>
+                                <?php if (!$is_deleted): ?>
+                                <button onclick="toggleUserStatus(<?= $user['id'] ?>, '<?= $is_active ? 'inactive' : 'active' ?>')" 
+                                        class="px-2 py-1 text-xs font-medium rounded-full transition-colors cursor-pointer
                                     <?php 
-                                    switch ($user['status']) {
-                                        case 'active': echo 'bg-green-100 text-green-800'; break;
-                                        case 'inactive': echo 'bg-gray-100 text-gray-600'; break;
-                                        case 'deleted': echo 'bg-red-100 text-red-800'; break;
-                                        default: echo 'bg-gray-100 text-gray-600';
+                                    switch ($user_status) {
+                                        case 'active': echo 'bg-green-100 text-green-800 hover:bg-green-200'; break;
+                                        case 'inactive': echo 'bg-gray-100 text-gray-600 hover:bg-gray-200'; break;
+                                        default: echo 'bg-gray-100 text-gray-600 hover:bg-gray-200';
                                     }
-                                    ?>">
-                                    <?= ucfirst($user['status'] ?? 'active') ?>
+                                    ?>"
+                                    title="Click to toggle status">
+                                    <?= ucfirst($user_status) ?>
+                                </button>
+                                <?php else: ?>
+                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                                    Deleted
                                 </span>
                                 <?php endif; ?>
                                 
@@ -210,26 +229,41 @@ $all_users = UserManager::getAllUsers(false); // Don't include deleted users by 
                             </noscript>
                         </form>
                         
-                        <!-- More Actions Menu -->
-                        <div class="relative" x-data="{ open: false }">
-                            <button @click="open = !open" @click.outside="open = false" 
-                                    class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
-                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+                        <!-- Action Buttons -->
+                        <?php if ($is_deleted): ?>
+                            <!-- Restore Button for Deleted Users -->
+                            <button onclick="restoreUser(<?= $user['id'] ?>, '<?= htmlspecialchars($user['name']) ?>')" 
+                                    class="px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                 </svg>
+                                Restore
                             </button>
-                            
-                            <div x-show="open" x-cloak x-transition 
-                                 class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1 z-50">
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">View Profile</a>
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Reset Password</a>
-                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">View Activity</a>
-                                <div class="border-t my-1"></div>
-                                <?php if ($user['id'] != $_SESSION['user_id']): ?>
-                                <a href="#" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50">Delete User</a>
-                                <?php endif; ?>
+                        <?php else: ?>
+                            <!-- More Actions Menu for Active Users -->
+                            <div class="relative" x-data="{ open: false }">
+                                <button @click="open = !open" @click.outside="open = false" 
+                                        class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
+                                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
+                                    </svg>
+                                </button>
+                                
+                                <div x-show="open" x-cloak x-transition 
+                                     class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1 z-50">
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">View Profile</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Reset Password</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">View Activity</a>
+                                    <div class="border-t my-1"></div>
+                                    <?php if ($user['id'] != $_SESSION['user_id']): ?>
+                                    <button onclick="deleteUser(<?= $user['id'] ?>, '<?= htmlspecialchars($user['name']) ?>')" 
+                                            class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                        Delete User
+                                    </button>
+                                    <?php endif; ?>
+                                </div>
                             </div>
-                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -249,10 +283,10 @@ $all_users = UserManager::getAllUsers(false); // Don't include deleted users by 
             Development Mode
         </h3>
         <p class="text-sm text-blue-700">
-            User management is using <?= UserManager::getInstance()->use_mock ? 'mock data' : 'database storage' ?>. 
-            Changes <?= UserManager::getInstance()->use_mock ? 'will reset on server restart' : 'are saved permanently' ?>.
+            User management is using <?= UserManager::getInstance()->isUsingMockMode() ? 'mock data' : 'database storage' ?>. 
+            Changes <?= UserManager::getInstance()->isUsingMockMode() ? 'will reset on server restart' : 'are saved permanently' ?>.
         </p>
-        <?php if (UserManager::getInstance()->use_mock): ?>
+        <?php if (UserManager::getInstance()->isUsingMockMode()): ?>
         <p class="text-xs text-blue-600 mt-2">
             To enable database storage, run the migration scripts in /database/migrations/
         </p>
@@ -276,5 +310,131 @@ $all_users = UserManager::getAllUsers(false); // Don't include deleted users by 
     </div>
 </div>
 
+<script>
+// User Management JavaScript Functions
+function toggleDeletedUsers() {
+    const currentUrl = new URL(window.location);
+    const showDeleted = currentUrl.searchParams.get('show_deleted');
+    
+    if (showDeleted === '1') {
+        currentUrl.searchParams.delete('show_deleted');
+        document.getElementById('viewDeletedBtn').textContent = 'View Deleted';
+    } else {
+        currentUrl.searchParams.set('show_deleted', '1');
+        document.getElementById('viewDeletedBtn').textContent = 'View Active';
+    }
+    
+    window.location.href = currentUrl.toString();
+}
+
+function deleteUser(userId, userName) {
+    if (!confirm(`Are you sure you want to delete ${userName}? This action can be undone by restoring the user.`)) {
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('user_id', userId);
+    formData.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
+    
+    fetch('/api/users/delete-user.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred while deleting the user.', 'error');
+    });
+}
+
+function restoreUser(userId, userName) {
+    if (!confirm(`Are you sure you want to restore ${userName}?`)) {
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('user_id', userId);
+    formData.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
+    
+    fetch('/api/users/restore-user.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            showNotification(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred while restoring the user.', 'error');
+    });
+}
+
+function toggleUserStatus(userId, newStatus) {
+    const formData = new FormData();
+    formData.append('user_id', userId);
+    formData.append('status', newStatus);
+    formData.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
+    
+    fetch('/api/users/update-status.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification(data.message, 'success');
+            setTimeout(() => location.reload(), 500);
+        } else {
+            showNotification(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred while updating user status.', 'error');
+    });
+}
+
+function showNotification(message, type) {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg transition-all duration-300 ${
+        type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+    }`;
+    notification.textContent = message;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Update button text based on current view
+document.addEventListener('DOMContentLoaded', function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const showDeleted = urlParams.get('show_deleted');
+    
+    if (showDeleted === '1') {
+        document.getElementById('viewDeletedBtn').textContent = 'View Active';
+    }
+});
+</script>
 
 <?php require __DIR__.'/includes/footer.php'; ?>
