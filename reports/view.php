@@ -3,19 +3,12 @@ require __DIR__.'/../includes/auth.php';
 require_login();
 require __DIR__.'/../includes/header.php';
 
-// Load all reports
-$file = __DIR__ . '/../shift-reports.txt';
-$lines = file_exists($file) ? file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) : [];
+// Get shift report by ID using ShiftReportManager
+require __DIR__ . '/../includes/shift-report-manager.php';
+$id = intval($_GET['id'] ?? 0);
+$shiftManager = ShiftReportManager::getInstance();
+$row = $shiftManager->getShiftReport($id);
 
-// Get report by index (from query string)
-$id = isset($_GET['id']) ? (int) $_GET['id'] : -1;
-if ($id < 0 || $id >= count($lines)) {
-  echo "<p class='text-red-600'>Invalid report ID.</p>";
-  require __DIR__.'/../includes/footer.php';
-  exit;
-}
-
-$row = json_decode($lines[$id], true);
 if (!$row) {
   echo "<p class='text-red-600'>Report not found.</p>";
   require __DIR__.'/../includes/footer.php';

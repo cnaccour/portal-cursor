@@ -1,6 +1,7 @@
 run = "php -S 0.0.0.0:3000"
 
 entrypoint = "index.php"
+modules = ["postgresql-16"]
 
 [nix]
 channel = "stable-22_11"

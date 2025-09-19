@@ -3,19 +3,10 @@ require __DIR__.'/includes/auth.php';
 require_login();
 require __DIR__.'/includes/header.php';
 
-// Load all reports
-$file = __DIR__ . '/shift-reports.txt';
-$reports = [];
-if (file_exists($file)) {
-  $lines = file($file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-  foreach ($lines as $index => $line) {
-    $row = json_decode($line, true);
-    if ($row) {
-      $row['id'] = $index;  // Add ID for linking
-      $reports[] = $row;
-    }
-  }
-}
+// Load all reports using ShiftReportManager
+require __DIR__.'/includes/shift-report-manager.php';
+$shiftManager = ShiftReportManager::getInstance();
+$reports = $shiftManager->getShiftReports();
 
 // Get filter/sort parameters
 $sortBy = $_GET['sort'] ?? 'date';
@@ -23,49 +14,25 @@ $filterLocation = $_GET['location'] ?? '';
 $filterUser = $_GET['user'] ?? '';
 $searchQuery = $_GET['search'] ?? '';
 
-// Filter reports
-$filteredReports = $reports;
-
-// Search filter
-if ($searchQuery) {
-  $searchQuery = trim($searchQuery);
-  $filteredReports = array_filter($filteredReports, function($r) use ($searchQuery) {
-    $searchText = strtolower($searchQuery);
-    return (
-      stripos(($r['user'] ?? ''), $searchText) !== false ||
-      stripos(($r['location'] ?? ''), $searchText) !== false ||
-      stripos(($r['notes'] ?? ''), $searchText) !== false ||
-      stripos(implode(' ', (array)($r['checklist'] ?? [])), $searchText) !== false
-    );
-  });
-}
+// Build filters for efficient database query
+$filters = [
+    'sort' => $sortBy,
+    'search' => $searchQuery
+];
 
 if ($filterLocation) {
-  $filteredReports = array_filter($filteredReports, function($r) use ($filterLocation) {
-    return $r['location'] === $filterLocation;
-  });
-}
-if ($filterUser) {
-  $filteredReports = array_filter($filteredReports, function($r) use ($filterUser) {
-    return $r['user'] === $filterUser;
-  });
+    $filters['location'] = $filterLocation;
 }
 
-// Sort reports
-usort($filteredReports, function($a, $b) use ($sortBy) {
-  switch ($sortBy) {
-    case 'date':
-      return strcmp($b['shift_date'], $a['shift_date']); // newest first
-    case 'user':
-      return strcmp($a['user'], $b['user']);
-    case 'location':
-      return strcmp($a['location'], $b['location']);
-    case 'time':
-      return strcmp($b['time'], $a['time']); // newest first
-    default:
-      return 0;
-  }
-});
+// Get filtered reports from database
+$filteredReports = $shiftManager->getShiftReports($filters);
+
+// Apply user filter if specified (after getting other filter options)
+if ($filterUser) {
+    $filteredReports = array_filter($filteredReports, function($r) use ($filterUser) {
+        return $r['user'] === $filterUser;
+    });
+}
 
 // Get unique values for filters
 $allLocations = array_unique(array_column($reports, 'location'));
