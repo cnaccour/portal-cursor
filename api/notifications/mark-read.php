@@ -49,6 +49,11 @@ try {
     $user_id = $_SESSION['user_id'];
     $notification_id = $input['notification_id'];
     
+    // Convert notification_id to int if it's numeric, otherwise keep as string for UUID
+    if (is_numeric($notification_id)) {
+        $notification_id = (int)$notification_id;
+    }
+    
     // Mark notification as read
     $success = NotificationManager::mark_as_read($user_id, $notification_id);
     

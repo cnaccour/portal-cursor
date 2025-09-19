@@ -105,7 +105,7 @@ class NotificationManager {
      * @param int $notification_id Notification ID
      * @return bool
      */
-    public static function mark_as_read(int $user_id, int $notification_id) {
+    public static function mark_as_read(int $user_id, $notification_id) {
         $instance = self::getInstance();
         return $instance->_mark_as_read($user_id, $notification_id);
     }
@@ -177,7 +177,11 @@ class NotificationManager {
         return $this->databaseGetUnreadCount($user_id);
     }
     
-    private function _mark_as_read(int $user_id, int $notification_id) {
+    private function _mark_as_read(int $user_id, $notification_id) {
+        // Convert to int if numeric for database operations
+        if (is_string($notification_id) && is_numeric($notification_id)) {
+            $notification_id = (int)$notification_id;
+        }
         if ($this->use_mock) {
             return $this->mockMarkAsRead($user_id, $notification_id);
         }
