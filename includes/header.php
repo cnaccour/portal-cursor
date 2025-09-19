@@ -23,8 +23,11 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
     <a href="/" class="flex items-center gap-3">
       <img src="/assets/images/logo.png" alt="J. Joseph Salon Logo" class="h-10 w-auto">
       <div class="hidden md:block">
-        <div class="font-semibold text-gray-900 leading-tight">J. Joseph Salon</div>
-        <div class="text-sm text-gray-600" style="margin-top: 0.125rem;">Portal</div>
+        <div class="leading-tight">
+          <span class="font-semibold text-gray-900">JJS</span>
+          <span class="text-gray-600"> - </span>
+          <span class="text-sm text-gray-600">Portal</span>
+        </div>
       </div>
     </a>
 
