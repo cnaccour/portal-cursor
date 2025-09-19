@@ -79,20 +79,20 @@ $deleted_count = count(array_filter($deleted_users, fn($u) => isset($u['status']
 
 <!-- User Management Header with Actions -->
 <div class="bg-white rounded-xl border mb-6">
-    <div class="p-6 border-b">
-        <div class="flex items-center justify-between">
+    <div class="p-4 sm:p-6 border-b">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
                 <h2 class="text-lg font-semibold text-gray-900">User Management</h2>
                 <p class="text-sm text-gray-600 mt-1">Manage user accounts, roles, and permissions.</p>
             </div>
-            <div class="flex items-center gap-3">
-                <button class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+            <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                <button class="px-4 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
                     Invite User
                 </button>
-                <button onclick="toggleDeletedUsers()" id="viewDeletedBtn" class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors">
+                <button onclick="toggleDeletedUsers()" id="viewDeletedBtn" class="px-4 py-3 sm:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base">
                     View Deleted
                 </button>
             </div>
@@ -100,28 +100,28 @@ $deleted_count = count(array_filter($deleted_users, fn($u) => isset($u['status']
     </div>
     
     <!-- User Statistics -->
-    <div class="px-6 py-4 bg-gray-50 border-b">
-        <div class="grid grid-cols-4 gap-4">
+    <div class="px-4 sm:px-6 py-4 bg-gray-50 border-b">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <div class="text-center">
-                <div class="text-2xl font-bold text-gray-900"><?= count($all_users) ?></div>
-                <div class="text-sm text-gray-600">Total Users</div>
+                <div class="text-lg sm:text-2xl font-bold text-gray-900"><?= count($all_users) ?></div>
+                <div class="text-xs sm:text-sm text-gray-600">Total Users</div>
             </div>
             <div class="text-center">
-                <div class="text-2xl font-bold text-red-600"><?= count(array_filter($all_users, fn($u) => $u['role'] === 'admin')) ?></div>
-                <div class="text-sm text-gray-600">Administrators</div>
+                <div class="text-lg sm:text-2xl font-bold text-red-600"><?= count(array_filter($all_users, fn($u) => $u['role'] === 'admin')) ?></div>
+                <div class="text-xs sm:text-sm text-gray-600">Administrators</div>
             </div>
             <div class="text-center">
-                <div class="text-2xl font-bold text-yellow-600"><?= count(array_filter($all_users, fn($u) => $u['role'] === 'manager')) ?></div>
-                <div class="text-sm text-gray-600">Managers</div>
+                <div class="text-lg sm:text-2xl font-bold text-yellow-600"><?= count(array_filter($all_users, fn($u) => $u['role'] === 'manager')) ?></div>
+                <div class="text-xs sm:text-sm text-gray-600">Managers</div>
             </div>
             <div class="text-center">
-                <div class="text-2xl font-bold text-gray-600"><?= count(array_filter($all_users, fn($u) => in_array($u['role'], ['staff', 'support']))) ?></div>
-                <div class="text-sm text-gray-600">Staff Members</div>
+                <div class="text-lg sm:text-2xl font-bold text-gray-600"><?= count(array_filter($all_users, fn($u) => in_array($u['role'], ['staff', 'support']))) ?></div>
+                <div class="text-xs sm:text-sm text-gray-600">Staff Members</div>
             </div>
             <?php if ($deleted_count > 0): ?>
-            <div class="text-center">
-                <div class="text-2xl font-bold text-red-600"><?= $deleted_count ?></div>
-                <div class="text-sm text-gray-600">Deleted Users</div>
+            <div class="text-center col-span-2 sm:col-span-1">
+                <div class="text-lg sm:text-2xl font-bold text-red-600"><?= $deleted_count ?></div>
+                <div class="text-xs sm:text-sm text-gray-600">Deleted Users</div>
             </div>
             <?php endif; ?>
         </div>
@@ -130,7 +130,7 @@ $deleted_count = count(array_filter($deleted_users, fn($u) => isset($u['status']
     <!-- Users List -->
     <div class="divide-y">
         <?php if (empty($all_users)): ?>
-        <div class="p-8 text-center text-gray-500">
+        <div class="p-6 sm:p-8 text-center text-gray-500">
             <svg class="w-12 h-12 mx-auto mb-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
             </svg>
@@ -139,19 +139,15 @@ $deleted_count = count(array_filter($deleted_users, fn($u) => isset($u['status']
         </div>
         <?php else: ?>
             <?php foreach ($all_users as $user): ?>
-            <div class="p-6 hover:bg-gray-50 transition-colors">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <!-- User Avatar -->
-                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
-                            <?= strtoupper(substr($user['name'], 0, 1)) ?>
-                        </div>
-                        
-                        <!-- User Info -->
-                        <div class="flex-grow">
-                            <div class="flex items-center gap-3">
-                                <h3 class="font-semibold text-gray-900"><?= htmlspecialchars($user['name']) ?></h3>
-                                
+            <div class="p-4 sm:p-6 hover:bg-gray-50 transition-colors">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                    <!-- User Info -->
+                    <div class="flex-grow">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+                            <h3 class="font-semibold text-gray-900 text-base sm:text-lg"><?= htmlspecialchars($user['name']) ?></h3>
+                            
+                            <!-- Mobile: Badges in new row, Desktop: Inline -->
+                            <div class="flex flex-wrap items-center gap-2">
                                 <!-- Role Badge -->
                                 <span class="px-2 py-1 text-xs font-medium rounded-full
                                     <?php 
@@ -198,7 +194,9 @@ $deleted_count = count(array_filter($deleted_users, fn($u) => isset($u['status']
                                 </span>
                                 <?php endif; ?>
                             </div>
-                            <p class="text-sm text-gray-500 mt-1"><?= htmlspecialchars($user['email']) ?></p>
+                        </div>
+                        <div class="mt-2 sm:mt-1">
+                            <p class="text-sm text-gray-500"><?= htmlspecialchars($user['email']) ?></p>
                             <?php if (isset($user['created_at'])): ?>
                             <p class="text-xs text-gray-400 mt-1">Joined <?= date('M j, Y', strtotime($user['created_at'])) ?></p>
                             <?php endif; ?>
@@ -206,14 +204,14 @@ $deleted_count = count(array_filter($deleted_users, fn($u) => isset($u['status']
                     </div>
                     
                     <!-- Actions -->
-                    <div class="flex items-center gap-3">
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-4 sm:mt-0">
                         <!-- Role Change Form -->
-                        <form method="POST" class="flex items-center gap-2">
+                        <form method="POST" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                             <input type="hidden" name="action" value="update_role">
                             <input type="hidden" name="user_id" value="<?= $user['id'] ?>">
                             <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                             
-                            <select name="new_role" class="border border-gray-300 rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500" onchange="this.form.submit()">
+                            <select name="new_role" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 min-w-0 sm:min-w-32" onchange="this.form.submit()">
                                 <?php foreach (get_all_roles() as $role): ?>
                                 <option value="<?= htmlspecialchars($role) ?>" 
                                         <?= $user['role'] === $role ? 'selected' : '' ?>>
@@ -223,7 +221,7 @@ $deleted_count = count(array_filter($deleted_users, fn($u) => isset($u['status']
                             </select>
                             
                             <noscript>
-                                <button type="submit" class="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+                                <button type="submit" class="px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700">
                                     Update
                                 </button>
                             </noscript>
@@ -233,17 +231,18 @@ $deleted_count = count(array_filter($deleted_users, fn($u) => isset($u['status']
                         <?php if ($is_deleted): ?>
                             <!-- Restore Button for Deleted Users -->
                             <button onclick="restoreUser(<?= $user['id'] ?>, '<?= htmlspecialchars($user['name']) ?>')" 
-                                    class="px-3 py-1 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
-                                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    class="px-4 py-2 text-sm bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
                                 </svg>
                                 Restore
                             </button>
                         <?php else: ?>
                             <!-- More Actions Menu for Active Users -->
-                            <div class="relative" x-data="{ open: false }">
+                            <div class="relative w-full sm:w-auto" x-data="{ open: false }">
                                 <button @click="open = !open" @click.outside="open = false" 
-                                        class="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100">
+                                        class="w-full sm:w-auto px-4 py-2 text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors flex items-center justify-center gap-2">
+                                    <span class="text-sm">Actions</span>
                                     <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                                         <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"></path>
                                     </svg>
@@ -251,13 +250,13 @@ $deleted_count = count(array_filter($deleted_users, fn($u) => isset($u['status']
                                 
                                 <div x-show="open" x-cloak x-transition 
                                      class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1 z-50">
-                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">View Profile</a>
-                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Reset Password</a>
-                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">View Activity</a>
+                                    <a href="#" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">View Profile</a>
+                                    <a href="#" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">Reset Password</a>
+                                    <a href="#" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">View Activity</a>
                                     <div class="border-t my-1"></div>
                                     <?php if ($user['id'] != $_SESSION['user_id']): ?>
                                     <button onclick="deleteUser(<?= $user['id'] ?>, '<?= htmlspecialchars($user['name']) ?>')" 
-                                            class="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                            class="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50">
                                         Delete User
                                     </button>
                                     <?php endif; ?>
@@ -273,16 +272,16 @@ $deleted_count = count(array_filter($deleted_users, fn($u) => isset($u['status']
 </div>
 
 <!-- System Status and Notes -->
-<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
     <!-- Development Status -->
     <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
-        <h3 class="font-semibold text-blue-800 mb-2 flex items-center">
-            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+        <h3 class="font-semibold text-blue-800 mb-2 flex items-center text-sm sm:text-base">
+            <svg class="w-4 h-4 sm:w-5 sm:h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
             </svg>
             Development Mode
         </h3>
-        <p class="text-sm text-blue-700">
+        <p class="text-xs sm:text-sm text-blue-700">
             User management is using <?= UserManager::getInstance()->isUsingMockMode() ? 'mock data' : 'database storage' ?>. 
             Changes <?= UserManager::getInstance()->isUsingMockMode() ? 'will reset on server restart' : 'are saved permanently' ?>.
         </p>
@@ -295,15 +294,15 @@ $deleted_count = count(array_filter($deleted_users, fn($u) => isset($u['status']
     
     <!-- Quick Actions -->
     <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
-        <h3 class="font-semibold text-gray-800 mb-3">Quick Actions</h3>
+        <h3 class="font-semibold text-gray-800 mb-3 text-sm sm:text-base">Quick Actions</h3>
         <div class="space-y-2">
-            <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+            <button class="w-full text-left px-3 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
                 📊 View User Activity Logs
             </button>
-            <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+            <button class="w-full text-left px-3 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
                 📧 Manage Pending Invitations
             </button>
-            <button class="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
+            <button class="w-full text-left px-3 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
                 🔐 Configure Role Permissions
             </button>
         </div>
