@@ -12,32 +12,7 @@ $reports = $shiftManager->getShiftReports();
 $sortBy = $_GET['sort'] ?? 'date';
 $filterLocation = $_GET['location'] ?? '';
 $filterUser = $_GET['user'] ?? '';
-$filterShiftType = $_GET['shift_type'] ?? '';
-$dateFrom = $_GET['date_from'] ?? '';
-$dateTo = $_GET['date_to'] ?? '';
 $searchQuery = $_GET['search'] ?? '';
-
-// Handle preset date ranges
-$datePreset = $_GET['preset'] ?? '';
-if ($datePreset) {
-    switch ($datePreset) {
-        case 'today':
-            $dateFrom = $dateTo = date('Y-m-d');
-            break;
-        case 'week':
-            $dateFrom = date('Y-m-d', strtotime('monday this week'));
-            $dateTo = date('Y-m-d');
-            break;
-        case 'month':
-            $dateFrom = date('Y-m-01');
-            $dateTo = date('Y-m-d');
-            break;
-        case 'last30':
-            $dateFrom = date('Y-m-d', strtotime('-30 days'));
-            $dateTo = date('Y-m-d');
-            break;
-    }
-}
 
 // Build filters for efficient database query
 $filters = [
@@ -47,18 +22,6 @@ $filters = [
 
 if ($filterLocation) {
     $filters['location'] = $filterLocation;
-}
-
-if ($filterShiftType) {
-    $filters['shift_type'] = $filterShiftType;
-}
-
-if ($dateFrom) {
-    $filters['date_from'] = $dateFrom;
-}
-
-if ($dateTo) {
-    $filters['date_to'] = $dateTo;
 }
 
 // Get filtered reports from database
@@ -74,7 +37,6 @@ if ($filterUser) {
 // Get unique values for filters
 $allLocations = array_unique(array_column($reports, 'location'));
 $allUsers = array_unique(array_column($reports, 'user'));
-$allShiftTypes = ['morning', 'evening']; // Standard shift types
 sort($allLocations);
 sort($allUsers);
 ?>
@@ -106,9 +68,6 @@ sort($allUsers);
       <input type="hidden" name="sort" value="<?= htmlspecialchars($sortBy) ?>">
       <?php if ($filterLocation): ?><input type="hidden" name="location" value="<?= htmlspecialchars($filterLocation) ?>"><?php endif; ?>
       <?php if ($filterUser): ?><input type="hidden" name="user" value="<?= htmlspecialchars($filterUser) ?>"><?php endif; ?>
-      <?php if ($filterShiftType): ?><input type="hidden" name="shift_type" value="<?= htmlspecialchars($filterShiftType) ?>"><?php endif; ?>
-      <?php if ($dateFrom): ?><input type="hidden" name="date_from" value="<?= htmlspecialchars($dateFrom) ?>"><?php endif; ?>
-      <?php if ($dateTo): ?><input type="hidden" name="date_to" value="<?= htmlspecialchars($dateTo) ?>"><?php endif; ?>
     </form>
   </div>
 
@@ -124,7 +83,6 @@ sort($allUsers);
         <option value="time" <?= $sortBy === 'time' ? 'selected' : '' ?>>Recently Submitted</option>
         <option value="user" <?= $sortBy === 'user' ? 'selected' : '' ?>>User Name</option>
         <option value="location" <?= $sortBy === 'location' ? 'selected' : '' ?>>Location</option>
-        <option value="type" <?= $sortBy === 'type' ? 'selected' : '' ?>>Shift Type</option>
       </select>
     </div>
 
@@ -137,16 +95,14 @@ sort($allUsers);
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 2v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
         </svg>
         Filters
-        <?php 
-        $activeFilters = ($filterLocation ? 1 : 0) + ($filterUser ? 1 : 0) + ($filterShiftType ? 1 : 0) + (($dateFrom || $dateTo) ? 1 : 0);
-        if ($activeFilters > 0): ?>
+        <?php if ($filterLocation || $filterUser): ?>
           <span class="px-1.5 py-0.5 text-xs rounded-full text-white" style="background-color: #AF831A;">
-            <?= $activeFilters ?>
+            <?= (($filterLocation ? 1 : 0) + ($filterUser ? 1 : 0)) ?>
           </span>
         <?php endif; ?>
       </button>
 
-      <?php if ($filterLocation || $filterUser || $filterShiftType || $dateFrom || $dateTo || $searchQuery): ?>
+      <?php if ($filterLocation || $filterUser || $searchQuery): ?>
         <a href="?sort=<?= htmlspecialchars($sortBy) ?>" 
            class="px-4 py-2 text-sm text-red-600 hover:text-red-800 font-medium transition-colors border border-red-200 rounded-md hover:bg-red-50">
           Clear All
@@ -158,52 +114,10 @@ sort($allUsers);
   <!-- Advanced Filters - Mobile Friendly -->
   <div x-show="showFilters" x-transition class="px-4 pb-4 border-t bg-gray-50">
     <div class="pt-4 space-y-4">
-      <!-- Date Range & Presets -->
-      <div class="mb-4">
-        <label class="block text-sm font-medium text-gray-700 mb-2">Date Range</label>
-        <div class="flex flex-wrap gap-2 mb-3">
-          <button onclick="setDatePreset('today')" 
-                  class="px-3 py-1 text-xs rounded-full border hover:bg-gray-100 transition-colors <?= $datePreset === 'today' ? 'bg-gray-100 border-gray-400' : 'bg-white border-gray-300' ?>">
-            Today
-          </button>
-          <button onclick="setDatePreset('week')" 
-                  class="px-3 py-1 text-xs rounded-full border hover:bg-gray-100 transition-colors <?= $datePreset === 'week' ? 'bg-gray-100 border-gray-400' : 'bg-white border-gray-300' ?>">
-            This Week
-          </button>
-          <button onclick="setDatePreset('month')" 
-                  class="px-3 py-1 text-xs rounded-full border hover:bg-gray-100 transition-colors <?= $datePreset === 'month' ? 'bg-gray-100 border-gray-400' : 'bg-white border-gray-300' ?>">
-            This Month
-          </button>
-          <button onclick="setDatePreset('last30')" 
-                  class="px-3 py-1 text-xs rounded-full border hover:bg-gray-100 transition-colors <?= $datePreset === 'last30' ? 'bg-gray-100 border-gray-400' : 'bg-white border-gray-300' ?>">
-            Last 30 Days
-          </button>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <label class="block text-xs text-gray-600 mb-1">From Date</label>
-            <input type="date" 
-                   value="<?= htmlspecialchars($dateFrom) ?>"
-                   onchange="updateUrl('date_from', this.value)"
-                   class="w-full border rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2" 
-                   style="--tw-ring-color: #AF831A;">
-          </div>
-          <div>
-            <label class="block text-xs text-gray-600 mb-1">To Date</label>
-            <input type="date" 
-                   value="<?= htmlspecialchars($dateTo) ?>"
-                   onchange="updateUrl('date_to', this.value)"
-                   class="w-full border rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2" 
-                   style="--tw-ring-color: #AF831A;">
-          </div>
-        </div>
-      </div>
-      
-      <!-- Other Filters -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <!-- Location Filter -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Location</label>
           <select onchange="updateUrl('location', this.value)" 
                   class="w-full border rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2" 
                   style="--tw-ring-color: #AF831A;">
@@ -219,7 +133,7 @@ sort($allUsers);
 
         <!-- User Filter -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">User</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Filter by User</label>
           <select onchange="updateUrl('user', this.value)" 
                   class="w-full border rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2" 
                   style="--tw-ring-color: #AF831A;">
@@ -230,18 +144,6 @@ sort($allUsers);
                 <?= htmlspecialchars($user) ?>
               </option>
             <?php endforeach; ?>
-          </select>
-        </div>
-        
-        <!-- Shift Type Filter -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Shift Type</label>
-          <select onchange="updateUrl('shift_type', this.value)" 
-                  class="w-full border rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2" 
-                  style="--tw-ring-color: #AF831A;">
-            <option value="">All Shifts</option>
-            <option value="morning" <?= $filterShiftType === 'morning' ? 'selected' : '' ?>>Morning Shifts</option>
-            <option value="evening" <?= $filterShiftType === 'evening' ? 'selected' : '' ?>>Evening Shifts</option>
           </select>
         </div>
       </div>
