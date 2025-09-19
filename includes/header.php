@@ -21,145 +21,81 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
     // CSRF token for API calls
     window.csrfToken = '<?= $_SESSION['csrf_token'] ?>';
     
-    // Notification Bell Alpine.js Component
-    function notificationBell() {
-      return {
+    // Simple Notification Bell Component
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('notificationBell', () => ({
         open: false,
         loading: false,
         notifications: [],
         unreadCount: 0,
-        pollInterval: null,
         
-        init() {
-          this.fetchNotifications();
-          this.startPolling();
-        },
-        
-        destroy() {
-          if (this.pollInterval) {
-            clearInterval(this.pollInterval);
-          }
-        },
-        
-        startPolling() {
-          // Poll every 30 seconds for new notifications
-          this.pollInterval = setInterval(() => {
-            this.fetchNotifications();
-          }, 30000);
-        },
-        
-        toggleDropdown() {
+        async toggle() {
           this.open = !this.open;
-          if (this.open) {
-            this.fetchNotifications();
+          if (this.open && this.notifications.length === 0) {
+            await this.loadNotifications();
           }
         },
         
-        async fetchNotifications() {
+        async loadNotifications() {
           this.loading = true;
           try {
             const response = await fetch('/api/notifications.php');
-            if (!response.ok) {
-              throw new Error(`HTTP ${response.status}`);
-            }
-            const data = await response.json();
-            
-            if (data.success) {
-              this.notifications = data.notifications || [];
-              this.unreadCount = data.unread_count || 0;
-            } else {
-              console.error('Failed to fetch notifications:', data.error);
+            if (response.ok) {
+              const data = await response.json();
+              if (data.success) {
+                this.notifications = data.notifications || [];
+                this.unreadCount = data.unread_count || 0;
+              }
             }
           } catch (error) {
-            console.error('Error fetching notifications:', error);
-            this.notifications = [];
-            this.unreadCount = 0;
+            console.error('Error loading notifications:', error);
           } finally {
             this.loading = false;
           }
         },
-        
+
         async markAsRead(notificationId) {
           try {
             const response = await fetch('/api/notifications/mark-read.php', {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
+              headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 notification_id: notificationId,
                 csrf_token: window.csrfToken
               })
             });
-            
             const data = await response.json();
-            
             if (data.success) {
-              // Update local state
               const notification = this.notifications.find(n => n.id === notificationId);
               if (notification) {
                 notification.is_read = true;
+                this.unreadCount = Math.max(0, this.unreadCount - 1);
+                if (notification.link_url) {
+                  this.open = false;
+                  window.location.href = notification.link_url;
+                }
               }
-              this.unreadCount = data.unread_count;
-              
-              // Navigate to link if available
-              const notificationObj = this.notifications.find(n => n.id === notificationId);
-              if (notificationObj && notificationObj.link_url) {
-                window.location.href = notificationObj.link_url;
-              }
-            } else {
-              console.error('Failed to mark notification as read:', data.error);
             }
           } catch (error) {
             console.error('Error marking notification as read:', error);
           }
         },
 
-        async markAllRead() {
-          try {
-            const response = await fetch('/api/notifications/mark-all-read.php', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                csrf_token: window.csrfToken
-              })
-            });
-            
-            const data = await response.json();
-            
-            if (data.success) {
-              // Update local state
-              this.notifications.forEach(notification => {
-                notification.is_read = true;
-              });
-              this.unreadCount = 0;
-            } else {
-              console.error('Failed to mark all notifications as read:', data.error);
-            }
-          } catch (error) {
-            console.error('Error marking all notifications as read:', error);
-          }
-        },
-        
         formatDate(dateString) {
           const date = new Date(dateString);
-          const now = new Date();
-          const diffMs = now - date;
-          const diffMins = Math.floor(diffMs / 60000);
-          const diffHours = Math.floor(diffMs / 3600000);
-          const diffDays = Math.floor(diffMs / 86400000);
+          const diffMs = Date.now() - date.getTime();
+          const minutes = Math.floor(diffMs / 60000);
+          const hours = Math.floor(diffMs / 3600000);
+          const days = Math.floor(diffMs / 86400000);
           
-          if (diffMins < 1) return 'Just now';
-          if (diffMins < 60) return `${diffMins}m ago`;
-          if (diffHours < 24) return `${diffHours}h ago`;
-          if (diffDays < 7) return `${diffDays}d ago`;
-          
+          if (minutes < 1) return 'Just now';
+          if (minutes < 60) return `${minutes}m ago`;
+          if (hours < 24) return `${hours}h ago`;
+          if (days < 7) return `${days}d ago`;
           return date.toLocaleDateString();
         }
-      }
-    }
+      }));
+    });
   </script>
   <?php endif; ?>
 </head>
@@ -212,8 +148,8 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         <div class="w-px h-4 bg-gray-300 mx-2"></div>
         
         <!-- Notification Bell -->
-        <div class="relative" x-data="notificationBell()" @click.outside="open = false">
-          <button @click="toggleDropdown()" 
+        <div class="relative" x-data="notificationBell" @click.outside="open = false">
+          <button @click="toggle()" 
                   class="relative flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors">
             <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
