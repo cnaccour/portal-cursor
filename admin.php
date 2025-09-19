@@ -170,7 +170,7 @@ $deleted_count = count(array_filter($deleted_users, fn($u) => isset($u['status']
                                 ?>
                                 <?php if (!$is_deleted): ?>
                                 <button onclick="toggleUserStatus(<?= $user['id'] ?>, '<?= $is_active ? 'inactive' : 'active' ?>')" 
-                                        class="px-2 py-1 text-xs font-medium rounded-full transition-colors cursor-pointer
+                                        class="px-3 py-2 sm:px-2 sm:py-1 text-xs font-medium rounded-full transition-colors cursor-pointer
                                     <?php 
                                     switch ($user_status) {
                                         case 'active': echo 'bg-green-100 text-green-800 hover:bg-green-200'; break;
@@ -182,7 +182,7 @@ $deleted_count = count(array_filter($deleted_users, fn($u) => isset($u['status']
                                     <?= ucfirst($user_status) ?>
                                 </button>
                                 <?php else: ?>
-                                <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
+                                <span class="px-3 py-2 sm:px-2 sm:py-1 text-xs font-medium rounded-full bg-red-100 text-red-800">
                                     Deleted
                                 </span>
                                 <?php endif; ?>
