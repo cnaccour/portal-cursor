@@ -15,6 +15,7 @@ Preferred communication style: Simple, everyday language.
 - Alpine.js for interactive JavaScript functionality via CDN
 - No build process or bundling required
 - Mobile-responsive design using Tailwind's utility classes
+- Optimized mobile UX with touch-friendly interface, no gradient avatars, responsive layouts
 
 **Backend Architecture**
 - Pure PHP 8+ with no external frameworks
