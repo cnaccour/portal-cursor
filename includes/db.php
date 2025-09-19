@@ -2,6 +2,9 @@
 // Local-only mock "database" for login testing in Replit.
 // REMOVE this file and restore the real db.php when you deploy.
 
+// Mock invitations data for development
+$mock_invitations = [];
+
 $mock_users = [
   [
     'id' => 1,

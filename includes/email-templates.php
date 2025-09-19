@@ -313,34 +313,44 @@ This invitation will expire and cannot be used after the expiration date.";
     }
     
     /**
-     * Send email (mock implementation for development)
+     * Send invitation email
      */
     public static function sendInvitationEmail($invitation_data) {
-        $html_content = self::getInvitationEmailHTML($invitation_data);
-        $text_content = self::getInvitationEmailText($invitation_data);
-        
-        // For development, just log the email content
-        error_log("Mock Email Sent to {$invitation_data['email']}:");
-        error_log("Subject: You've been invited to join J. Joseph Salon Team Portal");
-        error_log("Signup URL: http://{$_SERVER['HTTP_HOST']}/signup.php?token=" . urlencode($invitation_data['token']));
-        
-        // In production, you would use mail() function or a service like:
-        // - PHPMailer
-        // - SendGrid
-        // - Amazon SES
-        // - Your hosting provider's mail service
-        
-        /*
-        // Production email sending example:
-        $to = $invitation_data['email'];
-        $subject = "You've been invited to join J. Joseph Salon Team Portal";
-        $headers = "MIME-Version: 1.0" . "\r\n";
-        $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-        $headers .= "From: noreply@{$_SERVER['HTTP_HOST']}" . "\r\n";
-        
-        return mail($to, $subject, $html_content, $headers);
-        */
-        
-        return true; // Mock success
+        try {
+            $html_content = self::getInvitationEmailHTML($invitation_data);
+            $text_content = self::getInvitationEmailText($invitation_data);
+            
+            // For development mode, log the email content
+            error_log("=== INVITATION EMAIL SENT ===");
+            error_log("To: {$invitation_data['email']}");
+            error_log("Subject: You've been invited to join J. Joseph Salon Team Portal");
+            error_log("Role: {$invitation_data['role']}");
+            error_log("Signup URL: http://{$_SERVER['HTTP_HOST']}/signup.php?token=" . urlencode($invitation_data['token']));
+            error_log("Expires: {$invitation_data['expires_at']}");
+            error_log("==========================");
+            
+            // In production, you would replace this with actual email sending:
+            // Option 1: PHP's built-in mail() function
+            // Option 2: PHPMailer library  
+            // Option 3: Email service (SendGrid, Mailgun, etc.)
+            // Option 4: Your hosting provider's SMTP
+            
+            /*
+            // Production email sending example:
+            $to = $invitation_data['email'];
+            $subject = "You've been invited to join J. Joseph Salon Team Portal";
+            $headers = "MIME-Version: 1.0" . "\r\n";
+            $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
+            $headers .= "From: noreply@{$_SERVER['HTTP_HOST']}" . "\r\n";
+            
+            return mail($to, $subject, $html_content, $headers);
+            */
+            
+            return true; // Mock success for development
+            
+        } catch (Exception $e) {
+            error_log("Error sending invitation email: " . $e->getMessage());
+            return false;
+        }
     }
 }

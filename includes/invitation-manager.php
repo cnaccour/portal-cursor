@@ -27,10 +27,15 @@ class InvitationManager {
      */
     private function isDatabaseAvailable() {
         try {
+            // First check if getPDO function exists
+            if (!function_exists('getPDO')) {
+                return false;
+            }
+            
             $pdo = getPDO();
             $stmt = $pdo->query("SHOW TABLES LIKE 'invitations'");
             return $stmt->rowCount() > 0;
-        } catch (Exception $e) {
+        } catch (Throwable $e) {
             return false;
         }
     }
@@ -142,7 +147,7 @@ class InvitationManager {
             $this->updateInvitationStatus($invitation['id'], 'accepted');
             
             // Log the action
-            $this->logInvitationAction($invitation['id'], 'accepted', null, $user_id, $user_id);
+            $this->logInvitationAction($invitation['id'], 'accepted', 'pending', 'accepted', $user_id);
             
             return $user_id;
             
@@ -166,8 +171,9 @@ class InvitationManager {
             throw new InvalidArgumentException('Can only revoke pending invitations');
         }
         
+        $old_status = $invitation['status'];
         $this->updateInvitationStatus($invitation_id, 'revoked');
-        $this->logInvitationAction($invitation_id, 'revoked', $invitation['status'], 'revoked', $revoked_by_id);
+        $this->logInvitationAction($invitation_id, 'revoked', $old_status, 'revoked', $revoked_by_id);
         
         return true;
     }

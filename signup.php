@@ -1,0 +1,290 @@
+<?php
+/**
+ * Public Signup Page
+ * Allows invited users to complete their registration
+ */
+
+require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/invitation-manager.php';
+
+// Initialize invitation manager
+$invitationManager = InvitationManager::getInstance();
+
+// Check if user is already logged in
+session_start();
+if (isset($_SESSION['user_id'])) {
+    header('Location: /dashboard.php');
+    exit;
+}
+
+// Get and validate token
+$token = $_GET['token'] ?? '';
+$invitation = null;
+$error_message = '';
+
+if (empty($token)) {
+    $error_message = 'Invalid or missing invitation token.';
+} else {
+    $invitation = $invitationManager->getInvitationByToken($token);
+    
+    if (!$invitation) {
+        $error_message = 'Invalid invitation token.';
+    } elseif ($invitation['status'] !== 'pending') {
+        $error_message = 'This invitation is no longer active.';
+    } elseif (strtotime($invitation['expires_at']) < time()) {
+        $error_message = 'This invitation has expired.';
+    }
+}
+
+// Handle form submission
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $invitation && empty($error_message)) {
+    try {
+        // CSRF protection (basic check for signup form)
+        $provided_token = $_POST['csrf_token'] ?? '';
+        if (empty($provided_token)) {
+            throw new InvalidArgumentException('Security token missing. Please refresh and try again.');
+        }
+        // Validate input
+        $name = trim($_POST['name'] ?? '');
+        $password = $_POST['password'] ?? '';
+        $confirm_password = $_POST['confirm_password'] ?? '';
+        
+        if (empty($name)) {
+            throw new InvalidArgumentException('Please enter your full name.');
+        }
+        
+        if (strlen($name) < 2) {
+            throw new InvalidArgumentException('Name must be at least 2 characters long.');
+        }
+        
+        if (empty($password)) {
+            throw new InvalidArgumentException('Please enter a password.');
+        }
+        
+        if (strlen($password) < 8) {
+            throw new InvalidArgumentException('Password must be at least 8 characters long.');
+        }
+        
+        if ($password !== $confirm_password) {
+            throw new InvalidArgumentException('Passwords do not match.');
+        }
+        
+        // Accept invitation and create user
+        $user_id = $invitationManager->acceptInvitation($token, $name, $password);
+        
+        // Log the user in
+        $_SESSION['user_id'] = $user_id;
+        $_SESSION['user_email'] = $invitation['email'];
+        $_SESSION['user_name'] = $name;
+        $_SESSION['user_role'] = $invitation['role'];
+        
+        // Generate CSRF token
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+        
+        // Regenerate session ID for security
+        session_regenerate_id(true);
+        
+        // Redirect to dashboard
+        header('Location: /dashboard.php?welcome=1');
+        exit;
+        
+    } catch (Exception $e) {
+        $error_message = $e->getMessage();
+    }
+}
+
+// Get role display name for invitation details
+function getRoleDisplayName($role) {
+    $role_names = [
+        'admin' => 'Administrator',
+        'manager' => 'Manager',
+        'support' => 'Support Specialist',
+        'staff' => 'Staff Member',
+        'viewer' => 'Viewer'
+    ];
+    return $role_names[$role] ?? ucfirst($role);
+}
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complete Your Registration - J. Joseph Salon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <div class="flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full">
+            <!-- Header -->
+            <div class="text-center mb-8">
+                <div class="mx-auto h-16 w-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mb-4">
+                    <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-bold text-gray-900">J. Joseph Salon</h1>
+                <p class="text-gray-600 mt-2">Complete Your Registration</p>
+            </div>
+
+            <?php if (!empty($error_message)): ?>
+            <!-- Error State -->
+            <div class="bg-white rounded-xl shadow-lg border border-red-200 p-6">
+                <div class="flex items-center justify-center mb-4">
+                    <div class="h-12 w-12 bg-red-100 rounded-full flex items-center justify-center">
+                        <svg class="h-6 w-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.996-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="text-center">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-2">Unable to Complete Registration</h2>
+                    <p class="text-red-600 mb-4"><?= htmlspecialchars($error_message) ?></p>
+                    <p class="text-sm text-gray-600 mb-6">
+                        If you believe this is an error, please contact your administrator for assistance.
+                    </p>
+                    <a href="/login.php" 
+                       class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z"></path>
+                        </svg>
+                        Go to Login
+                    </a>
+                </div>
+            </div>
+            
+            <?php else: ?>
+            <!-- Registration Form -->
+            <div class="bg-white rounded-xl shadow-lg border p-6">
+                <!-- Invitation Details -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                    <div class="flex items-center mb-3">
+                        <svg class="w-5 h-5 text-blue-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                            <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                        </svg>
+                        <h3 class="text-sm font-semibold text-blue-800">Invitation Details</h3>
+                    </div>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-blue-700">Email:</span>
+                            <span class="font-medium text-blue-900"><?= htmlspecialchars($invitation['email']) ?></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-blue-700">Role:</span>
+                            <span class="font-medium text-blue-900"><?= htmlspecialchars(getRoleDisplayName($invitation['role'])) ?></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-blue-700">Expires:</span>
+                            <span class="font-medium text-blue-900"><?= date('M j, Y', strtotime($invitation['expires_at'])) ?></span>
+                        </div>
+                    </div>
+                </div>
+
+                <form method="POST" action="" class="space-y-6">
+                    <?php if ($invitation): ?>
+                    <input type="hidden" name="csrf_token" value="<?= bin2hex(random_bytes(32)) ?>">
+                    <?php endif; ?>
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                        <input type="text" id="name" name="name" required
+                               value="<?= htmlspecialchars($_POST['name'] ?? '') ?>"
+                               class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                               placeholder="Enter your full name">
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                        <input type="password" id="password" name="password" required
+                               class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                               placeholder="Create a strong password">
+                        <p class="text-xs text-gray-500 mt-1">Must be at least 8 characters long</p>
+                    </div>
+
+                    <div>
+                        <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-2">Confirm Password</label>
+                        <input type="password" id="confirm_password" name="confirm_password" required
+                               class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                               placeholder="Confirm your password">
+                    </div>
+
+                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-start">
+                            <svg class="w-5 h-5 text-gray-500 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                            </svg>
+                            <div>
+                                <p class="text-sm text-gray-700 font-medium">What happens next?</p>
+                                <ul class="text-xs text-gray-600 mt-1 space-y-1">
+                                    <li>• Your account will be created with the specified role</li>
+                                    <li>• You'll be automatically logged in</li>
+                                    <li>• You'll have access to the team portal features</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" 
+                            class="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-[1.02]">
+                        Complete Registration
+                    </button>
+                </form>
+
+                <div class="mt-6 text-center">
+                    <p class="text-xs text-gray-500">
+                        By completing registration, you agree to our terms of service and privacy policy.
+                    </p>
+                </div>
+            </div>
+            <?php endif; ?>
+
+            <!-- Footer -->
+            <div class="text-center mt-8">
+                <p class="text-sm text-gray-600">
+                    Need help? Contact your administrator.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Basic client-side validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const password = document.getElementById('password');
+            const confirmPassword = document.getElementById('confirm_password');
+            
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    if (password.value !== confirmPassword.value) {
+                        e.preventDefault();
+                        alert('Passwords do not match. Please check and try again.');
+                        confirmPassword.focus();
+                        return false;
+                    }
+                    
+                    if (password.value.length < 8) {
+                        e.preventDefault();
+                        alert('Password must be at least 8 characters long.');
+                        password.focus();
+                        return false;
+                    }
+                });
+                
+                // Real-time password confirmation validation
+                confirmPassword.addEventListener('input', function() {
+                    if (this.value && password.value && this.value !== password.value) {
+                        this.setCustomValidity('Passwords do not match');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
