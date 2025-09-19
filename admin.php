@@ -250,9 +250,7 @@ $deleted_count = count(array_filter($deleted_users, fn($u) => isset($u['status']
                                 
                                 <div x-show="open" x-cloak x-transition 
                                      class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border py-1 z-50">
-                                    <a href="#" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">View Profile</a>
                                     <a href="#" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">Reset Password</a>
-                                    <a href="#" class="block px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">View Activity</a>
                                     <div class="border-t my-1"></div>
                                     <?php if ($user['id'] != $_SESSION['user_id']): ?>
                                     <button onclick="deleteUser(<?= $user['id'] ?>, '<?= htmlspecialchars($user['name']) ?>')" 
