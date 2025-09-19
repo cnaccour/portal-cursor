@@ -2,6 +2,7 @@
 require __DIR__.'/../includes/auth.php';
 require __DIR__.'/../includes/api-helpers.php';
 require __DIR__.'/../includes/announcement-helpers.php';
+require __DIR__.'/../includes/notification-manager.php';
 
 require_login();
 require_role('admin'); // Only admins can manage announcements
@@ -95,5 +96,32 @@ if ($mode === 'add') {
 // Save updated announcements using helper function
 $successMessage = $mode === 'add' ? 'Announcement created successfully' : 'Announcement updated successfully';
 saveJSONFile($dynamicFile, $dynamicAnnouncements, 'Could not save announcement');
+
+// Send notifications to relevant users
+try {
+    if ($mode === 'add') {
+        // Notify all users about new announcements
+        NotificationManager::notify_roles(['admin', 'manager', 'support', 'staff', 'viewer'], [
+            'type' => 'announcement',
+            'title' => 'New Announcement: ' . $announcementData['title'],
+            'message' => 'A new announcement has been posted. Click to read more.',
+            'link_url' => '/announcements.php#announcement-' . $announcementData['id'],
+            'icon' => 'announcement'
+        ]);
+    } elseif ($mode === 'edit') {
+        // Notify users about announcement updates (except viewers to reduce noise)
+        NotificationManager::notify_roles(['admin', 'manager', 'support', 'staff'], [
+            'type' => 'announcement',
+            'title' => 'Updated: ' . $announcementData['title'],
+            'message' => 'An announcement has been updated. Click to see the changes.',
+            'link_url' => '/announcements.php#announcement-' . $announcementData['id'],
+            'icon' => 'announcement'
+        ]);
+    }
+} catch (Exception $e) {
+    // Log notification error but don't fail the announcement save
+    error_log('Failed to send announcement notification: ' . $e->getMessage());
+}
+
 sendSuccessResponse(['announcement' => $announcementData], $successMessage);
 ?>
