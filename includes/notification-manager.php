@@ -33,12 +33,14 @@ class NotificationManager {
                 return false;
             }
             
-            // Check if notifications table exists
-            $stmt = $pdo->query("SHOW TABLES LIKE 'notifications'");
-            $notificationsExists = $stmt->rowCount() > 0;
+            // Check if required tables exist and are accessible
+            $stmt = $pdo->prepare("SELECT 1 FROM notifications LIMIT 1");
+            $stmt->execute();
+            $notificationsExists = true;
             
-            $stmt = $pdo->query("SHOW TABLES LIKE 'user_notifications'");
-            $userNotificationsExists = $stmt->rowCount() > 0;
+            $stmt = $pdo->prepare("SELECT 1 FROM user_notifications LIMIT 1");
+            $stmt->execute();
+            $userNotificationsExists = true;
             
             return $notificationsExists && $userNotificationsExists;
         } catch (Exception $e) {
@@ -410,6 +412,11 @@ class NotificationManager {
     }
     
     private function databaseNotifyUsers(array $user_ids, array $notification_data) {
+        if (empty($user_ids)) {
+            error_log('notify_users called with empty user_ids array');
+            return false;
+        }
+        
         try {
             require_once __DIR__ . '/db.php';
             global $pdo;
@@ -492,10 +499,10 @@ class NotificationManager {
                 WHERE un.user_id = ? AND n.is_active = 1
                   AND (n.expires_at IS NULL OR n.expires_at > NOW())
                 ORDER BY n.created_at DESC
-                LIMIT ?
+                LIMIT " . (int)$limit . "
             ");
             
-            $stmt->execute([$user_id, $limit]);
+            $stmt->execute([$user_id]);
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             error_log('Database get_user_notifications error: ' . $e->getMessage());
