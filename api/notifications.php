@@ -29,17 +29,33 @@ try {
     $notifications = NotificationManager::get_user_notifications($user_id, $limit);
     $unread_count = NotificationManager::get_unread_count($user_id);
     
+    // Function to validate safe internal links
+    $validateSafeLink = function($link_url) {
+        if (empty($link_url)) {
+            return null;
+        }
+        
+        // Only allow relative paths starting with '/'
+        if (!preg_match('/^\/[^\/]/', $link_url) || 
+            preg_match('/^[a-z]+:/i', $link_url) || 
+            strpos($link_url, '//') !== false) {
+            return null; // Block unsafe URLs
+        }
+        
+        return $link_url;
+    };
+    
     // Format response
     $response = [
         'success' => true,
         'unread_count' => $unread_count,
-        'notifications' => array_map(function($notification) {
+        'notifications' => array_map(function($notification) use ($validateSafeLink) {
             return [
                 'id' => $notification['id'],
                 'type' => $notification['type'] ?? 'general',
                 'title' => htmlspecialchars($notification['title'] ?? ''),
                 'message' => htmlspecialchars($notification['message'] ?? ''),
-                'link_url' => $notification['link_url'] ?? null,
+                'link_url' => $validateSafeLink($notification['link_url'] ?? null),
                 'icon' => $notification['icon'] ?? 'bell',
                 'is_read' => $notification['is_read'] ?? false,
                 'created_at' => $notification['created_at'],

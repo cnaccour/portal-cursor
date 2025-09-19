@@ -24,9 +24,27 @@ class NotificationManager {
      * Check if real database is available
      */
     private function isDatabaseAvailable() {
-        // For now, always use mock in development
-        // Change this logic when deploying to production
-        return false;
+        // Check for database connection and required tables
+        try {
+            require_once __DIR__ . '/db.php';
+            global $pdo;
+            
+            if (!$pdo) {
+                return false;
+            }
+            
+            // Check if notifications table exists
+            $stmt = $pdo->query("SHOW TABLES LIKE 'notifications'");
+            $notificationsExists = $stmt->rowCount() > 0;
+            
+            $stmt = $pdo->query("SHOW TABLES LIKE 'user_notifications'");
+            $userNotificationsExists = $stmt->rowCount() > 0;
+            
+            return $notificationsExists && $userNotificationsExists;
+        } catch (Exception $e) {
+            error_log('Database availability check failed: ' . $e->getMessage());
+            return false;
+        }
     }
     
     /**
@@ -103,15 +121,24 @@ class NotificationManager {
     // Internal implementation methods
     
     private function _notify_roles(array $roles, array $notification_data) {
+        // Validate and sanitize link_url for security
+        if (isset($notification_data['link_url'])) {
+            $notification_data['link_url'] = $this->validateInternalLink($notification_data['link_url']);
+        }
+        
         if ($this->use_mock) {
             return $this->mockNotifyRoles($roles, $notification_data);
         }
         
-        // Real database implementation would go here
         return $this->databaseNotifyRoles($roles, $notification_data);
     }
     
     private function _notify_users(array $user_ids, array $notification_data) {
+        // Validate and sanitize link_url for security
+        if (isset($notification_data['link_url'])) {
+            $notification_data['link_url'] = $this->validateInternalLink($notification_data['link_url']);
+        }
+        
         if ($this->use_mock) {
             return $this->mockNotifyUsers($user_ids, $notification_data);
         }
@@ -120,6 +147,11 @@ class NotificationManager {
     }
     
     private function _notify_all(array $notification_data) {
+        // Validate and sanitize link_url for security
+        if (isset($notification_data['link_url'])) {
+            $notification_data['link_url'] = $this->validateInternalLink($notification_data['link_url']);
+        }
+        
         if ($this->use_mock) {
             return $this->mockNotifyAll($notification_data);
         }
@@ -312,40 +344,246 @@ class NotificationManager {
         return 'viewer'; // Default role
     }
     
+    // Security validation for link URLs
+    
+    private function validateInternalLink($link_url) {
+        if (empty($link_url)) {
+            return null;
+        }
+        
+        // Only allow relative paths starting with '/'
+        if (!preg_match('/^\/[^\/]/', $link_url)) {
+            error_log('Invalid link_url blocked: ' . $link_url);
+            return null;
+        }
+        
+        // Block any protocol schemes or external references
+        if (preg_match('/^[a-z]+:/i', $link_url) || strpos($link_url, '//') !== false) {
+            error_log('External link_url blocked: ' . $link_url);
+            return null;
+        }
+        
+        return $link_url;
+    }
+    
     // Database implementations (for production)
     
     private function databaseNotifyRoles(array $roles, array $notification_data) {
-        // TODO: Implement when real database is available
-        throw new Exception('Database implementation not yet available');
+        try {
+            require_once __DIR__ . '/db.php';
+            global $pdo;
+            
+            // Insert notification
+            $stmt = $pdo->prepare(\"
+                INSERT INTO notifications (type, title, message, link_url, icon, target_roles, created_by, expires_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            \");
+            
+            $stmt->execute([
+                $notification_data['type'] ?? 'general',
+                $notification_data['title'],
+                $notification_data['message'] ?? '',
+                $notification_data['link_url'] ?? null,
+                $notification_data['icon'] ?? 'bell',
+                json_encode($roles),
+                $_SESSION['user_id'] ?? null,
+                $notification_data['expires_at'] ?? null
+            ]);
+            
+            $notification_id = $pdo->lastInsertId();
+            
+            // Get users with these roles and create user_notifications
+            $placeholders = str_repeat('?,', count($roles) - 1) . '?';
+            $stmt = $pdo->prepare(\"SELECT id FROM users WHERE role IN ($placeholders)\");
+            $stmt->execute($roles);
+            $user_ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            
+            if (!empty($user_ids)) {
+                $this->createUserNotifications($notification_id, $user_ids);
+            }
+            
+            return true;
+        } catch (Exception $e) {
+            error_log('Database notify_roles error: ' . $e->getMessage());
+            return false;
+        }
     }
     
     private function databaseNotifyUsers(array $user_ids, array $notification_data) {
-        // TODO: Implement when real database is available  
-        throw new Exception('Database implementation not yet available');
+        try {
+            require_once __DIR__ . '/db.php';
+            global $pdo;
+            
+            // Insert notification
+            $stmt = $pdo->prepare("
+                INSERT INTO notifications (type, title, message, link_url, icon, target_roles, created_by, expires_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            
+            $stmt->execute([
+                $notification_data['type'] ?? 'general',
+                $notification_data['title'],
+                $notification_data['message'] ?? '',
+                $notification_data['link_url'] ?? null,
+                $notification_data['icon'] ?? 'bell',
+                null, // No role targeting for specific users
+                $_SESSION['user_id'] ?? null,
+                $notification_data['expires_at'] ?? null
+            ]);
+            
+            $notification_id = $pdo->lastInsertId();
+            $this->createUserNotifications($notification_id, $user_ids);
+            
+            return true;
+        } catch (Exception $e) {
+            error_log('Database notify_users error: ' . $e->getMessage());
+            return false;
+        }
     }
     
     private function databaseNotifyAll(array $notification_data) {
-        // TODO: Implement when real database is available
-        throw new Exception('Database implementation not yet available');
+        try {
+            require_once __DIR__ . '/db.php';
+            global $pdo;
+            
+            // Insert notification
+            $stmt = $pdo->prepare("
+                INSERT INTO notifications (type, title, message, link_url, icon, target_roles, created_by, expires_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            ");
+            
+            $stmt->execute([
+                $notification_data['type'] ?? 'general',
+                $notification_data['title'],
+                $notification_data['message'] ?? '',
+                $notification_data['link_url'] ?? null,
+                $notification_data['icon'] ?? 'bell',
+                json_encode(['admin', 'manager', 'support', 'staff', 'viewer']), // All roles
+                $_SESSION['user_id'] ?? null,
+                $notification_data['expires_at'] ?? null
+            ]);
+            
+            $notification_id = $pdo->lastInsertId();
+            
+            // Get all users
+            $stmt = $pdo->query("SELECT id FROM users");
+            $user_ids = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            
+            if (!empty($user_ids)) {
+                $this->createUserNotifications($notification_id, $user_ids);
+            }
+            
+            return true;
+        } catch (Exception $e) {
+            error_log('Database notify_all error: ' . $e->getMessage());
+            return false;
+        }
     }
     
     private function databaseGetUserNotifications(int $user_id, int $limit) {
-        // TODO: Implement when real database is available
-        throw new Exception('Database implementation not yet available');
+        try {
+            require_once __DIR__ . '/db.php';
+            global $pdo;
+            
+            $stmt = $pdo->prepare("
+                SELECT n.*, un.is_read, un.read_at
+                FROM notifications n
+                JOIN user_notifications un ON n.id = un.notification_id
+                WHERE un.user_id = ? AND n.is_active = 1
+                  AND (n.expires_at IS NULL OR n.expires_at > NOW())
+                ORDER BY n.created_at DESC
+                LIMIT ?
+            ");
+            
+            $stmt->execute([$user_id, $limit]);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $e) {
+            error_log('Database get_user_notifications error: ' . $e->getMessage());
+            return [];
+        }
     }
     
     private function databaseGetUnreadCount(int $user_id) {
-        // TODO: Implement when real database is available
-        throw new Exception('Database implementation not yet available');
+        try {
+            require_once __DIR__ . '/db.php';
+            global $pdo;
+            
+            $stmt = $pdo->prepare("
+                SELECT COUNT(*)
+                FROM notifications n
+                JOIN user_notifications un ON n.id = un.notification_id
+                WHERE un.user_id = ? AND un.is_read = 0 AND n.is_active = 1
+                  AND (n.expires_at IS NULL OR n.expires_at > NOW())
+            ");
+            
+            $stmt->execute([$user_id]);
+            return (int)$stmt->fetchColumn();
+        } catch (Exception $e) {
+            error_log('Database get_unread_count error: ' . $e->getMessage());
+            return 0;
+        }
     }
     
     private function databaseMarkAsRead(int $user_id, int $notification_id) {
-        // TODO: Implement when real database is available
-        throw new Exception('Database implementation not yet available');
+        try {
+            require_once __DIR__ . '/db.php';
+            global $pdo;
+            
+            $stmt = $pdo->prepare("
+                UPDATE user_notifications 
+                SET is_read = 1, read_at = NOW() 
+                WHERE user_id = ? AND notification_id = ?
+            ");
+            
+            return $stmt->execute([$user_id, $notification_id]);
+        } catch (Exception $e) {
+            error_log('Database mark_as_read error: ' . $e->getMessage());
+            return false;
+        }
     }
     
     private function databaseMarkAllRead(int $user_id) {
-        // TODO: Implement when real database is available
-        throw new Exception('Database implementation not yet available');
+        try {
+            require_once __DIR__ . '/db.php';
+            global $pdo;
+            
+            $stmt = $pdo->prepare("
+                UPDATE user_notifications 
+                SET is_read = 1, read_at = NOW() 
+                WHERE user_id = ? AND is_read = 0
+            ");
+            
+            return $stmt->execute([$user_id]);
+        } catch (Exception $e) {
+            error_log('Database mark_all_read error: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    // Helper method for creating user notification records
+    private function createUserNotifications(int $notification_id, array $user_ids) {
+        try {
+            require_once __DIR__ . '/db.php';
+            global $pdo;
+            
+            $placeholders = str_repeat('(?, ?),', count($user_ids));
+            $placeholders = rtrim($placeholders, ',');
+            
+            $stmt = $pdo->prepare("
+                INSERT IGNORE INTO user_notifications (notification_id, user_id)
+                VALUES $placeholders
+            ");
+            
+            $values = [];
+            foreach ($user_ids as $user_id) {
+                $values[] = $notification_id;
+                $values[] = $user_id;
+            }
+            
+            return $stmt->execute($values);
+        } catch (Exception $e) {
+            error_log('Create user_notifications error: ' . $e->getMessage());
+            return false;
+        }
     }
 }
