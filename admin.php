@@ -86,7 +86,7 @@ $deleted_count = count(array_filter($deleted_users, fn($u) => isset($u['status']
                 <p class="text-sm text-gray-600 mt-1">Manage user accounts, roles, and permissions.</p>
             </div>
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-                <button onclick="openInviteModal()" class="px-4 py-3 sm:py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base">
+                <button onclick="openInviteModal()" class="px-4 py-3 sm:py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors flex items-center justify-center gap-2 text-sm sm:text-base">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                     </svg>
@@ -812,7 +812,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </button>
                     <button 
                         type="submit" 
-                        class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                        class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
                     >
                         Reset Password
                     </button>
