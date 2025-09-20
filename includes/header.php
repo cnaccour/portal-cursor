@@ -113,8 +113,14 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             return date.toLocaleDateString();
           },
           
-          async handleNotificationClick(notification) {
+          async handleNotificationClick(notification, evt) {
             try {
+              // SECURITY: Only allow trusted user clicks to prevent automatic navigation
+              if (!evt || !evt.isTrusted) {
+                console.warn('Blocked untrusted notification click');
+                return;
+              }
+              
               // Mark as read if not already read
               if (!notification.is_read) {
                 const response = await fetch('/api/notifications/mark-read.php', {
@@ -143,7 +149,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
                 // Close dropdown first
                 this.open = false;
                 // Navigate to the link
-                window.location.href = notification.link_url;
+                window.location.assign(notification.link_url);
               }
             } catch (error) {
               console.error('Error handling notification click:', error);
@@ -191,7 +197,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
               <template x-for="notification in notifications" :key="notification.id">
                 <div class="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
                      :class="{ 'bg-blue-50': !notification.is_read, 'cursor-pointer': notification.link_url }"
-                     @click="handleNotificationClick(notification)">
+                     @click="handleNotificationClick(notification, $event)">
                   <div class="flex items-start gap-3">
                     <!-- Icon -->
                     <div class="flex-shrink-0 mt-1">
