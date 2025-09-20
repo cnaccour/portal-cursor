@@ -52,11 +52,19 @@ sort($categories);
                 if (data.success) {
                     contentDiv.innerHTML = data.content;
                 } else {
-                    contentDiv.innerHTML = '<p class=\"text-gray-500\">Error loading content</p>';
+                    const errorP = document.createElement('p');
+                    errorP.className = 'text-gray-500';
+                    errorP.textContent = 'Error loading content';
+                    contentDiv.innerHTML = '';
+                    contentDiv.appendChild(errorP);
                 }
             } catch (error) {
                 console.error('Error loading announcement content:', error);
-                contentDiv.innerHTML = '<p class=\"text-gray-500\">Error loading content</p>';
+                const errorP = document.createElement('p');
+                errorP.className = 'text-gray-500';
+                errorP.textContent = 'Error loading content';
+                contentDiv.innerHTML = '';
+                contentDiv.appendChild(errorP);
             }
         } else {
             // Regular announcement content
@@ -133,7 +141,7 @@ sort($categories);
              data-category="<?= strtolower($announcement['category']) ?>"
              data-search="<?= strtolower($announcement['title'] . ' ' . $announcement['content']) ?>"
              x-show="(selectedCategory === 'all' || selectedCategory === $el.dataset.category) && (searchTerm === '' || $el.dataset.search.includes(searchTerm.toLowerCase()))"
-             @click="openModal(<?= htmlspecialchars(json_encode($announcement), ENT_QUOTES) ?>)"
+             @click='openModal(<?= json_encode($announcement, JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'
              style="display: block">
             <div class="p-6">
                 <div class="flex items-start gap-4">
