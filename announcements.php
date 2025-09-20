@@ -47,16 +47,16 @@ sort($categories);
         if (announcementId === 'static-education-2025') {
             // Load education schedule content via API
             try {
-                const response = await fetch(`/api/get-announcement-content.php?id=${announcementId}`);
+                const response = await fetch('/api/get-announcement-content.php?id=' + announcementId);
                 const data = await response.json();
                 if (data.success) {
                     contentDiv.innerHTML = data.content;
                 } else {
-                    contentDiv.innerHTML = '<p class="text-gray-500">Error loading content</p>';
+                    contentDiv.innerHTML = '<p class=\"text-gray-500\">Error loading content</p>';
                 }
             } catch (error) {
                 console.error('Error loading announcement content:', error);
-                contentDiv.innerHTML = '<p class="text-gray-500">Error loading content</p>';
+                contentDiv.innerHTML = '<p class=\"text-gray-500\">Error loading content</p>';
             }
         } else {
             // Regular announcement content
