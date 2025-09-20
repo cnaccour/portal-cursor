@@ -3,9 +3,7 @@
 require __DIR__.'/includes/header.php';
 
 // Load all announcements (static + dynamic)
-require_once __DIR__.'/includes/announcement-helpers.php';
-require_once __DIR__.'/includes/education-schedule-renderer.php';
-$allAnnouncements = loadAllAnnouncements();
+$allAnnouncements = include __DIR__.'/includes/all-announcements.php';
 
 // Filter out expired announcements
 $activeAnnouncements = array_filter($allAnnouncements, function($announcement) {
@@ -35,41 +33,6 @@ sort($categories);
     openModal(announcement) {
         this.selectedAnnouncement = announcement;
         this.modalOpen = true;
-        // Load the content after modal opens
-        this.$nextTick(() => {
-            this.loadAnnouncementContent(announcement.id);
-        });
-    },
-    async loadAnnouncementContent(announcementId) {
-        const contentDiv = document.getElementById('announcement-content-display');
-        if (!contentDiv) return;
-        
-        if (announcementId === 'static-education-2025') {
-            // Load education schedule content via API
-            try {
-                const response = await fetch('/api/get-announcement-content.php?id=' + announcementId);
-                const data = await response.json();
-                if (data.success) {
-                    contentDiv.innerHTML = data.content;
-                } else {
-                    const errorP = document.createElement('p');
-                    errorP.className = 'text-gray-500';
-                    errorP.textContent = 'Error loading content';
-                    contentDiv.innerHTML = '';
-                    contentDiv.appendChild(errorP);
-                }
-            } catch (error) {
-                console.error('Error loading announcement content:', error);
-                const errorP = document.createElement('p');
-                errorP.className = 'text-gray-500';
-                errorP.textContent = 'Error loading content';
-                contentDiv.innerHTML = '';
-                contentDiv.appendChild(errorP);
-            }
-        } else {
-            // Regular announcement content
-            contentDiv.innerHTML = this.selectedAnnouncement.content;
-        }
     },
     closeModal() {
         this.modalOpen = false;
@@ -107,7 +70,7 @@ sort($categories);
             </svg>
             <span x-text="selectedCategory === 'all' ? 'All Types' : selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)"></span>
             <span class="text-gray-500 text-sm">
-                <span x-text="Array.from(document.querySelectorAll('.announcement-item')).filter(el => el.style.display !== 'none').length"></span> Total
+                <span x-text="document.querySelectorAll('.announcement-item:not([style*=\"display: none\"])').length"></span> Total
             </span>
         </button>
     </div>
@@ -141,7 +104,7 @@ sort($categories);
              data-category="<?= strtolower($announcement['category']) ?>"
              data-search="<?= strtolower($announcement['title'] . ' ' . $announcement['content']) ?>"
              x-show="(selectedCategory === 'all' || selectedCategory === $el.dataset.category) && (searchTerm === '' || $el.dataset.search.includes(searchTerm.toLowerCase()))"
-             @click='openModal(<?= json_encode($announcement, JSON_HEX_APOS | JSON_HEX_QUOT) ?>)'
+             @click="openModal(<?= htmlspecialchars(json_encode($announcement), ENT_QUOTES) ?>)"
              style="display: block">
             <div class="p-6">
                 <div class="flex items-start gap-4">
@@ -162,17 +125,12 @@ sort($categories);
                         <!-- Description (Excerpt) -->
                         <div class="text-gray-600 text-sm leading-relaxed mb-4">
                             <?php 
-                            // Special handling for education schedule
-                            if (strpos($announcement['content'], '<education-schedule-2025>') !== false) {
-                                echo 'Complete 2025 education schedule with monthly training sessions. Click to view full schedule and add sessions to your calendar.';
-                            } else {
-                                // For excerpts, strip HTML tags and show plain text
-                                $plainContent = strip_tags($announcement['content']);
-                                $excerpt = strlen($plainContent) > 150 
-                                    ? substr($plainContent, 0, 150) . '...' 
-                                    : $plainContent;
-                                echo htmlspecialchars($excerpt);
-                            }
+                            // For excerpts, strip HTML tags and show plain text
+                            $plainContent = strip_tags($announcement['content']);
+                            $excerpt = strlen($plainContent) > 150 
+                                ? substr($plainContent, 0, 150) . '...' 
+                                : $plainContent;
+                            echo htmlspecialchars($excerpt);
                             ?>
                         </div>
                         
@@ -227,7 +185,7 @@ sort($categories);
     
     <!-- Modal panel -->
     <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-lg shadow-xl max-w-2xl md:max-w-6xl w-full max-h-[90vh] overflow-y-auto relative z-10">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative z-10">
             
             <!-- Modal Header -->
             <div class="flex items-center justify-between p-6 border-b border-gray-200">
@@ -274,9 +232,7 @@ sort($categories);
                 
                 <!-- Full content -->
                 <div class="prose prose-sm max-w-none">
-                    <div id="announcement-content-display">
-                        <!-- Content will be loaded here -->
-                    </div>
+                    <div class="text-gray-700 leading-relaxed" x-html="selectedAnnouncement?.content"></div>
                 </div>
                 
                 <!-- Attachments section -->
@@ -371,12 +327,5 @@ sort($categories);
 </div>
 
 </div>
-
-<!-- Calendar Functions Disabled for Testing -->
-<!--
-<script>
-// Calendar functions temporarily disabled to test flickering issue
-</script>
--->
 
 <?php require __DIR__.'/includes/footer.php'; ?>

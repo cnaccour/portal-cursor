@@ -5,24 +5,6 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script>
-    // Prevent rapid page reloads (flickering fix)
-    (function() {
-      const lastLoad = sessionStorage.getItem('last_load_time');
-      const now = Date.now();
-      if (lastLoad && (now - parseInt(lastLoad)) < 500) {
-        // Page is trying to reload too quickly - stop execution
-        window.stop();
-        document.documentElement.innerHTML = sessionStorage.getItem('page_content') || '<p>Loading...</p>';
-        throw new Error('Rapid reload prevented');
-      }
-      sessionStorage.setItem('last_load_time', now.toString());
-      // Store page content after a brief delay
-      setTimeout(() => {
-        sessionStorage.setItem('page_content', document.documentElement.innerHTML);
-      }, 100);
-    })();
-  </script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>JJS Team Portal</title>
@@ -130,14 +112,8 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             return date.toLocaleDateString();
           },
           
-          async handleNotificationClick(notification, evt) {
+          async handleNotificationClick(notification) {
             try {
-              // SECURITY: Only allow trusted user clicks to prevent automatic navigation
-              if (!evt || !evt.isTrusted) {
-                console.warn('Blocked untrusted notification click');
-                return;
-              }
-              
               // Mark as read if not already read
               if (!notification.is_read) {
                 const response = await fetch('/api/notifications/mark-read.php', {
@@ -166,7 +142,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
                 // Close dropdown first
                 this.open = false;
                 // Navigate to the link
-                window.location.assign(notification.link_url);
+                window.location.href = notification.link_url;
               }
             } catch (error) {
               console.error('Error handling notification click:', error);
@@ -214,7 +190,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
               <template x-for="notification in notifications" :key="notification.id">
                 <div class="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
                      :class="{ 'bg-blue-50': !notification.is_read, 'cursor-pointer': notification.link_url }"
-                     @click="handleNotificationClick(notification, $event)">
+                     @click="handleNotificationClick(notification)">
                   <div class="flex items-start gap-3">
                     <!-- Icon -->
                     <div class="flex-shrink-0 mt-1">
@@ -481,7 +457,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
            @click="mobileMenuOpen = false"
            class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 717 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
           </svg>
           Announcements
         </a>
