@@ -372,4 +372,42 @@ sort($categories);
 
 </div>
 
+<!-- Global Calendar Functions -->
+<script>
+// Global calendar functions for education schedule
+function addToCalendar(session) {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/api/generate-ics.php';
+    form.target = '_blank';
+    
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'session';
+    input.value = JSON.stringify(session);
+    
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+}
+
+function exportAllToCalendar() {
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/api/generate-ics.php';
+    form.target = '_blank';
+    
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'export_all';
+    input.value = 'true';
+    
+    form.appendChild(input);
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+}
+</script>
+
 <?php require __DIR__.'/includes/footer.php'; ?>

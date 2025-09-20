@@ -197,42 +197,7 @@ function renderEducationSchedule($educationData) {
         </div>
     </div>
     
-    <!-- JavaScript for Calendar Export -->
-    <script>
-    function addToCalendar(session) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/api/generate-ics.php';
-        form.target = '_blank';
-        
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'session';
-        input.value = JSON.stringify(session);
-        
-        form.appendChild(input);
-        document.body.appendChild(form);
-        form.submit();
-        document.body.removeChild(form);
-    }
-    
-    function exportAllToCalendar() {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/api/generate-ics.php';
-        form.target = '_blank';
-        
-        const input = document.createElement('input');
-        input.type = 'hidden';
-        input.name = 'export_all';
-        input.value = 'true';
-        
-        form.appendChild(input);
-        document.body.appendChild(form);
-        form.submit();
-        document.body.removeChild(form);
-    }
-    </script>
+    <!-- Calendar functions are now globally available on the announcements page -->
     
     <?php
     return ob_get_clean();
