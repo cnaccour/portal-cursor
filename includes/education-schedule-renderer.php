@@ -116,7 +116,6 @@ function renderEducationSchedule($educationData) {
                                 <th class="text-left px-6 py-4 font-semibold text-sm text-gray-900">Time</th>
                                 <th class="text-left px-6 py-4 font-semibold text-sm text-gray-900">Instructor</th>
                                 <th class="text-left px-6 py-4 font-semibold text-sm text-gray-900">Status</th>
-                                <th class="text-center px-6 py-4 font-semibold text-sm text-gray-900">Action</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
@@ -165,24 +164,6 @@ function renderEducationSchedule($educationData) {
                                             <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
                                             Upcoming
                                         </span>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="px-6 py-4 text-center whitespace-nowrap">
-                                    <?php if ($isUpcoming): ?>
-                                    <!-- Calendar Button Disabled
-                                    <button type="button" onclick="return addToCalendar(<?= htmlspecialchars(json_encode($session), ENT_QUOTES) ?>, event)" 
-                                            class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all transform hover:scale-105"
-                                            title="Add to Calendar">
-                                        <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                                  d="M12 4v16m8-8H4"></path>
-                                        </svg>
-                                        Add to Calendar
-                                    </button>
-                                    -->
-                                    <span class="text-xs text-gray-500">Training Session</span>
-                                    <?php else: ?>
-                                    <span class="text-xs text-gray-400">—</span>
                                     <?php endif; ?>
                                 </td>
                             </tr>
