@@ -3,7 +3,9 @@
 require __DIR__.'/includes/header.php';
 
 // Load all announcements (static + dynamic)
-$allAnnouncements = include __DIR__.'/includes/all-announcements.php';
+require_once __DIR__.'/includes/announcement-helpers.php';
+require_once __DIR__.'/includes/education-schedule-renderer.php';
+$allAnnouncements = loadAllAnnouncements();
 
 // Filter out expired announcements
 $activeAnnouncements = array_filter($allAnnouncements, function($announcement) {
@@ -125,12 +127,17 @@ sort($categories);
                         <!-- Description (Excerpt) -->
                         <div class="text-gray-600 text-sm leading-relaxed mb-4">
                             <?php 
-                            // For excerpts, strip HTML tags and show plain text
-                            $plainContent = strip_tags($announcement['content']);
-                            $excerpt = strlen($plainContent) > 150 
-                                ? substr($plainContent, 0, 150) . '...' 
-                                : $plainContent;
-                            echo htmlspecialchars($excerpt);
+                            // Special handling for education schedule
+                            if (strpos($announcement['content'], '<education-schedule-2025>') !== false) {
+                                echo 'Complete 2025 education schedule with monthly training sessions. Click to view full schedule and add sessions to your calendar.';
+                            } else {
+                                // For excerpts, strip HTML tags and show plain text
+                                $plainContent = strip_tags($announcement['content']);
+                                $excerpt = strlen($plainContent) > 150 
+                                    ? substr($plainContent, 0, 150) . '...' 
+                                    : $plainContent;
+                                echo htmlspecialchars($excerpt);
+                            }
                             ?>
                         </div>
                         
@@ -232,7 +239,22 @@ sort($categories);
                 
                 <!-- Full content -->
                 <div class="prose prose-sm max-w-none">
-                    <div class="text-gray-700 leading-relaxed" x-html="selectedAnnouncement?.content"></div>
+                    <template x-if="selectedAnnouncement && selectedAnnouncement.content.includes('<education-schedule-2025>')">
+                        <?php 
+                        // Pre-render education schedule for all static education announcements
+                        $educationScheduleHtml = '';
+                        foreach ($allAnnouncements as $ann) {
+                            if ($ann['id'] === 'static-education-2025' && isset($ann['education_data'])) {
+                                $educationScheduleHtml = renderEducationSchedule($ann['education_data']);
+                                break;
+                            }
+                        }
+                        ?>
+                        <div x-html="'<?= str_replace("'", "\\'", addslashes($educationScheduleHtml)) ?>'"></div>
+                    </template>
+                    <template x-if="selectedAnnouncement && !selectedAnnouncement.content.includes('<education-schedule-2025>')">
+                        <div class="text-gray-700 leading-relaxed" x-html="selectedAnnouncement?.content"></div>
+                    </template>
                 </div>
                 
                 <!-- Attachments section -->
