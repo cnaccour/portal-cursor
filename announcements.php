@@ -107,7 +107,7 @@ sort($categories);
             </svg>
             <span x-text="selectedCategory === 'all' ? 'All Types' : selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)"></span>
             <span class="text-gray-500 text-sm">
-                <span x-text="document.querySelectorAll('.announcement-item:not([style*=\"display: none\"])').length"></span> Total
+                <span x-text="Array.from(document.querySelectorAll('.announcement-item')).filter(el => el.style.display !== 'none').length"></span> Total
             </span>
         </button>
     </div>
