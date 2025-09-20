@@ -430,7 +430,7 @@ function deleteUser(userId, userName) {
     .then(data => {
         if (data.success) {
             showNotification(data.message, 'success');
-            setTimeout(() => location.reload(), 1000);
+            // setTimeout(() => location.reload(), 1000); // DISABLED - causing flickering
         } else {
             showNotification(data.message, 'error');
         }
@@ -458,7 +458,7 @@ function restoreUser(userId, userName) {
     .then(data => {
         if (data.success) {
             showNotification(data.message, 'success');
-            setTimeout(() => location.reload(), 1000);
+            // setTimeout(() => location.reload(), 1000); // DISABLED - causing flickering
         } else {
             showNotification(data.message, 'error');
         }
@@ -483,7 +483,7 @@ function toggleUserStatus(userId, newStatus) {
     .then(data => {
         if (data.success) {
             showNotification(data.message, 'success');
-            setTimeout(() => location.reload(), 500);
+            // setTimeout(() => location.reload(), 500); // DISABLED - causing flickering
         } else {
             showNotification(data.message, 'error');
         }
