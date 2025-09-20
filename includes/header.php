@@ -194,6 +194,43 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             if (diffDays < 7) return diffDays + 'd ago';
             
             return date.toLocaleDateString();
+          },
+          
+          async handleNotificationClick(notification) {
+            try {
+              // Mark as read if not already read
+              if (!notification.is_read) {
+                const response = await fetch('/api/notifications/mark-read.php', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    notification_id: notification.id,
+                    csrf_token: window.csrfToken
+                  })
+                });
+                
+                if (response.ok) {
+                  const data = await response.json();
+                  if (data.success) {
+                    // Update local state
+                    notification.is_read = true;
+                    this.unreadCount = Math.max(0, this.unreadCount - 1);
+                  }
+                }
+              }
+              
+              // Navigate to link if available
+              if (notification.link_url) {
+                // Close dropdown first
+                this.open = false;
+                // Navigate to the link
+                window.location.href = notification.link_url;
+              }
+            } catch (error) {
+              console.error('Error handling notification click:', error);
+            }
           }
         }" x-init="loadNotifications()">
           <button @click="open = !open; if (open) loadNotifications()" 
@@ -235,8 +272,9 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             <!-- Notifications list -->
             <div x-show="!loading && notifications.length > 0" class="flex-1 overflow-y-auto">
               <template x-for="notification in notifications" :key="notification.id">
-                <div class="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                     :class="{ 'bg-blue-50': !notification.is_read }">
+                <div class="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                     :class="{ 'bg-blue-50': !notification.is_read, 'cursor-pointer': notification.link_url }"
+                     @click="handleNotificationClick(notification)">
                   <div class="flex items-start gap-3">
                     <!-- Icon -->
                     <div class="flex-shrink-0 mt-1">
