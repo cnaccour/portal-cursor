@@ -180,22 +180,19 @@ require __DIR__.'/includes/header.php';
     </div>
     <div class="p-4">
       <?php
-      // Get recent announcements (last 3)
-      $announcements = [];
-      $announcementFile = __DIR__ . '/storage/dynamic-announcements.json';
-      if (file_exists($announcementFile)) {
-        $content = file_get_contents($announcementFile);
-        if ($content) {
-          $allAnnouncements = json_decode($content, true) ?? [];
-          // Sort by date_modified or date_created (most recent first)
-          usort($allAnnouncements, function($a, $b) {
-            $dateA = $a['date_modified'] ?? $a['date_created'];
-            $dateB = $b['date_modified'] ?? $b['date_created'];
-            return strtotime($dateB) - strtotime($dateA);
-          });
-          $announcements = array_slice($allAnnouncements, 0, 3);
-        }
-      }
+      // Get recent announcements (last 3) - including static announcements
+      require_once __DIR__ . '/includes/announcement-helpers.php';
+      $allAnnouncements = loadAllAnnouncements(); // This loads both static and dynamic
+      
+      // Sort by date_modified or date_created (most recent first)
+      usort($allAnnouncements, function($a, $b) {
+        $dateA = $a['date_modified'] ?? $a['date_created'];
+        $dateB = $b['date_modified'] ?? $b['date_created'];
+        return strtotime($dateB) - strtotime($dateA);
+      });
+      
+      // Get only the first 3 announcements
+      $announcements = array_slice($allAnnouncements, 0, 3);
       
       if (empty($announcements)) {
         echo "<div class='text-center py-8 text-gray-500'>";

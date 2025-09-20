@@ -372,47 +372,11 @@ sort($categories);
 
 </div>
 
-<!-- Global Calendar Functions -->
+<!-- Calendar Functions Disabled for Testing -->
+<!--
 <script>
-// Global calendar functions for education schedule - clean implementation
-window.addToCalendar = function(session, evt) {
-    if (evt) {
-        evt.preventDefault();
-        evt.stopPropagation();
-    }
-    
-    // Create a download link directly
-    const formData = new URLSearchParams();
-    formData.append('session', JSON.stringify(session));
-    
-    const link = document.createElement('a');
-    link.href = '/api/generate-ics.php?' + formData.toString();
-    link.download = session.topic.replace(/[^a-zA-Z0-9]/g, '_') + '.ics';
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    return false;
-}
-
-window.exportAllToCalendar = function(evt) {
-    if (evt) {
-        evt.preventDefault();
-        evt.stopPropagation();
-    }
-    
-    // Create a download link directly
-    const link = document.createElement('a');
-    link.href = '/api/generate-ics.php?export_all=true';
-    link.download = 'JJS_Education_Schedule_2025.ics';
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    return false;
-}
+// Calendar functions temporarily disabled to test flickering issue
 </script>
+-->
 
 <?php require __DIR__.'/includes/footer.php'; ?>

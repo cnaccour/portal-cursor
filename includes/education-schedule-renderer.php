@@ -23,6 +23,7 @@ function renderEducationSchedule($educationData) {
                         <?= htmlspecialchars($educationData['description']) ?>
                     </p>
                 </div>
+                <!-- Calendar Export Disabled
                 <button type="button" onclick="return exportAllToCalendar(event)" 
                         class="inline-flex items-center justify-center px-6 py-3 bg-white text-black rounded-lg hover:bg-gray-100 transition-all transform hover:scale-105 text-sm font-semibold shadow-lg whitespace-nowrap">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -31,6 +32,7 @@ function renderEducationSchedule($educationData) {
                     </svg>
                     Export All to Calendar
                 </button>
+                -->
             </div>
         </div>
         
@@ -85,6 +87,7 @@ function renderEducationSchedule($educationData) {
                         </div>
                         
                         <?php if ($isUpcoming): ?>
+                        <!-- Calendar Button Disabled
                         <button type="button" onclick="return addToCalendar(<?= htmlspecialchars(json_encode($session), ENT_QUOTES) ?>, event)" 
                                 class="w-full mt-3 inline-flex items-center justify-center px-4 py-2 border border-black text-black rounded-lg hover:bg-black hover:text-white transition-colors text-sm font-medium">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -93,6 +96,7 @@ function renderEducationSchedule($educationData) {
                             </svg>
                             Add to Calendar
                         </button>
+                        -->
                         <?php endif; ?>
                     </div>
                 </div>
@@ -165,6 +169,7 @@ function renderEducationSchedule($educationData) {
                                 </td>
                                 <td class="px-6 py-4 text-center whitespace-nowrap">
                                     <?php if ($isUpcoming): ?>
+                                    <!-- Calendar Button Disabled
                                     <button type="button" onclick="return addToCalendar(<?= htmlspecialchars(json_encode($session), ENT_QUOTES) ?>, event)" 
                                             class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all transform hover:scale-105"
                                             title="Add to Calendar">
@@ -174,6 +179,8 @@ function renderEducationSchedule($educationData) {
                                         </svg>
                                         Add to Calendar
                                     </button>
+                                    -->
+                                    <span class="text-xs text-gray-500">Training Session</span>
                                     <?php else: ?>
                                     <span class="text-xs text-gray-400">—</span>
                                     <?php endif; ?>
