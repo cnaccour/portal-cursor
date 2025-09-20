@@ -227,7 +227,7 @@ sort($categories);
     
     <!-- Modal panel -->
     <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative z-10">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl md:max-w-6xl w-full max-h-[90vh] overflow-y-auto relative z-10">
             
             <!-- Modal Header -->
             <div class="flex items-center justify-between p-6 border-b border-gray-200">
