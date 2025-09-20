@@ -82,7 +82,7 @@ if (isset($_POST['export_all']) && $_POST['export_all'] === 'true') {
 } elseif (isset($_POST['session'])) {
     // Export single session
     $session = json_decode($_POST['session'], true);
-    if (!$session) {
+    if (!$session || !isset($session['date']) || !isset($session['topic'])) {
         http_response_code(400);
         echo 'Invalid session data';
         exit;
