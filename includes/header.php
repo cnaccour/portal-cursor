@@ -21,6 +21,18 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
   <script>
     // CSRF token for API calls
     window.csrfToken = '<?= $_SESSION['csrf_token'] ?>';
+    
+    // Prevent automatic navigation loops
+    let navigationCount = 0;
+    const originalAssign = window.location.assign;
+    window.location.assign = function(url) {
+      navigationCount++;
+      if (navigationCount > 3) {
+        console.warn('Blocked excessive navigation attempts');
+        return;
+      }
+      return originalAssign.call(this, url);
+    };
   </script>
   <?php endif; ?>
 </head>
