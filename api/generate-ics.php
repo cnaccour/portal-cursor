@@ -3,12 +3,15 @@
  * ICS Calendar File Generator for Education Schedule
  */
 
-require __DIR__.'/../includes/auth.php';
-require_login();
+// Start session if not started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// CSRF protection
-if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'] ?? '')) {
-    http_response_code(403);
+// No login required - this is a public feature for the education schedule
+// But we do need basic validation to prevent abuse
+if (!isset($_POST['session']) && !isset($_POST['export_all'])) {
+    http_response_code(400);
     echo 'Invalid request';
     exit;
 }

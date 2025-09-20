@@ -122,13 +122,7 @@ function renderEducationSchedule($educationData) {
         input.name = 'session';
         input.value = JSON.stringify(session);
         
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = 'csrf_token';
-        csrfInput.value = window.csrfToken || '';
-        
         form.appendChild(input);
-        form.appendChild(csrfInput);
         document.body.appendChild(form);
         form.submit();
         document.body.removeChild(form);
@@ -145,13 +139,7 @@ function renderEducationSchedule($educationData) {
         input.name = 'export_all';
         input.value = 'true';
         
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = 'csrf_token';
-        csrfInput.value = window.csrfToken || '';
-        
         form.appendChild(input);
-        form.appendChild(csrfInput);
         document.body.appendChild(form);
         form.submit();
         document.body.removeChild(form);

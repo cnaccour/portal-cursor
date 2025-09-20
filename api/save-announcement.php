@@ -66,8 +66,13 @@ if ($mode === 'add') {
 } elseif ($mode === 'edit') {
     $announcementId = $_POST['announcement_id'] ?? '';
     
-    // For now, all announcements are editable (we'll add static ones later)
-    // Future: Add check for truly static announcements here
+    // Check if this is a static announcement
+    $staticAnnouncements = require __DIR__.'/../includes/static-announcements.php';
+    foreach ($staticAnnouncements as $staticAnn) {
+        if ($staticAnn['id'] === $announcementId && !empty($staticAnn['is_static'])) {
+            sendErrorResponse(403, 'This is a static announcement and cannot be edited');
+        }
+    }
     
     // Find and update the announcement
     $found = false;

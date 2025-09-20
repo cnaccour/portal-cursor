@@ -28,8 +28,25 @@ if (empty($announcementId)) {
     exit;
 }
 
-// For now, all announcements are editable (we'll add static ones later)
-// Future: Add check for truly static announcements here
+// Check if this is a static announcement
+$staticAnnouncements = require __DIR__.'/../includes/static-announcements.php';
+$isStatic = false;
+foreach ($staticAnnouncements as $staticAnn) {
+    if ($staticAnn['id'] === $announcementId && !empty($staticAnn['is_static'])) {
+        $isStatic = true;
+        break;
+    }
+}
+
+if ($isStatic) {
+    // Static announcements cannot be truly deleted through the API
+    // In a production system, you might track hidden static announcements
+    echo json_encode([
+        'success' => true,
+        'message' => 'Static announcement hidden (will reappear on reload)'
+    ]);
+    exit;
+}
 
 // Load existing dynamic announcements
 $dynamicFile = __DIR__.'/../storage/dynamic-announcements.json';

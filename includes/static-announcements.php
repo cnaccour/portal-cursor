@@ -39,7 +39,7 @@ return [
                 ['date' => '2025-07-08', 'time' => '9:00 AM - 11:00 AM', 'instructor' => 'Jekarerma F.', 'topic' => 'Updo How To', 'status_date' => '2025-07-08'],
                 ['date' => '2025-07-22', 'time' => '9:00 AM - 11:00 AM', 'instructor' => 'Mike Wilkins', 'topic' => 'Consultation', 'status_date' => '2025-07-22'],
                 ['date' => '2025-08-05', 'time' => '9:00 AM - 11:00 AM', 'instructor' => 'Annalie Wingate', 'topic' => 'Social Media', 'status_date' => '2025-08-05'],
-                ['date' => '2025-08-19', 'time' => '9:00 AM - 11:00 PM', 'instructor' => 'Mikayla Santullo', 'topic' => 'JJS Business Retention', 'status_date' => '2025-08-19'],
+                ['date' => '2025-08-19', 'time' => '9:00 AM - 11:00 AM', 'instructor' => 'Mikayla Santullo', 'topic' => 'JJS Business Retention', 'status_date' => '2025-08-19'],
                 ['date' => '2025-09-02', 'time' => '9:00 AM - 11:00 AM', 'instructor' => 'Angelica Samanchik', 'topic' => 'Intro to Vivids', 'status_date' => '2025-09-02'],
                 ['date' => '2025-09-16', 'time' => '9:00 AM - 11:00 AM', 'instructor' => 'Christina Flynn', 'topic' => 'Pre Keratin Smoothing Certification', 'status_date' => '2025-09-16'],
                 ['date' => '2025-09-30', 'time' => '9:00 AM - 11:00 AM', 'instructor' => 'TBA', 'topic' => 'Product Knowledge', 'status_date' => '2025-09-30'],
