@@ -5,6 +5,24 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <script>
+    // Prevent rapid page reloads (flickering fix)
+    (function() {
+      const lastLoad = sessionStorage.getItem('last_load_time');
+      const now = Date.now();
+      if (lastLoad && (now - parseInt(lastLoad)) < 500) {
+        // Page is trying to reload too quickly - stop execution
+        window.stop();
+        document.documentElement.innerHTML = sessionStorage.getItem('page_content') || '<p>Loading...</p>';
+        throw new Error('Rapid reload prevented');
+      }
+      sessionStorage.setItem('last_load_time', now.toString());
+      // Store page content after a brief delay
+      setTimeout(() => {
+        sessionStorage.setItem('page_content', document.documentElement.innerHTML);
+      }, 100);
+    })();
+  </script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>JJS Team Portal</title>
