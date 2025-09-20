@@ -22,17 +22,45 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
     // CSRF token for API calls
     window.csrfToken = '<?= $_SESSION['csrf_token'] ?>';
     
-    // Prevent automatic navigation loops
-    let navigationCount = 0;
+    // Smart navigation protection - prevent rapid automatic navigation loops
+    let lastNavigationTime = 0;
+    const originalLocation = window.location;
     const originalAssign = window.location.assign;
+    
+    // Override location.assign with rate limiting
     window.location.assign = function(url) {
-      navigationCount++;
-      if (navigationCount > 3) {
-        console.warn('Blocked excessive navigation attempts');
+      const now = Date.now();
+      const timeDiff = now - lastNavigationTime;
+      
+      // Prevent navigation if too recent (less than 1000ms ago)
+      if (timeDiff < 1000) {
+        console.warn('Blocked rapid navigation attempt to:', url);
         return;
       }
+      
+      lastNavigationTime = now;
       return originalAssign.call(this, url);
     };
+    
+    // Override location.href with rate limiting  
+    Object.defineProperty(window.location, 'href', {
+      set: function(url) {
+        const now = Date.now();
+        const timeDiff = now - lastNavigationTime;
+        
+        // Prevent navigation if too recent (less than 1000ms ago)
+        if (timeDiff < 1000) {
+          console.warn('Blocked rapid navigation attempt to:', url);
+          return;
+        }
+        
+        lastNavigationTime = now;
+        originalLocation.href = url;
+      },
+      get: function() {
+        return originalLocation.href;
+      }
+    });
   </script>
   <?php endif; ?>
 </head>
