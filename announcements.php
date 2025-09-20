@@ -374,55 +374,44 @@ sort($categories);
 
 <!-- Global Calendar Functions -->
 <script>
-// Global calendar functions for education schedule - NO navigation interference
-function addToCalendar(session) {
-    event.preventDefault();
-    event.stopPropagation();
+// Global calendar functions for education schedule - clean implementation
+window.addToCalendar = function(session, evt) {
+    if (evt) {
+        evt.preventDefault();
+        evt.stopPropagation();
+    }
     
-    const formData = new FormData();
+    // Create a download link directly
+    const formData = new URLSearchParams();
     formData.append('session', JSON.stringify(session));
     
-    fetch('/api/generate-ics.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.blob())
-    .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${session.topic.replace(/[^a-zA-Z0-9]/g, '_')}.ics`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-    })
-    .catch(error => console.error('Calendar export error:', error));
+    const link = document.createElement('a');
+    link.href = '/api/generate-ics.php?' + formData.toString();
+    link.download = session.topic.replace(/[^a-zA-Z0-9]/g, '_') + '.ics';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    return false;
 }
 
-function exportAllToCalendar() {
-    event.preventDefault();
-    event.stopPropagation();
+window.exportAllToCalendar = function(evt) {
+    if (evt) {
+        evt.preventDefault();
+        evt.stopPropagation();
+    }
     
-    const formData = new FormData();
-    formData.append('export_all', 'true');
+    // Create a download link directly
+    const link = document.createElement('a');
+    link.href = '/api/generate-ics.php?export_all=true';
+    link.download = 'JJS_Education_Schedule_2025.ics';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     
-    fetch('/api/generate-ics.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.blob())
-    .then(blob => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'JJS_Education_Schedule_2025.ics';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-    })
-    .catch(error => console.error('Calendar export error:', error));
+    return false;
 }
 </script>
 

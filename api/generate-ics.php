@@ -9,8 +9,11 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // No login required - this is a public feature for the education schedule
-// But we do need basic validation to prevent abuse
-if (!isset($_POST['session']) && !isset($_POST['export_all'])) {
+// Accept both GET and POST for flexibility
+$session = $_POST['session'] ?? $_GET['session'] ?? null;
+$exportAll = $_POST['export_all'] ?? $_GET['export_all'] ?? null;
+
+if (!$session && !$exportAll) {
     http_response_code(400);
     echo 'Invalid request';
     exit;
@@ -73,22 +76,22 @@ function generateICS($sessions) {
     return $ics;
 }
 
-// Check if exporting all or single session
-if (isset($_POST['export_all']) && $_POST['export_all'] === 'true') {
+// Process the request
+if ($exportAll) {
     // Export all sessions
     $sessions = $educationAnnouncement['education_data']['sessions'];
     $icsContent = generateICS($sessions);
     $filename = 'jjs-education-schedule-2025.ics';
-} elseif (isset($_POST['session'])) {
+} elseif ($session) {
     // Export single session
-    $session = json_decode($_POST['session'], true);
-    if (!$session || !isset($session['date']) || !isset($session['topic'])) {
+    $sessionData = json_decode($session, true);
+    if (!$sessionData || !isset($sessionData['date']) || !isset($sessionData['topic'])) {
         http_response_code(400);
         echo 'Invalid session data';
         exit;
     }
-    $icsContent = generateICS([$session]);
-    $filename = 'jjs-training-' . date('M-d', strtotime($session['date'])) . '.ics';
+    $icsContent = generateICS([$sessionData]);
+    $filename = 'jjs-training-' . date('M-d', strtotime($sessionData['date'])) . '.ics';
 } else {
     http_response_code(400);
     echo 'No session data provided';
