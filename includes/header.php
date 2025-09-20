@@ -14,6 +14,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
   <style>
     [x-cloak] { display: none !important; }
+    .notification-dropdown-hidden { display: none !important; }
   </style>
   
   <?php if (!empty($_SESSION['user_id'])): ?>
@@ -21,100 +22,148 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
     // CSRF token for API calls
     window.csrfToken = '<?= $_SESSION['csrf_token'] ?>';
     
-    // Complete Notification Bell Component
-    document.addEventListener('alpine:init', () => {
-      Alpine.data('notificationBell', () => ({
+    // Notification Bell Alpine.js Component
+    function notificationBell() {
+      return {
         open: false,
         loading: false,
         notifications: [],
         unreadCount: 0,
+        pollInterval: null,
         
-        async toggle() {
-          this.open = !this.open;
-          if (this.open && this.notifications.length === 0) {
-            await this.loadNotifications();
+        init() {
+          console.log('NotificationBell initialized');
+          this.fetchNotifications();
+          this.startPolling();
+        },
+        
+        destroy() {
+          if (this.pollInterval) {
+            clearInterval(this.pollInterval);
           }
         },
         
-        async loadNotifications() {
+        startPolling() {
+          // Poll every 30 seconds for new notifications
+          this.pollInterval = setInterval(() => {
+            this.fetchNotifications();
+          }, 30000);
+        },
+        
+        toggleDropdown() {
+          this.open = !this.open;
+          if (this.open) {
+            this.fetchNotifications();
+          }
+        },
+        
+        async fetchNotifications() {
           this.loading = true;
           try {
             const response = await fetch('/api/notifications.php');
-            if (response.ok) {
-              const data = await response.json();
-              if (data.success) {
-                this.notifications = data.notifications || [];
-                this.unreadCount = data.unread_count || 0;
-              }
+            if (!response.ok) {
+              throw new Error(`HTTP ${response.status}`);
+            }
+            const data = await response.json();
+            console.log('Notifications response:', data);
+            
+            if (data.success) {
+              this.notifications = data.notifications || [];
+              this.unreadCount = data.unread_count || 0;
+              console.log('Loaded notifications:', this.notifications.length);
+            } else {
+              console.error('Failed to fetch notifications:', data.error);
             }
           } catch (error) {
-            console.error('Error loading notifications:', error);
+            console.error('Error fetching notifications:', error);
+            this.notifications = [];
+            this.unreadCount = 0;
           } finally {
             this.loading = false;
           }
         },
-
+        
         async markAsRead(notificationId) {
           try {
             const response = await fetch('/api/notifications/mark-read.php', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {
+                'Content-Type': 'application/json',
+              },
               body: JSON.stringify({
                 notification_id: notificationId,
-                csrf_token: window.csrfToken || ''
+                csrf_token: window.csrfToken
               })
             });
+            
             const data = await response.json();
+            
             if (data.success) {
+              // Update local state
               const notification = this.notifications.find(n => n.id === notificationId);
               if (notification) {
                 notification.is_read = true;
-                this.unreadCount = Math.max(0, data.unread_count ?? this.unreadCount - 1);
-                if (notification.link_url) {
-                  this.open = false;
-                  window.location.href = notification.link_url;
-                }
               }
+              this.unreadCount = data.unread_count;
+              
+              // Navigate to link if available
+              const notificationObj = this.notifications.find(n => n.id === notificationId);
+              if (notificationObj && notificationObj.link_url) {
+                window.location.href = notificationObj.link_url;
+              }
+            } else {
+              console.error('Failed to mark notification as read:', data.error);
             }
           } catch (error) {
             console.error('Error marking notification as read:', error);
           }
         },
-        
+
         async markAllRead() {
           try {
             const response = await fetch('/api/notifications/mark-all-read.php', {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: {
+                'Content-Type': 'application/json',
+              },
               body: JSON.stringify({
-                csrf_token: window.csrfToken || ''
+                csrf_token: window.csrfToken
               })
             });
+            
             const data = await response.json();
+            
             if (data.success) {
-              this.notifications.forEach(n => n.is_read = true);
+              // Update local state
+              this.notifications.forEach(notification => {
+                notification.is_read = true;
+              });
               this.unreadCount = 0;
+            } else {
+              console.error('Failed to mark all notifications as read:', data.error);
             }
           } catch (error) {
-            console.error('Error marking all as read:', error);
+            console.error('Error marking all notifications as read:', error);
           }
         },
-
+        
         formatDate(dateString) {
           const date = new Date(dateString);
-          const diffMs = Date.now() - date.getTime();
-          const minutes = Math.floor(diffMs / 60000);
-          const hours = Math.floor(diffMs / 3600000);
-          const days = Math.floor(diffMs / 86400000);
+          const now = new Date();
+          const diffMs = now - date;
+          const diffMins = Math.floor(diffMs / 60000);
+          const diffHours = Math.floor(diffMs / 3600000);
+          const diffDays = Math.floor(diffMs / 86400000);
           
-          if (minutes < 1) return 'Just now';
-          if (minutes < 60) return `${minutes}m ago`;
-          if (hours < 24) return `${hours}h ago`;
-          if (days < 7) return `${days}d ago`;
+          if (diffMins < 1) return 'Just now';
+          if (diffMins < 60) return `${diffMins}m ago`;
+          if (diffHours < 24) return `${diffHours}h ago`;
+          if (diffDays < 7) return `${diffDays}d ago`;
+          
           return date.toLocaleDateString();
         }
-      }));
-    });
+      }
+    }
   </script>
   <?php endif; ?>
 </head>
@@ -155,9 +204,20 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
           Announcements
         </a>
         
+        <a href="/forms.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Forms
+        </a>
+        
+        
+        <!-- Separator -->
+        <div class="w-px h-4 bg-gray-300 mx-2"></div>
+        
         <!-- Notification Bell -->
-        <div class="relative" x-data="notificationBell" @click.outside="open = false">
-          <button @click="toggle()" 
+        <div class="relative" x-data="notificationBell()" @click.outside="open = false">
+          <button @click="toggleDropdown()" 
                   class="relative flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors">
             <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
@@ -168,141 +228,153 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
                   x-text="unreadCount > 99 ? '99+' : unreadCount"></span>
           </button>
           
-          <!-- Dropdown -->
-          <div x-show="open" x-cloak
-               x-transition:enter="transition ease-out duration-200"
-               x-transition:enter-start="opacity-0 transform scale-95"
-               x-transition:enter-end="opacity-100 transform scale-100"
-               x-transition:leave="transition ease-in duration-150"
-               x-transition:leave-start="opacity-100 transform scale-100"
-               x-transition:leave-end="opacity-0 transform scale-95"
-               class="absolute right-0 mt-2 w-80 bg-white rounded-xl border shadow-xl z-50">
-            
+          <div x-show="open" x-cloak x-transition 
+               :class="open ? '' : 'notification-dropdown-hidden'"
+               class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border py-2 z-50 max-h-96 overflow-hidden flex flex-col">
             <!-- Header -->
             <div class="px-4 py-3 border-b">
               <div class="flex items-center justify-between">
-                <h3 class="font-semibold text-gray-900">Notifications</h3>
-                <button x-show="unreadCount > 0" @click="markAllRead()"
-                        class="text-xs text-blue-600 hover:text-blue-800">
+                <div class="font-medium text-gray-900">Notifications</div>
+                <button @click="markAllRead()" 
+                        x-show="unreadCount > 0"
+                        class="text-sm text-blue-600 hover:text-blue-800">
                   Mark all read
                 </button>
               </div>
             </div>
             
-            <!-- Loading State -->
-            <div x-show="loading" class="px-4 py-8 text-center text-gray-500">
-              <svg class="animate-spin h-5 w-5 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-              <p class="mt-2">Loading notifications...</p>
+            <!-- Loading state -->
+            <div x-show="loading" class="px-4 py-8 text-center text-gray-500 text-sm">
+              Loading notifications...
             </div>
             
-            <!-- Notifications List -->
-            <div x-show="!loading && notifications.length > 0" class="max-h-96 overflow-y-auto">
+            <!-- Empty state -->
+            <div x-show="!loading && notifications.length === 0" class="px-4 py-8 text-center text-gray-500 text-sm">
+              <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+              </svg>
+              No notifications yet
+            </div>
+            
+            <!-- Notifications list -->
+            <div x-show="!loading && notifications.length > 0" class="flex-1 overflow-y-auto">
               <template x-for="notification in notifications" :key="notification.id">
-                <div @click="markAsRead(notification.id)"
-                     :class="notification.is_read ? 'bg-white' : 'bg-blue-50'"
-                     class="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b transition-colors">
+                <div class="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                     @click="markAsRead(notification.id)"
+                     :class="{ 'bg-blue-50': !notification.is_read }">
                   <div class="flex items-start gap-3">
                     <!-- Icon -->
-                    <div class="flex-shrink-0 mt-0.5">
-                      <div :class="notification.icon === 'info' ? 'bg-blue-100 text-blue-600' : 
-                                   notification.icon === 'success' ? 'bg-green-100 text-green-600' :
-                                   notification.icon === 'warning' ? 'bg-yellow-100 text-yellow-600' :
-                                   notification.icon === 'error' ? 'bg-red-100 text-red-600' :
-                                   'bg-gray-100 text-gray-600'"
-                           class="w-8 h-8 rounded-full flex items-center justify-center">
-                        <svg x-show="notification.icon === 'info'" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                    <div class="flex-shrink-0 mt-1">
+                      <template x-if="notification.icon === 'announcement'">
+                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
                         </svg>
-                        <svg x-show="notification.icon === 'success'" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                      </template>
+                      <template x-if="notification.icon === 'system'">
+                        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                         </svg>
-                        <svg x-show="notification.icon === 'warning'" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                      </template>
+                      <template x-if="!['announcement', 'system'].includes(notification.icon)">
+                        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
                         </svg>
-                        <svg x-show="notification.icon === 'error'" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
-                        </svg>
-                        <svg x-show="!notification.icon || notification.icon === 'default'" class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                          <path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zM10 18a3 3 0 01-3-3h6a3 3 0 01-3 3z"></path>
-                        </svg>
-                      </div>
+                      </template>
                     </div>
                     
                     <!-- Content -->
                     <div class="flex-1 min-w-0">
-                      <p class="text-sm font-medium text-gray-900" x-text="notification.title"></p>
-                      <p class="text-sm text-gray-600 mt-0.5" x-text="notification.message"></p>
-                      <p class="text-xs text-gray-400 mt-1" x-text="formatDate(notification.created_at)"></p>
-                    </div>
-                    
-                    <!-- Unread indicator -->
-                    <div x-show="!notification.is_read" class="flex-shrink-0">
-                      <div class="w-2 h-2 bg-blue-600 rounded-full"></div>
+                      <div class="flex items-center gap-2">
+                        <p class="font-medium text-sm text-gray-900" x-text="notification.title"></p>
+                        <template x-if="!notification.is_read">
+                          <div class="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0"></div>
+                        </template>
+                      </div>
+                      <p class="text-sm text-gray-600 mt-1" x-text="notification.message"></p>
+                      <p class="text-xs text-gray-500 mt-1" x-text="formatDate(notification.created_at)"></p>
                     </div>
                   </div>
                 </div>
               </template>
             </div>
+          </div>
+        </div>
+        
+        <!-- User Account Dropdown -->
+        <div class="relative" x-data="{ open: false }">
+          <button @click="open = !open" @click.outside="open = false" 
+                  class="flex items-center justify-center w-8 h-8 bg-gray-800 text-white rounded-full text-sm font-medium hover:bg-gray-700 transition-colors">
+            <?= strtoupper(substr($_SESSION['name'] ?? 'U', 0, 1)) ?>
+          </button>
+          
+          <div x-show="open" x-cloak x-transition 
+               class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border py-2 z-50">
+            <!-- Account Info -->
+            <div class="px-4 py-3 border-b">
+              <div class="font-medium text-gray-900">Account</div>
+              <div class="text-sm text-gray-500"><?= htmlspecialchars($_SESSION['email'] ?? 'user@example.com') ?></div>
+            </div>
             
-            <!-- Empty State -->
-            <div x-show="!loading && notifications.length === 0" class="px-4 py-8 text-center">
-              <svg class="w-12 h-12 mx-auto text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+            <!-- Settings -->
+            <a href="/dashboard.php" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+              <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
               </svg>
-              <p class="text-sm text-gray-500 mt-3">No notifications yet</p>
+              Settings
+            </a>
+            
+            <?php if (has_role('admin')): ?>
+            <!-- Admin Tools -->
+            <div class="relative" x-data="{ submenuOpen: false }">
+              <button @mouseenter="submenuOpen = true" @mouseleave="submenuOpen = false"
+                      class="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                </svg>
+                Admin Tools
+                <svg class="w-4 h-4 ml-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                </svg>
+              </button>
+              
+              <!-- Admin Submenu -->
+              <div x-show="submenuOpen" @mouseenter="submenuOpen = true" @mouseleave="submenuOpen = false"
+                   x-transition 
+                   class="absolute right-full top-0 mr-1 w-48 bg-white rounded-lg shadow-lg border py-2 z-50">
+                <a href="/admin-announcements.php" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                  <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
+                  </svg>
+                  Announcements
+                </a>
+                <a href="/reports.php" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                  <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                  Reports
+                </a>
+                <a href="/admin.php" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                  <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                  </svg>
+                  User Management
+                </a>
+              </div>
+            </div>
+            <?php endif; ?>
+            
+            <!-- Distinguished Sign Out -->
+            <div class="border-t pt-2 mt-2">
+              <a href="/logout.php" class="flex items-center px-4 py-3 text-sm text-red-700 hover:bg-red-50 hover:text-red-900 font-medium">
+                <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+                Sign Out
+              </a>
             </div>
           </div>
         </div>
-        
-        <a href="/forms.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-          </svg>
-          Forms
-        </a>
-        
-        <a href="/reports.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v1a1 1 0 001 1h4a1 1 0 001-1v-1m3-2V8a2 2 0 00-2-2H8a2 2 0 00-2 2v7m12 0a2 2 0 01-2 2H8a2 2 0 01-2-2m12 0l-4-4m0 0l-4 4m4-4V3"></path>
-          </svg>
-          Reports
-        </a>
-        
-        <?php if (has_role('admin')): ?>
-          <a href="/admin.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-            </svg>
-            Admin
-          </a>
-        <?php endif; ?>
-        
-        <!-- Separator -->
-        <div class="w-px h-4 bg-gray-300 mx-2"></div>
-        
-        <!-- User profile and role display -->
-        <div class="text-gray-700 px-3 py-2 rounded-lg bg-gray-100">
-          <div class="flex items-center gap-2">
-            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-            </svg>
-            <span class="text-sm"><?= htmlspecialchars($_SESSION['email'] ?? '') ?></span>
-            <span class="text-xs font-medium px-2 py-0.5 bg-black text-white rounded">
-              <?= get_role_display_name($_SESSION['role'] ?? 'viewer') ?>
-            </span>
-          </div>
-        </div>
-        
-        <a href="/logout.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-          </svg>
-          Logout
-        </a>
       <?php else: ?>
         <!-- Home first for logged out users -->
         <a href="/" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
@@ -353,7 +425,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
        class="md:hidden bg-white border-t shadow-lg">
     <nav class="px-4 py-4 space-y-1">
       <?php if (!empty($_SESSION['user_id'])): ?>
-        <!-- Home/Dashboard first for logged in users -->
+        <!-- Dashboard first -->
         <a href="/dashboard.php" 
            @click="mobileMenuOpen = false"
            class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
@@ -363,6 +435,9 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
           </svg>
           Dashboard
         </a>
+        
+        <!-- Separator -->
+        <hr class="border-gray-200 my-2">
         
         <a href="/announcements.php" 
            @click="mobileMenuOpen = false"
@@ -382,51 +457,62 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
           Forms
         </a>
         
-        <a href="/reports.php" 
-           @click="mobileMenuOpen = false"
-           class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v1a1 1 0 001 1h4a1 1 0 001-1v-1m3-2V8a2 2 0 00-2-2H8a2 2 0 00-2 2v7m12 0a2 2 0 01-2 2H8a2 2 0 01-2-2m12 0l-4-4m0 0l-4 4m4-4V3"></path>
-          </svg>
-          Reports
-        </a>
-        
-        <?php if (has_role('admin')): ?>
-          <a href="/admin.php" 
-             @click="mobileMenuOpen = false"
-             class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-            </svg>
-            Admin
-          </a>
-        <?php endif; ?>
-        
-        <!-- Separator -->
-        <hr class="border-gray-200 my-3">
-        
-        <!-- User profile and role display for mobile -->
-        <div class="px-3 py-2 bg-gray-100 rounded-lg">
-          <div class="flex items-center gap-2 mb-1">
-            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-            </svg>
-            <span class="text-sm"><?= htmlspecialchars($_SESSION['email'] ?? '') ?></span>
+        <!-- Mobile User Account Section -->
+        <div class="pt-2 mt-2 border-t border-gray-200">
+          <div class="px-3 py-2">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-gray-800 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                <?= strtoupper(substr($_SESSION['name'] ?? 'U', 0, 1)) ?>
+              </div>
+              <div>
+                <div class="font-medium text-gray-900 text-sm">Account</div>
+                <div class="text-xs text-gray-500"><?= htmlspecialchars($_SESSION['email'] ?? 'user@example.com') ?></div>
+              </div>
+            </div>
           </div>
-          <span class="inline-block text-xs font-medium px-2 py-0.5 bg-black text-white rounded">
-            <?= get_role_display_name($_SESSION['user_role']) ?>
-          </span>
+          
+          <?php if (has_role('admin')): ?>
+          <!-- Mobile Admin Tools -->
+          <div class="space-y-1">
+            <div class="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">Admin Tools</div>
+            <a href="/admin-announcements.php" 
+               @click="mobileMenuOpen = false"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
+              </svg>
+              Manage Announcements
+            </a>
+            <a href="/reports.php" 
+               @click="mobileMenuOpen = false"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              Reports
+            </a>
+            <a href="/admin.php" 
+               @click="mobileMenuOpen = false"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+              </svg>
+              User Management
+            </a>
+          </div>
+          <?php endif; ?>
+          
+          <!-- Mobile Sign Out - Distinguished -->
+          <hr class="border-gray-200 my-3">
+          <a href="/logout.php" 
+             class="flex items-center gap-3 px-4 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+            Sign Out
+          </a>
         </div>
         
-        <a href="/logout.php" 
-           @click="mobileMenuOpen = false"
-           class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-700 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-          </svg>
-          Logout
-        </a>
       <?php else: ?>
         <!-- Home first for logged out users -->
         <a href="/" 
@@ -463,3 +549,4 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
     </nav>
   </div>
 </header>
+<main class="max-w-7xl mx-auto px-4 py-8">

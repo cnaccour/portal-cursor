@@ -71,19 +71,10 @@ require __DIR__.'/includes/header.php';
             echo "<span class='text-xs text-gray-500'>" . htmlspecialchars($row['shift_date']) . "</span>";
             echo "</div>";
             echo "<div class='flex items-center gap-3 text-xs text-gray-600 mt-1'>";
-            echo "<span class='flex items-center gap-1'>";
-            echo "<svg class='w-3 h-3 text-gray-400' fill='none' stroke='currentColor' viewBox='0 0 24 24'>";
-            echo "<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z'></path>";
-            echo "<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M15 11a3 3 0 11-6 0 3 3 0 016 0z'></path>";
-            echo "</svg>";
-            echo htmlspecialchars($row['location']);
-            echo "</span>";
+            echo "<span>📍 " . htmlspecialchars($row['location']) . "</span>";
             if ($refundCount > 0) {
-              echo "<span class='flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-800 rounded-full font-medium'>";
-              echo "<svg class='w-3 h-3' fill='none' stroke='currentColor' viewBox='0 0 24 24'>";
-              echo "<path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z'></path>";
-              echo "</svg>";
-              echo "{$refundCount} refund" . ($refundCount > 1 ? 's' : '') . "";
+              echo "<span class='px-2 py-1 bg-orange-100 text-orange-800 rounded-full font-medium'>";
+              echo "💳 {$refundCount} refund" . ($refundCount > 1 ? 's' : '') . "";
               echo "</span>";
             }
             echo "</div>";
