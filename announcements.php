@@ -35,6 +35,33 @@ sort($categories);
     openModal(announcement) {
         this.selectedAnnouncement = announcement;
         this.modalOpen = true;
+        // Load the content after modal opens
+        this.$nextTick(() => {
+            this.loadAnnouncementContent(announcement.id);
+        });
+    },
+    async loadAnnouncementContent(announcementId) {
+        const contentDiv = document.getElementById('announcement-content-display');
+        if (!contentDiv) return;
+        
+        if (announcementId === 'static-education-2025') {
+            // Load education schedule content via API
+            try {
+                const response = await fetch(`/api/get-announcement-content.php?id=${announcementId}`);
+                const data = await response.json();
+                if (data.success) {
+                    contentDiv.innerHTML = data.content;
+                } else {
+                    contentDiv.innerHTML = '<p class="text-gray-500">Error loading content</p>';
+                }
+            } catch (error) {
+                console.error('Error loading announcement content:', error);
+                contentDiv.innerHTML = '<p class="text-gray-500">Error loading content</p>';
+            }
+        } else {
+            // Regular announcement content
+            contentDiv.innerHTML = this.selectedAnnouncement.content;
+        }
     },
     closeModal() {
         this.modalOpen = false;
@@ -239,22 +266,9 @@ sort($categories);
                 
                 <!-- Full content -->
                 <div class="prose prose-sm max-w-none">
-                    <template x-if="selectedAnnouncement && selectedAnnouncement.content.includes('<education-schedule-2025>')">
-                        <?php 
-                        // Pre-render education schedule for all static education announcements
-                        $educationScheduleHtml = '';
-                        foreach ($allAnnouncements as $ann) {
-                            if ($ann['id'] === 'static-education-2025' && isset($ann['education_data'])) {
-                                $educationScheduleHtml = renderEducationSchedule($ann['education_data']);
-                                break;
-                            }
-                        }
-                        ?>
-                        <div x-html="'<?= str_replace("'", "\\'", addslashes($educationScheduleHtml)) ?>'"></div>
-                    </template>
-                    <template x-if="selectedAnnouncement && !selectedAnnouncement.content.includes('<education-schedule-2025>')">
-                        <div class="text-gray-700 leading-relaxed" x-html="selectedAnnouncement?.content"></div>
-                    </template>
+                    <div id="announcement-content-display">
+                        <!-- Content will be loaded here -->
+                    </div>
                 </div>
                 
                 <!-- Attachments section -->
