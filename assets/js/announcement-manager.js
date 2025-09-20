@@ -156,9 +156,9 @@ function announcementManager() {
             
             try {
                 if (this.modalMode === 'edit' && this.formData.content) {
-                    this.quillEditor.clipboard.dangerouslyPasteHTML(this.formData.content);
+                    this.quillEditor.root.innerHTML = this.formData.content;
                 } else {
-                    this.quillEditor.setText('');
+                    this.quillEditor.root.innerHTML = '';
                     this.formData.content = '';
                 }
             } catch (error) {
