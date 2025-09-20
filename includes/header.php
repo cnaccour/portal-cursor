@@ -21,68 +21,35 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
     // CSRF token for API calls
     window.csrfToken = '<?= $_SESSION['csrf_token'] ?>';
     
-    // Notification Bell Alpine.js Component
-    function notificationBell() {
+    // Simple notification dropdown
+    function notificationDropdown() {
       return {
         open: false,
-        loading: false,
-        notifications: [],
         unreadCount: 0,
-        pollInterval: null,
         
-        init() {
-          console.log('NotificationBell initialized');
-          this.fetchNotifications();
-          this.startPolling();
-        },
-        
-        destroy() {
-          if (this.pollInterval) {
-            clearInterval(this.pollInterval);
-          }
-        },
-        
-        startPolling() {
-          // Poll every 30 seconds for new notifications
-          this.pollInterval = setInterval(() => {
-            this.fetchNotifications();
-          }, 30000);
-        },
-        
-        toggleDropdown() {
+        toggle() {
           this.open = !this.open;
           if (this.open) {
-            this.fetchNotifications();
+            // Load notifications when opened
+            this.loadNotifications();
           }
         },
         
-        closeDropdown() {
+        close() {
           this.open = false;
         },
         
-        async fetchNotifications() {
-          this.loading = true;
+        async loadNotifications() {
           try {
             const response = await fetch('/api/notifications.php');
-            if (!response.ok) {
-              throw new Error(`HTTP ${response.status}`);
-            }
-            const data = await response.json();
-            console.log('Notifications response:', data);
-            
-            if (data.success) {
-              this.notifications = data.notifications || [];
-              this.unreadCount = data.unread_count || 0;
-              console.log('Loaded notifications:', this.notifications.length);
-            } else {
-              console.error('Failed to fetch notifications:', data.error);
+            if (response.ok) {
+              const data = await response.json();
+              if (data.success) {
+                this.unreadCount = data.unread_count || 0;
+              }
             }
           } catch (error) {
-            console.error('Error fetching notifications:', error);
-            this.notifications = [];
-            this.unreadCount = 0;
-          } finally {
-            this.loading = false;
+            console.error('Failed to load notifications:', error);
           }
         },
         
@@ -219,8 +186,8 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         <div class="w-px h-4 bg-gray-300 mx-2"></div>
         
         <!-- Notification Bell -->
-        <div class="relative" x-data="notificationBell()">
-          <button @click="toggleDropdown()" 
+        <div class="relative" x-data="notificationDropdown()">
+          <button @click="toggle()" 
                   class="relative flex items-center justify-center w-10 h-10 rounded-lg hover:bg-gray-100 transition-colors">
             <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
@@ -231,74 +198,18 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
                   x-text="unreadCount > 99 ? '99+' : unreadCount"></span>
           </button>
           
-          <div x-show="open" x-cloak x-transition 
-               @click.outside="open = false"
-               class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border py-2 z-50 max-h-96 overflow-hidden flex flex-col">
-            <!-- Header -->
+          <!-- Simple dropdown content -->
+          <div x-show="open" x-cloak
+               @click.outside="close()"
+               class="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border py-2 z-50">
             <div class="px-4 py-3 border-b">
-              <div class="flex items-center justify-between">
-                <div class="font-medium text-gray-900">Notifications</div>
-                <button @click="markAllRead()" 
-                        x-show="unreadCount > 0"
-                        class="text-sm text-blue-600 hover:text-blue-800">
-                  Mark all read
-                </button>
-              </div>
+              <div class="font-medium text-gray-900">Notifications</div>
             </div>
-            
-            <!-- Loading state -->
-            <div x-show="loading" class="px-4 py-8 text-center text-gray-500 text-sm">
-              Loading notifications...
-            </div>
-            
-            <!-- Empty state -->
-            <div x-show="!loading && notifications.length === 0" class="px-4 py-8 text-center text-gray-500 text-sm">
+            <div class="px-4 py-8 text-center text-gray-500 text-sm">
               <svg class="w-8 h-8 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
               </svg>
               No notifications yet
-            </div>
-            
-            <!-- Notifications list -->
-            <div x-show="!loading && notifications.length > 0" class="flex-1 overflow-y-auto">
-              <template x-for="notification in notifications" :key="notification.id">
-                <div class="px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                     @click="markAsRead(notification.id)"
-                     :class="{ 'bg-blue-50': !notification.is_read }">
-                  <div class="flex items-start gap-3">
-                    <!-- Icon -->
-                    <div class="flex-shrink-0 mt-1">
-                      <template x-if="notification.icon === 'announcement'">
-                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
-                        </svg>
-                      </template>
-                      <template x-if="notification.icon === 'system'">
-                        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                        </svg>
-                      </template>
-                      <template x-if="!['announcement', 'system'].includes(notification.icon)">
-                        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
-                        </svg>
-                      </template>
-                    </div>
-                    
-                    <!-- Content -->
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-2">
-                        <p class="font-medium text-sm text-gray-900" x-text="notification.title"></p>
-                        <template x-if="!notification.is_read">
-                          <div class="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0"></div>
-                        </template>
-                      </div>
-                      <p class="text-sm text-gray-600 mt-1" x-text="notification.message"></p>
-                      <p class="text-xs text-gray-500 mt-1" x-text="formatDate(notification.created_at)"></p>
-                    </div>
-                  </div>
-                </div>
-              </template>
             </div>
           </div>
         </div>
