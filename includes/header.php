@@ -290,9 +290,9 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
             </svg>
-            <span class="text-sm"><?= htmlspecialchars($_SESSION['user_email']) ?></span>
+            <span class="text-sm"><?= htmlspecialchars($_SESSION['email'] ?? '') ?></span>
             <span class="text-xs font-medium px-2 py-0.5 bg-black text-white rounded">
-              <?= get_role_display_name($_SESSION['user_role']) ?>
+              <?= get_role_display_name($_SESSION['role'] ?? 'viewer') ?>
             </span>
           </div>
         </div>
@@ -412,7 +412,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
             </svg>
-            <span class="text-sm"><?= htmlspecialchars($_SESSION['user_email']) ?></span>
+            <span class="text-sm"><?= htmlspecialchars($_SESSION['email'] ?? '') ?></span>
           </div>
           <span class="inline-block text-xs font-medium px-2 py-0.5 bg-black text-white rounded">
             <?= get_role_display_name($_SESSION['user_role']) ?>

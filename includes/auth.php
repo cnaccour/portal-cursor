@@ -65,5 +65,5 @@ function get_role_display_name($role) {
     'staff' => 'Staff',
     'viewer' => 'Viewer'
   ];
-  return $names[$role] ?? ucfirst($role);
+  return $names[$role] ?? ucfirst($role ?? 'viewer');
 }
