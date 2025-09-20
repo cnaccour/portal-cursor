@@ -23,7 +23,7 @@ function renderEducationSchedule($educationData) {
                         <?= htmlspecialchars($educationData['description']) ?>
                     </p>
                 </div>
-                <button onclick="exportAllToCalendar()" 
+                <button type="button" onclick="exportAllToCalendar()" 
                         class="inline-flex items-center justify-center px-6 py-3 bg-white text-black rounded-lg hover:bg-gray-100 transition-all transform hover:scale-105 text-sm font-semibold shadow-lg whitespace-nowrap">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -85,7 +85,7 @@ function renderEducationSchedule($educationData) {
                         </div>
                         
                         <?php if ($isUpcoming): ?>
-                        <button onclick="addToCalendar(<?= htmlspecialchars(json_encode($session), ENT_QUOTES) ?>)" 
+                        <button type="button" onclick="addToCalendar(<?= htmlspecialchars(json_encode($session), ENT_QUOTES) ?>)" 
                                 class="w-full mt-3 inline-flex items-center justify-center px-4 py-2 border border-black text-black rounded-lg hover:bg-black hover:text-white transition-colors text-sm font-medium">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -165,7 +165,7 @@ function renderEducationSchedule($educationData) {
                                 </td>
                                 <td class="px-6 py-4 text-center whitespace-nowrap">
                                     <?php if ($isUpcoming): ?>
-                                    <button onclick="addToCalendar(<?= htmlspecialchars(json_encode($session), ENT_QUOTES) ?>)" 
+                                    <button type="button" onclick="addToCalendar(<?= htmlspecialchars(json_encode($session), ENT_QUOTES) ?>)" 
                                             class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-xs font-medium text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 transition-all transform hover:scale-105"
                                             title="Add to Calendar">
                                         <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
