@@ -15,11 +15,6 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
   <style>
     [x-cloak] { display: none !important; }
     
-    /* Prevent image flickering by ensuring immediate display */
-    img[src*="logo.png"] { 
-      display: block !important; 
-      visibility: visible !important;
-    }
   </style>
   
   <?php if (!empty($_SESSION['user_id'])): ?>
@@ -34,7 +29,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
   <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
     <!-- Logo - icon only on mobile, with text on desktop -->
     <a href="/" class="flex items-center gap-3">
-      <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAACLCAYAAADmpJLYAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAABPhJREFUeNrsnduRmzAUQLWbBpwOKIEOQjpwCZTgDkIHlEAJTgdsKmA7YH/zRTpw8ATPOH4sD0ncK3HOzP3ZnfEg6eoeEAKMAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADYGDu6IFy+BH78aR91H1/7eItwfJI+2j5+9/FOuupLvq6P0xBphG2sr9qXM+S6tHudfOdoImvj4aZ959gz9Poqw3UUEam3e9C+bvgfCJI9Sb6YVFx/0r6KFNA7ODGo+DDSvhNVUFZNpwlRBNy+bkL7DqSC3upwiSzC6h7rBVcwVDMSsDVhLVLPmVwnUkF3hbhEGUi70onq5TwwsAQMRcVNpO0a5XUj2das4sLEeReHChiAitOF7TkZNmGIVYulA6ZRWc3CtnSkggx7iwTUdlVsM5mOpIIcncXAaVGxjXrZGRNw5dCi4sbYVXIQZGdZBaVVbDuBqH6BnwtKqthWvTVDr4djgCq2US97AVGxqHrZAYOKUS+EqWLUi4rFVIx6UbGYilEvKhZVMepFxWIqRr2oWEzFqBcVi6oY9aJiMRWjXhBTMeoFURWjXhBTMeoFMRWjXhBVMeoFrypGvSCm4gL1gpSKx95ChXrBq4pT1AtSKka9IKZi1AuiKka9IKZi1AtiKka9IKpi1AtiKka9IKZi1AuiKka9oBLUC6KVsTX/74rJh79nZnxBG/WCFaUZ3x1doV7wQTYxmXaoF3yrd2xXdIt6l/NKF9zx40ECJZ8k6+3//gwBYK3esXPAwoT9kURQrt7b+8TZVUUszQY+JggyV70uIrTvFYNC9doGKh7hRdGxnDcGfDP/7j4kQ3wM8d7Hrz5+elJv4/HK9Xsfbx5+N73qs8vtxD9DX31c9RcXRCPkI+det0schWO1uVavbxWfq/Wcz9ZWhmWhpzN46S6T0uFgnlYI6RdfdoZPfN11ZGfRmS4qym5G5XURe0d9Z/OqkYrUs0s+lwNZrph8ridODJ+sFVtrs+k8Vx9qzlZOPtfHb/vWr83quFZSQVqhBNSi4k3er86VDFzpoHq0JnwVb27Hjs2gaVHv0fHvSKs4o/qFo97b4yhN+Co+biUBaxO+eveeE1pKxdGfC+4iUu9av7umiqN/dCA3canXd2VdSsXFiNsBKpSqd+0En0pioWLO/8y8F4NLq1erigvOA+/phKrf2pVJg4oTlmPukeqQtRNCi4pbElA+AaWUqEHFNQkom4DSlUhaxSSggwTMA04A6QnAOaCDGRmyAiWPY08C3rP0XmUa6EWAZCVe+ohD1Cxdm2pmJkRldNyRcDkhkpX6OWpsXvI45XHJnYPk87UrxFbF7UQT2FTbTWzRt60ExYNE3Bn7zaE+1OtaxZckeTQRc2P3/moflT8qDT+qCLWDTl9zAFw+AnBpf+3w9zZB4jBhND4k5FvFvqIwG6JS1vm+1etDxSG3XxzbnbuuIxNof6uo/bnZILmSzpe68tOi4k2/w1paxXPXF7VekKFeCxU1gp2fbngSamn/JpNQW+dXJJ98Eh7NetrV2PkVyRfPIvVna32az3lyz6sDteFd1aOkxt3q/vUqfyi3mRIP7eellAuXKWoHiZcH3P6jg/YXVD37inCYkYzNsLaXRtb+40Q9X9of3MaCl0COM30yoy9vhd/ChEye/O+NegUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABr8leAAQA0fdNnY7XOHwAAAABJRU5ErkJggg==" alt="J. Joseph Salon Logo" class="h-10 w-auto">
+      <img src="/assets/images/logo.png" alt="J. Joseph Salon Logo" class="h-10 w-auto">
       <div class="hidden md:block">
         <div class="leading-tight">
           <span class="font-semibold text-gray-900">JJS</span>
