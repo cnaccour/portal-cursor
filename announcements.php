@@ -201,17 +201,15 @@ sort($categories);
                     </button>
                 </div>
                 
-                <!-- Content area with icon and title - left aligned -->
-                <div class="flex items-start gap-3 pr-16 md:pr-20">
-                    <!-- Gold Icon -->
-                    <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-1" style="background-color: #AF831A;">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
-                        </svg>
-                    </div>
+                <!-- Content area with icon and title - centered -->
+                <div class="flex items-center justify-center gap-3 pr-16 md:pr-20">
+                    <!-- Bookmark Icon (same as announcements page) -->
+                    <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
+                    </svg>
                     
                     <!-- Title -->
-                    <h2 class="text-xl font-semibold text-gray-900 text-left leading-tight" x-text="selectedAnnouncement?.title"></h2>
+                    <h2 class="text-xl font-semibold text-gray-900 text-center leading-tight" x-text="selectedAnnouncement?.title"></h2>
                 </div>
             </div>
             
@@ -230,10 +228,6 @@ sort($categories);
                     <!-- Category -->
                     <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded capitalize" x-text="selectedAnnouncement?.category"></span>
                     
-                    <!-- Priority -->
-                    <template x-if="selectedAnnouncement && selectedAnnouncement.pinned">
-                        <span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">High Priority</span>
-                    </template>
                 </div>
                 
                 <!-- Full content -->

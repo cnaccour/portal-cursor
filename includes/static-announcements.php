@@ -242,17 +242,10 @@ function generateEducationScheduleHtml() {
 function generateBlackoutDatesHtml() {
     ob_start();
     ?>
-    <div class="bg-gradient-to-br from-red-50 to-pink-50 rounded-xl p-6 mb-6">
-        <div class="flex items-center gap-3 mb-4">
-            <div class="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4m-6 0h6m-6 0v7a2 2 0 11-4 0V7a2 2 0 114 0z"></path>
-                </svg>
-            </div>
-            <div>
-                <h3 class="text-xl font-bold text-red-900">Blackout Dates & Holidays 2025</h3>
-                <p class="text-red-700 text-sm">Complete 2025 calendar of holiday closures, blocked-out dates for time off requests, seize the season periods, and extended Saturday hours. Please review all important dates and plan accordingly.</p>
-            </div>
+    <div class="mb-8">
+        <div class="text-left">
+            <h3 class="text-xl font-bold text-gray-900 mb-6">Blackout Dates & Holidays 2025</h3>
+            <p class="text-gray-700 text-sm leading-relaxed">Complete 2025 calendar of holiday closures, blocked-out dates for time off requests, seize the season periods, and extended Saturday hours. Please review all important dates and plan accordingly.</p>
         </div>
     </div>
 
