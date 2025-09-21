@@ -13,13 +13,13 @@ require __DIR__.'/includes/header.php';
 
 <!-- Quick Actions -->
 <div class="mb-8 flex gap-3 flex-wrap">
-  <a href="/forms/shift-reports.php" class="px-4 py-2 rounded-md bg-black text-white hover:bg-gray-800 transition-colors text-sm font-medium">
+  <a href="forms/shift-reports.php" class="px-4 py-2 rounded-md bg-black text-white hover:bg-gray-800 transition-colors text-sm font-medium">
     Create Shift Report
   </a>
-  <a href="/reports.php" class="px-4 py-2 rounded-md bg-black text-white hover:bg-gray-800 transition-colors text-sm font-medium">
+  <a href="reports.php" class="px-4 py-2 rounded-md bg-black text-white hover:bg-gray-800 transition-colors text-sm font-medium">
     View All Reports
   </a>
-  <a href="/announcements.php" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium">
+  <a href="announcements.php" class="px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors text-sm font-medium">
     Announcements
   </a>
 </div>
@@ -37,7 +37,7 @@ require __DIR__.'/includes/header.php';
       <div class="p-4 border-b border-gray-100">
         <div class="flex items-center justify-between">
           <h3 class="font-semibold text-gray-900">Recent Shift Reports</h3>
-          <a href="/reports.php" class="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1">
+          <a href="reports.php" class="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1">
             View All
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -170,7 +170,7 @@ require __DIR__.'/includes/header.php';
     <div class="p-4 border-b border-gray-100">
       <div class="flex items-center justify-between">
         <h3 class="font-semibold text-gray-900">Recent Announcements</h3>
-        <a href="/announcements.php" class="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1">
+        <a href="announcements.php" class="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1">
           View All
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>

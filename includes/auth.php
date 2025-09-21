@@ -39,7 +39,7 @@ function require_role($required_role) {
     echo '<div class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">';
     echo '<h1 class="text-xl font-semibold text-red-800 mb-2">Access Denied</h1>';
     echo '<p class="text-red-600">You need ' . htmlspecialchars($required_role) . ' permissions to access this page.</p>';
-    echo '<a href="/dashboard.php" class="inline-block mt-4 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">Back to Dashboard</a>';
+    echo '<a href="dashboard.php" class="inline-block mt-4 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">Back to Dashboard</a>';
     echo '</div>';
     require __DIR__.'/footer.php';
     exit;
