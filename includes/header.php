@@ -9,7 +9,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>JJS Team Portal</title>
   <link rel="icon" href="favicon.ico">
-  <link href="assets/css/tailwind.css" rel="stylesheet">
+  <link href="assets/css/output.css" rel="stylesheet">
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
