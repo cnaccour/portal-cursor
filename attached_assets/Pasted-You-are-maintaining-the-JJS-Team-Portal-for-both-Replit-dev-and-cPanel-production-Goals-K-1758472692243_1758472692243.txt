@@ -1,0 +1,78 @@
+You are maintaining the JJS Team Portal for both Replit (dev) and cPanel (production).
+
+⚡ Goals:
+- Keep Replit preview working (everything loads correctly inside `/`).
+- Ensure cPanel deployment under `/public_html/portal/` works with correct paths.
+- Prevent 404s on API calls (`/api/...`) and assets.
+
+✅ Rules to Apply:
+1. **Paths**
+   - Use relative paths (no leading `/`) for CSS, JS, favicon, and page links.
+     Example:  
+     `<link href="assets/css/output.css" rel="stylesheet">`  
+     `<a href="dashboard.php">Dashboard</a>`
+   - For API calls, always prefix with `./api/` instead of `/api/`.  
+     Example:  
+     `fetch('./api/invitations/send-invitation.php')`  
+     This works in Replit root and in cPanel `/portal`.
+
+2. **Session & CSRF**
+   - Always start session in `auth.php` or `login.php`:
+     ```php
+     if (session_status() === PHP_SESSION_NONE) { session_start(); }
+     ```
+   - Store a CSRF token after login:
+     ```php
+     if (empty($_SESSION['csrf_token'])) {
+         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+     }
+     ```
+   - Pass it in JS fetch calls.
+
+3. **Header/Footer**
+   - Use `require __DIR__.'/includes/header.php';` and `footer.php`.
+   - In `header.php`, define:
+     ```html
+     <link rel="icon" href="favicon.ico">
+     <link href="assets/css/output.css" rel="stylesheet">
+     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+     ```
+   - All nav links → **relative** (`dashboard.php`, `forms.php`, etc.).
+
+4. **File Permissions (cPanel only)**
+   - Files: `644`
+   - Directories: `755`
+   - `storage/` and subfolders must be writable.
+
+5. **Database Config**
+   - `includes/db.php` must use:
+     ```php
+     $pdo = new PDO("mysql:host=localhost;dbname=portaljjosephsal_salon_portal;charset=utf8mb4",
+                    "portaljjosephsal_portal_user",
+                    "jjsportaladmin81",
+                    [...]);
+     ```
+   - Test with:
+     ```php
+     var_dump($pdo->query("SELECT id,name,email,role FROM users")->fetchAll());
+     ```
+
+6. **Deployment Checklist**
+   - Push to GitHub (Replit → Git).
+   - On cPanel: `cd ~/public_html/portal && git pull origin main`.
+   - Reset permissions.
+   - Import DB migrations if needed.
+   - Update `.htaccess`:
+     ```
+     Options -Indexes
+     DirectoryIndex index.php
+     ```
+
+7. **Known Fixes from Last Deployment**
+   - API 404 fix → use `./api/...` instead of `/api/...`.  
+   - Login fix → replaced `$mock_users` with real DB check.  
+   - Internal server error → fixed by uploading `.htaccess`.  
+   - DB foreign key mismatch fixed by making `users.id` `INT UNSIGNED`.
+
+⚠️ IMPORTANT:  
+Never reintroduce absolute `/api/...` or `/assets/...` paths — always relative.
