@@ -70,7 +70,7 @@ sort($categories);
             </svg>
             <span x-text="selectedCategory === 'all' ? 'All Types' : selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)"></span>
             <span class="text-gray-500 text-sm">
-                <span x-text="document.querySelectorAll('.announcement-item:not([style*=\"display: none\"])').length"></span> Total
+                <span x-text="document.querySelectorAll('.announcement-item:not([style*=&quot;display: none&quot;])').length"></span> Total
             </span>
         </button>
     </div>
@@ -185,7 +185,7 @@ sort($categories);
     
     <!-- Modal panel -->
     <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto relative z-10">
+        <div class="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[95vh] overflow-y-auto relative z-10">
             
             <!-- Modal Header -->
             <div class="flex items-center justify-between p-6 border-b border-gray-200">
