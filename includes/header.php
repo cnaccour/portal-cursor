@@ -222,13 +222,13 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             <div x-show="!loading && notifications.length > 0" class="flex-1 overflow-y-auto">
               <template x-for="notification in notifications" :key="notification.id">
                 <div class="px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
-                     :class="{ 'bg-blue-50': !notification.is_read, 'cursor-pointer': notification.link_url }"
+                     :class="{ 'bg-amber-50': !notification.is_read, 'cursor-pointer': notification.link_url }"
                      @click="handleNotificationClick(notification)">
                   <div class="flex items-start gap-3">
                     <!-- Icon -->
                     <div class="flex-shrink-0 mt-1">
                       <template x-if="notification.icon === 'announcement'">
-                        <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
                         </svg>
                       </template>
@@ -249,7 +249,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
                       <div class="flex items-center gap-2">
                         <p class="font-medium text-sm text-gray-900" x-text="notification.title"></p>
                         <template x-if="!notification.is_read">
-                          <div class="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0"></div>
+                          <div class="w-2 h-2 rounded-full flex-shrink-0" style="background-color: #AF831A;"></div>
                         </template>
                       </div>
                       <p class="text-sm text-gray-600 mt-1" x-text="notification.message"></p>
