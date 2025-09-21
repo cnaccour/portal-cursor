@@ -1,7 +1,32 @@
 <?php
 require __DIR__.'/includes/auth.php';
-require_login();
 require __DIR__.'/includes/header.php';
+
+// Check if user is logged in, if not show login prompt
+if (empty($_SESSION['user_id'])) {
+?>
+
+<div class="max-w-2xl mx-auto text-center py-16">
+  <div class="bg-white rounded-xl border shadow-sm p-8">
+    <svg class="w-16 h-16 mx-auto mb-4" style="color: #AF831A;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z"></path>
+    </svg>
+    <h1 class="text-2xl font-semibold text-gray-900 mb-3">Welcome to JJS Team Portal</h1>
+    <p class="text-gray-600 mb-6">Please log in to access your dashboard and team resources.</p>
+    <a href="login.php" class="inline-flex items-center gap-2 px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+      </svg>
+      Login to Dashboard
+    </a>
+  </div>
+</div>
+
+<?php 
+require __DIR__.'/includes/footer.php';
+exit;
+}
 ?>
 
 <div class="mb-6">

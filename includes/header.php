@@ -41,36 +41,36 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
 
     <!-- Desktop Navigation - hidden on mobile -->
     <nav class="hidden md:flex text-sm items-center gap-1">
+      <!-- Dashboard/Home -->
+      <a href="dashboard.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z"></path>
+        </svg>
+        Dashboard
+      </a>
+      
+      <!-- Separator -->
+      <div class="w-px h-4 bg-gray-300 mx-2"></div>
+      
+      <a href="announcements.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
+        </svg>
+        Announcements
+      </a>
+      
+      <a href="forms.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        Forms
+      </a>
+      
+      <!-- Separator -->
+      <div class="w-px h-4 bg-gray-300 mx-2"></div>
+      
       <?php if (!empty($_SESSION['user_id'])): ?>
-        <!-- Home/Dashboard first -->
-        <a href="dashboard.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z"></path>
-          </svg>
-          Dashboard
-        </a>
-        
-        <!-- Separator -->
-        <div class="w-px h-4 bg-gray-300 mx-2"></div>
-        
-        <a href="announcements.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
-          </svg>
-          Announcements
-        </a>
-        
-        <a href="forms.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-          </svg>
-          Forms
-        </a>
-        
-        
-        <!-- Separator -->
-        <div class="w-px h-4 bg-gray-300 mx-2"></div>
         
         <!-- Notification Bell -->
         <div class="relative" x-data="{ 
@@ -148,6 +148,31 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             } catch (error) {
               console.error('Error handling notification click:', error);
             }
+          },
+          
+          async clearAllNotifications() {
+            try {
+              const response = await fetch('./api/notifications/clear-all.php', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  csrf_token: window.csrfToken
+                })
+              });
+              
+              if (response.ok) {
+                const data = await response.json();
+                if (data.success) {
+                  // Update local state
+                  this.notifications = [];
+                  this.unreadCount = 0;
+                }
+              }
+            } catch (error) {
+              console.error('Error clearing notifications:', error);
+            }
           }
         }" x-init="loadNotifications()">
           <button @click="open = !open; if (open) loadNotifications()" 
@@ -157,7 +182,8 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             </svg>
             <!-- Unread badge -->
             <span x-show="unreadCount > 0" x-cloak
-                  class="absolute -top-1 -right-1 bg-red-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium"
+                  class="absolute -top-1 -right-1 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium"
+                  style="background-color: #AF831A;"
                   x-text="unreadCount > 99 ? '99+' : unreadCount"></span>
           </button>
           
@@ -169,7 +195,13 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             <div class="px-4 py-3 border-b">
               <div class="flex items-center justify-between">
                 <div class="font-medium text-gray-900">Notifications</div>
-                <span x-show="unreadCount > 0" class="text-sm text-gray-500" x-text="unreadCount + ' unread'"></span>
+                <div class="flex items-center gap-2">
+                  <span x-show="unreadCount > 0" class="text-sm text-gray-500" x-text="unreadCount + ' unread'"></span>
+                  <button x-show="notifications.length > 0" @click="clearAllNotifications()" 
+                          class="text-xs text-gray-500 hover:text-gray-700 font-medium underline">
+                    Clear All
+                  </button>
+                </div>
               </div>
             </div>
             
@@ -306,25 +338,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
           </div>
         </div>
       <?php else: ?>
-        <!-- Home first for logged out users -->
-        <a href="./" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-          </svg>
-          Home
-        </a>
-        
-        <a href="announcements.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
-          </svg>
-          Announcements
-        </a>
-        
-        <!-- Separator -->
-        <div class="w-px h-4 bg-gray-300 mx-2"></div>
-        
-        <!-- Distinguished Login Button -->
+        <!-- Distinguished Login Button for logged out users -->
         <a href="login.php" class="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
@@ -354,52 +368,53 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
        x-transition:leave-end="opacity-0 transform -translate-y-2"
        class="md:hidden bg-white border-t shadow-lg">
     <nav class="px-4 py-4 space-y-1">
+      <!-- Dashboard -->
+      <a href="dashboard.php" 
+         @click="mobileMenuOpen = false"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z"></path>
+        </svg>
+        Dashboard
+      </a>
+      
+      <!-- Separator -->
+      <hr class="border-gray-200 my-2">
+      
+      <a href="announcements.php" 
+         @click="mobileMenuOpen = false"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 717 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
+        </svg>
+        Announcements
+      </a>
+      
+      <a href="forms.php" 
+         @click="mobileMenuOpen = false"
+         class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        Forms
+      </a>
+      
       <?php if (!empty($_SESSION['user_id'])): ?>
-        <!-- Dashboard first -->
-        <a href="dashboard.php" 
-           @click="mobileMenuOpen = false"
-           class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z"></path>
-          </svg>
-          Dashboard
-        </a>
         
-        <!-- Separator -->
-        <hr class="border-gray-200 my-2">
-        
-        <a href="announcements.php" 
-           @click="mobileMenuOpen = false"
-           class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
-          </svg>
-          Announcements
-        </a>
-        
-        <a href="forms.php" 
-           @click="mobileMenuOpen = false"
-           class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-          </svg>
-          Forms
-        </a>
-        
-        <!-- Mobile User Account Section -->
-        <div class="pt-2 mt-2 border-t border-gray-200">
-          <div class="px-3 py-2">
-            <div class="flex items-center gap-3">
-              <div class="w-8 h-8 bg-gray-800 text-white rounded-full flex items-center justify-center text-sm font-medium">
-                <?= strtoupper(substr($_SESSION['name'] ?? 'U', 0, 1)) ?>
-              </div>
-              <div>
-                <div class="font-medium text-gray-900 text-sm">Account</div>
-                <div class="text-xs text-gray-500"><?= htmlspecialchars($_SESSION['email'] ?? 'user@example.com') ?></div>
-              </div>
+      <!-- Mobile User Account Section -->
+      <div class="pt-2 mt-2 border-t border-gray-200">
+        <div class="px-3 py-2">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-gray-800 text-white rounded-full flex items-center justify-center text-sm font-medium">
+              <?= strtoupper(substr($_SESSION['name'] ?? 'U', 0, 1)) ?>
+            </div>
+            <div>
+              <div class="font-medium text-gray-900 text-sm">Account</div>
+              <div class="text-xs text-gray-500"><?= htmlspecialchars($_SESSION['email'] ?? 'user@example.com') ?></div>
             </div>
           </div>
+        </div>
           
           <?php if (has_role('admin')): ?>
           <!-- Mobile Admin Tools -->
@@ -444,37 +459,17 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         </div>
         
       <?php else: ?>
-        <!-- Home first for logged out users -->
-        <a href="./" 
-           @click="mobileMenuOpen = false"
-           class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-          </svg>
-          Home
-        </a>
-        
-        <a href="announcements.php" 
-           @click="mobileMenuOpen = false"
-           class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 717 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
-          </svg>
-          Announcements
-        </a>
-        
-        <!-- Separator -->
-        <hr class="border-gray-200 my-3">
-        
-        <!-- Distinguished Login Button -->
-        <a href="login.php" 
-           @click="mobileMenuOpen = false"
-           class="flex items-center gap-3 px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
-          </svg>
-          Login
-        </a>
+        <!-- Mobile Login Section for logged out users -->
+        <div class="pt-2 mt-2 border-t border-gray-200">
+          <a href="login.php" 
+             @click="mobileMenuOpen = false"
+             class="flex items-center gap-3 px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+            </svg>
+            Login
+          </a>
+        </div>
       <?php endif; ?>
     </nav>
   </div>
