@@ -44,6 +44,40 @@ sort($categories);
         const sizes = ['Bytes', 'KB', 'MB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
         return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    },
+    async shareAnnouncement(announcement) {
+        const shareData = {
+            title: announcement.title,
+            text: announcement.excerpt || announcement.title,
+            url: window.location.href + '#' + announcement.id
+        };
+        
+        // Try Web Share API first (mobile devices)
+        if (navigator.share) {
+            try {
+                await navigator.share(shareData);
+                return;
+            } catch (err) {
+                // User cancelled or error occurred, fall back to clipboard
+            }
+        }
+        
+        // Fallback: Copy link to clipboard
+        try {
+            await navigator.clipboard.writeText(shareData.url);
+            // Show brief success message
+            const button = event.target.closest('button');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Copied!';
+            button.classList.add('text-green-600');
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.classList.remove('text-green-600');
+            }, 2000);
+        } catch (err) {
+            // Final fallback: Alert with URL
+            alert('Share this announcement: ' + shareData.url);
+        }
     }
 }">
 
@@ -131,6 +165,15 @@ sort($categories);
                             </div>
                         <?php endif; ?>
                         
+                        <!-- Share Button -->
+                        <button @click="shareAnnouncement(<?= htmlspecialchars(json_encode($announcement, JSON_HEX_QUOT | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_TAG), ENT_QUOTES) ?>)"
+                                class="flex items-center gap-1 px-2 py-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded text-xs transition-colors"
+                                title="Share announcement">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
+                            </svg>
+                        </button>
+                        
                         <!-- Category Tag -->
                         <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded capitalize"><?= htmlspecialchars($announcement['category']) ?></span>
                     </div>
@@ -192,8 +235,18 @@ sort($categories);
             
             <!-- Modal Header -->
             <div class="relative p-6 border-b border-gray-200">
-                <!-- Close button - centered and positioned absolutely -->
-                <div class="absolute right-4 top-1/2 transform -translate-y-1/2 md:right-6">
+                <!-- Top right buttons -->
+                <div class="absolute right-4 top-1/2 transform -translate-y-1/2 md:right-6 flex items-center gap-2">
+                    <!-- Share button -->
+                    <button @click="shareAnnouncement(selectedAnnouncement)" 
+                            class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors"
+                            title="Share announcement">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"></path>
+                        </svg>
+                    </button>
+                    
+                    <!-- Close button -->
                     <button @click="closeModal()" class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
