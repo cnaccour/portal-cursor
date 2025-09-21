@@ -8,7 +8,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         require_once __DIR__.'/../includes/db.php';
         
         // Collect form data
-        $full_name = trim($_POST['full_name'] ?? '');
+        $first_name = trim($_POST['first_name'] ?? '');
+        $last_name = trim($_POST['last_name'] ?? '');
         $email = trim($_POST['email'] ?? '');
         $work_location = $_POST['work_location'] ?? '';
         $start_date = $_POST['start_date'] ?? '';
@@ -21,7 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         // Basic validation
         $errors = [];
-        if (empty($full_name)) $errors[] = 'Full name is required';
+        if (empty($first_name)) $errors[] = 'First name is required';
+        if (empty($last_name)) $errors[] = 'Last name is required';
         if (empty($email)) $errors[] = 'Email is required';
         if (empty($work_location)) $errors[] = 'Work location is required';
         if (empty($start_date)) $errors[] = 'Start date is required';
@@ -51,7 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->exec("
                 CREATE TABLE IF NOT EXISTS time_off_requests (
                     id SERIAL PRIMARY KEY,
-                    full_name VARCHAR(255) NOT NULL,
+                    first_name VARCHAR(255) NOT NULL,
+                    last_name VARCHAR(255) NOT NULL,
                     email VARCHAR(255) NOT NULL,
                     work_location VARCHAR(100) NOT NULL,
                     start_date DATE NOT NULL,
@@ -71,13 +74,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Insert the time off request
             $stmt = $pdo->prepare("
                 INSERT INTO time_off_requests 
-                (full_name, email, work_location, start_date, end_date, reason, additional_info, 
+                (first_name, last_name, email, work_location, start_date, end_date, reason, additional_info, 
                  has_compensation, understands_blackout, submitted_by) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
             
             $stmt->execute([
-                $full_name, $email, $work_location, $start_date, $end_date, 
+                $first_name, $last_name, $email, $work_location, $start_date, $end_date, 
                 $reason, $additional_info, $has_compensation, $understands_blackout, $submitted_by
             ]);
             
@@ -93,201 +96,276 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 require __DIR__.'/../includes/header.php';
 ?>
 
-<div class="max-w-2xl mx-auto">
-    <div class="mb-6">
-        <h1 class="text-2xl font-semibold">
-            Submit Time Off Request
-        </h1>
-        <p class="text-gray-600 mt-2">Request time off for vacation, personal days, sick leave, or other needs.</p>
+<style>
+/* Custom focus styles for gold theme */
+.focus-gold:focus {
+    outline: none !important;
+    border-color: #AF831A !important;
+    box-shadow: 0 0 0 3px rgba(175, 131, 26, 0.1) !important;
+}
+
+.focus-gold:focus-within {
+    border-color: #AF831A !important;
+    box-shadow: 0 0 0 3px rgba(175, 131, 26, 0.1) !important;
+}
+
+/* Modern select styling */
+.modern-select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23AF831A' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6,9 12,15 18,9'></polyline></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px;
+}
+
+/* Date range display */
+.date-summary {
+    background: linear-gradient(135deg, #AF831A 0%, #D4AF37 100%);
+    color: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: 500;
+    text-align: center;
+    margin-top: 8px;
+}
+
+/* Modern checkbox styling */
+.modern-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: #AF831A;
+    cursor: pointer;
+}
+
+.modern-checkbox:focus {
+    outline: 2px solid #AF831A;
+    outline-offset: 2px;
+}
+</style>
+
+<div class="max-w-3xl mx-auto">
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Submit Time Off Request</h1>
+        <p class="text-gray-600">Request time off for vacation, personal days, sick leave, or other needs.</p>
     </div>
 
     <?php if (!empty($success)): ?>
-        <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
-            <div class="flex items-center gap-2">
-                <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                </svg>
+        <div class="bg-green-50 border border-green-200 rounded-xl p-6 mb-8">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                    <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                    </svg>
+                </div>
                 <span class="text-green-800 font-medium"><?= htmlspecialchars($success) ?></span>
             </div>
         </div>
     <?php endif; ?>
 
     <?php if (!empty($errors)): ?>
-        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
-            <div class="font-medium text-amber-800 mb-2">Please correct the following errors:</div>
-            <ul class="text-amber-700 text-sm space-y-1">
-                <?php foreach ($errors as $error): ?>
-                    <li>• <?= htmlspecialchars($error) ?></li>
-                <?php endforeach; ?>
-            </ul>
+        <div class="bg-red-50 border border-red-200 rounded-xl p-6 mb-8">
+            <div class="flex items-start gap-3">
+                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01"></path>
+                    </svg>
+                </div>
+                <div>
+                    <div class="font-medium text-red-800 mb-2">Please correct the following errors:</div>
+                    <ul class="text-red-700 space-y-1">
+                        <?php foreach ($errors as $error): ?>
+                            <li class="flex items-center gap-2">
+                                <div class="w-1 h-1 bg-red-500 rounded-full"></div>
+                                <?= htmlspecialchars($error) ?>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
+                </div>
+            </div>
         </div>
     <?php endif; ?>
 
-    <form method="post" class="bg-white rounded-xl border shadow-sm p-6 space-y-8">
+    <form method="post" class="space-y-8" x-data="timeOffForm()">
         
         <!-- Personal Information -->
-        <div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Personal Information</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                    <input type="text" name="full_name" required 
-                           value="<?= htmlspecialchars($_POST['full_name'] ?? '') ?>"
-                           placeholder="Enter your full name"
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+        <div class="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Personal Information</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">First Name</label>
+                    <input type="text" name="first_name" required 
+                           value="<?= htmlspecialchars($_POST['first_name'] ?? '') ?>"
+                           placeholder="Enter your first name"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus-gold transition-all duration-200 bg-gray-50 focus:bg-white">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">Last Name</label>
+                    <input type="text" name="last_name" required 
+                           value="<?= htmlspecialchars($_POST['last_name'] ?? '') ?>"
+                           placeholder="Enter your last name"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus-gold transition-all duration-200 bg-gray-50 focus:bg-white">
+                </div>
+                <div class="space-y-2 md:col-span-2">
+                    <label class="block text-sm font-medium text-gray-700">Email Address</label>
                     <input type="email" name="email" required 
                            value="<?= htmlspecialchars($_POST['email'] ?? $_SESSION['email'] ?? '') ?>"
-                           placeholder="Enter your email"
-                           class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
+                           placeholder="Enter your email address"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus-gold transition-all duration-200 bg-gray-50 focus:bg-white">
                 </div>
             </div>
         </div>
 
         <!-- Work Location -->
-        <div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Work Location</h3>
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
-                <?php 
-                $locations = [
-                    'land-o-lakes' => "Land O' Lakes",
-                    'lutz' => 'Lutz',
-                    'citrus-park' => 'Citrus Park',
-                    'odessa' => 'Odessa',
-                    'wesley-chapel' => 'Wesley Chapel'
-                ];
-                foreach ($locations as $value => $label): 
-                    $checked = ($_POST['work_location'] ?? '') === $value ? 'checked' : '';
-                ?>
-                    <label class="relative cursor-pointer">
-                        <input type="radio" name="work_location" value="<?= $value ?>" <?= $checked ?> required
-                               class="sr-only peer">
-                        <div class="p-4 text-center border border-gray-300 rounded-lg peer-checked:border-amber-500 peer-checked:bg-amber-50 hover:border-gray-400 transition-colors">
-                            <svg class="w-5 h-5 mx-auto mb-2 text-gray-500 peer-checked:text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                            </svg>
-                            <div class="text-sm font-medium text-gray-900"><?= htmlspecialchars($label) ?></div>
-                        </div>
-                    </label>
-                <?php endforeach; ?>
+        <div class="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Work Location</h2>
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">Select Your Location</label>
+                <select name="work_location" required 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus-gold transition-all duration-200 bg-gray-50 focus:bg-white modern-select appearance-none">
+                    <option value="">Choose your work location...</option>
+                    <option value="land-o-lakes" <?= ($_POST['work_location'] ?? '') === 'land-o-lakes' ? 'selected' : '' ?>>Land O' Lakes</option>
+                    <option value="lutz" <?= ($_POST['work_location'] ?? '') === 'lutz' ? 'selected' : '' ?>>Lutz</option>
+                    <option value="citrus-park" <?= ($_POST['work_location'] ?? '') === 'citrus-park' ? 'selected' : '' ?>>Citrus Park</option>
+                    <option value="odessa" <?= ($_POST['work_location'] ?? '') === 'odessa' ? 'selected' : '' ?>>Odessa</option>
+                    <option value="wesley-chapel" <?= ($_POST['work_location'] ?? '') === 'wesley-chapel' ? 'selected' : '' ?>>Wesley Chapel</option>
+                </select>
             </div>
         </div>
 
         <!-- Time Off Period -->
-        <div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Time Off Period</h3>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Select Date Range</label>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs text-gray-500 mb-1">Start Date</label>
-                        <input type="date" name="start_date" required 
-                               value="<?= htmlspecialchars($_POST['start_date'] ?? '') ?>"
-                               min="<?= date('Y-m-d') ?>"
-                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-500 mb-1">End Date</label>
-                        <input type="date" name="end_date" required 
-                               value="<?= htmlspecialchars($_POST['end_date'] ?? '') ?>"
-                               min="<?= date('Y-m-d') ?>"
-                               class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500">
-                    </div>
+        <div class="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Time Off Period</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">Start Date</label>
+                    <input type="date" name="start_date" required 
+                           value="<?= htmlspecialchars($_POST['start_date'] ?? '') ?>"
+                           min="<?= date('Y-m-d') ?>"
+                           x-model="startDate"
+                           @change="calculateDays"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus-gold transition-all duration-200 bg-gray-50 focus:bg-white">
                 </div>
+                <div class="space-y-2">
+                    <label class="block text-sm font-medium text-gray-700">End Date</label>
+                    <input type="date" name="end_date" required 
+                           value="<?= htmlspecialchars($_POST['end_date'] ?? '') ?>"
+                           min="<?= date('Y-m-d') ?>"
+                           x-model="endDate"
+                           @change="calculateDays"
+                           class="w-full px-4 py-3 border border-gray-300 rounded-xl focus-gold transition-all duration-200 bg-gray-50 focus:bg-white">
+                </div>
+            </div>
+            <div x-show="dayCount > 0" x-transition class="date-summary mt-4">
+                <span x-text="dayCount === 1 ? '1 day selected' : dayCount + ' days selected'"></span>
+                <span class="mx-2">•</span>
+                <span x-text="formatDateRange()"></span>
             </div>
         </div>
 
         <!-- Reason for Time Off -->
-        <div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Reason for Time Off</h3>
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-                <?php 
-                $reasons = [
-                    'vacation' => [
-                        'label' => 'Vacation',
-                        'description' => 'Planned time off for leisure',
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>'
-                    ],
-                    'personal' => [
-                        'label' => 'Personal Day',
-                        'description' => 'Personal matters or rest',
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>'
-                    ],
-                    'sick' => [
-                        'label' => 'Sick Leave',
-                        'description' => 'Health-related absence',
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>'
-                    ],
-                    'family-emergency' => [
-                        'label' => 'Family Emergency',
-                        'description' => 'Urgent family matters',
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>'
-                    ],
-                    'other' => [
-                        'label' => 'Other',
-                        'description' => 'Other circumstances',
-                        'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h.01M12 12h.01M19 12h.01M6 12a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0zm7 0a1 1 0 11-2 0 1 1 0 012 0z"></path>'
-                    ]
-                ];
-                foreach ($reasons as $value => $info): 
-                    $checked = ($_POST['reason'] ?? '') === $value ? 'checked' : '';
-                ?>
-                    <label class="relative cursor-pointer">
-                        <input type="radio" name="reason" value="<?= $value ?>" <?= $checked ?> required
-                               class="sr-only peer">
-                        <div class="p-4 border border-gray-300 rounded-lg peer-checked:border-amber-500 peer-checked:bg-amber-50 hover:border-gray-400 transition-colors">
-                            <div class="flex items-center gap-3 mb-2">
-                                <svg class="w-5 h-5 text-gray-500 peer-checked:text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <?= $info['icon'] ?>
-                                </svg>
-                                <div class="font-medium text-gray-900"><?= htmlspecialchars($info['label']) ?></div>
-                            </div>
-                            <div class="text-sm text-gray-600"><?= htmlspecialchars($info['description']) ?></div>
-                        </div>
-                    </label>
-                <?php endforeach; ?>
+        <div class="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Reason for Time Off</h2>
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">Select Reason</label>
+                <select name="reason" required 
+                        class="w-full px-4 py-3 border border-gray-300 rounded-xl focus-gold transition-all duration-200 bg-gray-50 focus:bg-white modern-select appearance-none">
+                    <option value="">Choose your reason...</option>
+                    <option value="vacation" <?= ($_POST['reason'] ?? '') === 'vacation' ? 'selected' : '' ?>>Vacation - Planned time off for leisure</option>
+                    <option value="personal" <?= ($_POST['reason'] ?? '') === 'personal' ? 'selected' : '' ?>>Personal Day - Personal matters or rest</option>
+                    <option value="sick" <?= ($_POST['reason'] ?? '') === 'sick' ? 'selected' : '' ?>>Sick Leave - Health-related absence</option>
+                    <option value="family-emergency" <?= ($_POST['reason'] ?? '') === 'family-emergency' ? 'selected' : '' ?>>Family Emergency - Urgent family matters</option>
+                    <option value="other" <?= ($_POST['reason'] ?? '') === 'other' ? 'selected' : '' ?>>Other - Please specify in additional details</option>
+                </select>
             </div>
         </div>
 
         <!-- Additional Details -->
-        <div>
-            <h3 class="text-lg font-semibold text-gray-900 mb-4">Additional Details</h3>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Additional Information (Optional)</label>
+        <div class="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Additional Details</h2>
+            <div class="space-y-2">
+                <label class="block text-sm font-medium text-gray-700">Additional Information <span class="text-gray-500 font-normal">(Optional)</span></label>
                 <textarea name="additional_info" rows="4" 
                           placeholder="Provide any additional details about your request..."
-                          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500"><?= htmlspecialchars($_POST['additional_info'] ?? '') ?></textarea>
+                          class="w-full px-4 py-3 border border-gray-300 rounded-xl focus-gold transition-all duration-200 bg-gray-50 focus:bg-white resize-none"><?= htmlspecialchars($_POST['additional_info'] ?? '') ?></textarea>
             </div>
         </div>
 
-        <!-- Checkboxes -->
-        <div class="space-y-4">
-            <label class="flex items-start gap-3 cursor-pointer">
-                <input type="checkbox" name="has_compensation" value="1" 
-                       <?= isset($_POST['has_compensation']) ? 'checked' : '' ?>
-                       class="mt-1 w-4 h-4 border-gray-300 rounded focus:ring-2" style="accent-color: #AF831A;">
-                <span class="text-sm text-gray-700">I have compensation days available for this request</span>
-            </label>
-            
-            <label class="flex items-start gap-3 cursor-pointer">
-                <input type="checkbox" name="understands_blackout" value="1" required
-                       <?= isset($_POST['understands_blackout']) ? 'checked' : '' ?>
-                       class="mt-1 w-4 h-4 border-gray-300 rounded focus:ring-2" style="accent-color: #AF831A;">
-                <span class="text-sm text-gray-700">I understand that this request may fall during blackout dates and agree to any applicable policies</span>
-            </label>
+        <!-- Acknowledgments -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
+            <h2 class="text-xl font-semibold text-gray-900 mb-6">Acknowledgments</h2>
+            <div class="space-y-6">
+                <label class="flex items-start gap-4 cursor-pointer group">
+                    <input type="checkbox" name="has_compensation" value="1" 
+                           <?= isset($_POST['has_compensation']) ? 'checked' : '' ?>
+                           class="modern-checkbox flex-shrink-0 mt-0.5">
+                    <span class="text-gray-700 group-hover:text-gray-900 transition-colors">I have compensation days available for this request</span>
+                </label>
+                
+                <label class="flex items-start gap-4 cursor-pointer group">
+                    <input type="checkbox" name="understands_blackout" value="1" required
+                           <?= isset($_POST['understands_blackout']) ? 'checked' : '' ?>
+                           class="modern-checkbox flex-shrink-0 mt-0.5">
+                    <span class="text-gray-700 group-hover:text-gray-900 transition-colors">I understand that this request may fall during blackout dates and agree to any applicable policies</span>
+                </label>
+            </div>
         </div>
 
         <!-- Submit Button -->
-        <div class="pt-4">
+        <div class="bg-white rounded-2xl border border-gray-200 p-8 shadow-sm">
             <button type="submit" 
-                    class="w-full px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors font-medium">
+                    class="w-full px-8 py-4 bg-gradient-to-r from-gray-900 to-gray-800 text-white rounded-xl hover:from-gray-800 hover:to-gray-700 focus:outline-none focus:ring-4 focus:ring-gray-300 transition-all duration-200 font-semibold text-lg shadow-lg">
                 Submit Time Off Request
             </button>
         </div>
     </form>
 </div>
+
+<script>
+function timeOffForm() {
+    return {
+        startDate: '<?= $_POST['start_date'] ?? '' ?>',
+        endDate: '<?= $_POST['end_date'] ?? '' ?>',
+        dayCount: 0,
+        
+        calculateDays() {
+            if (this.startDate && this.endDate) {
+                const start = new Date(this.startDate);
+                const end = new Date(this.endDate);
+                
+                if (end >= start) {
+                    const timeDiff = end.getTime() - start.getTime();
+                    this.dayCount = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
+                } else {
+                    this.dayCount = 0;
+                }
+            } else {
+                this.dayCount = 0;
+            }
+        },
+        
+        formatDateRange() {
+            if (this.startDate && this.endDate) {
+                const start = new Date(this.startDate);
+                const end = new Date(this.endDate);
+                
+                const formatDate = (date) => {
+                    return date.toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric',
+                        year: start.getFullYear() !== end.getFullYear() ? 'numeric' : undefined
+                    });
+                };
+                
+                return formatDate(start) + ' to ' + formatDate(end);
+            }
+            return '';
+        },
+        
+        init() {
+            this.calculateDays();
+        }
+    }
+}
+</script>
 
 <?php require __DIR__.'/../includes/footer.php'; ?>
