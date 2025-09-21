@@ -8,8 +8,8 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>JJS Team Portal</title>
-  <link rel="icon" href="/portal/favicon.ico">
-  <link href="/portal/assets/css/tailwind.css" rel="stylesheet">
+  <link rel="icon" href="favicon.ico">
+  <link href="assets/css/tailwind.css" rel="stylesheet">
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -29,7 +29,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
   <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
     <!-- Logo - icon only on mobile, with text on desktop -->
     <a href="/" class="flex items-center gap-3">
-      <img src="/portal/assets/images/logo.png" alt="J. Joseph Salon Logo" class="h-10 w-auto">
+      <img src="assets/images/logo.png" alt="J. Joseph Salon Logo" class="h-10 w-auto">
       <div class="hidden md:block">
         <div class="leading-tight">
           <span class="font-semibold text-gray-900">JJS</span>
