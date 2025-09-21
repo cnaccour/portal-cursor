@@ -110,7 +110,7 @@ function generateEducationScheduleHtml() {
             </div>
             <div>
                 <h3 class="text-xl font-bold text-amber-900">2025 Training Schedule</h3>
-                <p class="text-amber-700 text-sm">Complete 2025 education schedule with monthly training sessions on social media, styling techniques, product knowledge, and business development.</p>
+                <p class="text-amber-700 text-sm">Complete 2025 education schedule featuring monthly training sessions covering social media marketing, vivid color techniques, keratin smoothing certification, product knowledge, shampoo massage and curly styling, updo techniques, consultation skills, and business development. All sessions run from 9:00 AM - 11:00 AM unless otherwise specified, with expert instructors including Annalee Wingate, Angelica Semanchik, Christina Flynn, and other industry professionals.</p>
             </div>
         </div>
     </div>
@@ -249,7 +249,7 @@ function generateBlackoutDatesHtml() {
             </div>
             <div>
                 <h3 class="text-xl font-bold text-red-900">Blackout Dates & Holidays 2025</h3>
-                <p class="text-red-700 text-sm">Complete 2025 calendar of holiday closures, blocked-out dates for time off requests, seize the season periods, and extended Saturday hours. Please review all important dates and plan accordingly.</p>
+                <p class="text-red-700 text-sm">Complete 2025 calendar featuring 10 holiday closures, 9 blocked-out periods where time off requests are not permitted, 3 high-volume "seize the season" periods during Thanksgiving, Christmas, and New Year, plus 4 extended Saturday hours (9 AM-7 PM) during peak times including Valentine's Day, Easter, Thanksgiving, and Christmas weekends. Please review all important dates carefully and plan time off requests accordingly to ensure proper staffing during busy periods.</p>
             </div>
         </div>
     </div>
