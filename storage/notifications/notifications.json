@@ -171,5 +171,21 @@
         ],
         "id": "68cd8585a2822",
         "created_at": "2025-09-19 16:32:05"
+    },
+    {
+        "type": "announcement",
+        "title": "New: In House Education Schedule 2025",
+        "message": "The complete 2025 training schedule is now available. View all upcoming education sessions.",
+        "link_url": "\/announcements.php",
+        "icon": "announcement",
+        "target_roles": [
+            "admin",
+            "manager",
+            "support",
+            "staff",
+            "viewer"
+        ],
+        "id": "68d00258ac6c7",
+        "created_at": "2025-09-21 13:49:12"
     }
 ]

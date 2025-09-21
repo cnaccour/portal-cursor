@@ -4,6 +4,35 @@
  * These announcements are managed by developers and cannot be edited through the web interface
  */
 
+// Create notification for the static education schedule (only once)
+static $notificationInitialized = false;
+
+if (!$notificationInitialized) {
+    try {
+        if (file_exists(__DIR__ . '/notification-manager.php')) {
+            require_once __DIR__ . '/notification-manager.php';
+            
+            // Simple check to avoid duplicate notifications
+            $notificationFile = __DIR__ . '/../storage/education-notification-created.flag';
+            if (!file_exists($notificationFile)) {
+                NotificationManager::notify_roles(['admin', 'manager', 'support', 'staff', 'viewer'], [
+                    'type' => 'announcement',
+                    'title' => 'New: In House Education Schedule 2025',
+                    'message' => 'The complete 2025 training schedule is now available. View all upcoming education sessions.',
+                    'link_url' => '/announcements.php',
+                    'icon' => 'announcement'
+                ]);
+                
+                // Create flag file to prevent duplicate notifications
+                @file_put_contents($notificationFile, date('Y-m-d H:i:s'));
+            }
+        }
+    } catch (Exception $e) {
+        // Silently handle if notification system is not available
+    }
+    $notificationInitialized = true;
+}
+
 return [
     [
         'id' => 'static-education-2025',

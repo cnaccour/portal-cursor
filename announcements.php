@@ -102,9 +102,9 @@ sort($categories);
         <?php foreach ($activeAnnouncements as $announcement): ?>
         <div class="bg-white rounded-lg border border-gray-200 hover:border-gray-300 transition-colors announcement-item cursor-pointer"
              data-category="<?= strtolower($announcement['category']) ?>"
-             data-search="<?= strtolower($announcement['title'] . ' ' . $announcement['content']) ?>"
+             data-search="<?= htmlspecialchars(strtolower(strip_tags($announcement['title'] . ' ' . $announcement['content'])), ENT_QUOTES) ?>"
              x-show="(selectedCategory === 'all' || selectedCategory === $el.dataset.category) && (searchTerm === '' || $el.dataset.search.includes(searchTerm.toLowerCase()))"
-             @click="openModal(<?= htmlspecialchars(json_encode($announcement), ENT_QUOTES) ?>)"
+             @click="openModal(<?= htmlspecialchars(json_encode($announcement, JSON_HEX_QUOT | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_TAG), ENT_QUOTES) ?>)"
              style="display: block">
             <div class="p-6">
                 <div class="flex items-start gap-4">
