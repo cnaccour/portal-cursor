@@ -12,10 +12,10 @@ externalPort = 80
 
 [[ports]]
 localPort = 5000
-externalPort = 5000
+externalPort = 80
 
 [[ports]]
-localPort = 33055
+localPort = 37063
 externalPort = 3002
 
 [[ports]]
@@ -55,7 +55,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "php -S 0.0.0.0:5000"
+args = "php -S 0.0.0.0:5000 -t ."
 waitForPort = 5000
 
 [workflows.workflow.metadata]
