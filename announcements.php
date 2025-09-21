@@ -201,15 +201,15 @@ sort($categories);
                     </button>
                 </div>
                 
-                <!-- Content area with icon and title - centered -->
-                <div class="flex items-center justify-center gap-3 pr-16 md:pr-20">
+                <!-- Content area with icon and title - left aligned -->
+                <div class="flex items-center gap-3 pr-16 md:pr-20">
                     <!-- Bookmark Icon (same as announcements page) -->
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
                     </svg>
                     
                     <!-- Title -->
-                    <h2 class="text-xl font-semibold text-gray-900 text-center leading-tight" x-text="selectedAnnouncement?.title"></h2>
+                    <h2 class="text-xl font-semibold text-gray-900 text-left leading-tight" x-text="selectedAnnouncement?.title"></h2>
                 </div>
             </div>
             
