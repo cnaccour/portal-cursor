@@ -191,31 +191,34 @@ sort($categories);
         <div class="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[95vh] overflow-y-auto relative z-10">
             
             <!-- Modal Header -->
-            <div class="flex items-center justify-between p-6 border-b border-gray-200">
-                <div class="flex items-center gap-3">
-                    <!-- Pin Icon -->
-                    <template x-if="selectedAnnouncement && selectedAnnouncement.pinned">
-                        <svg class="w-5 h-5 text-red-500" fill="currentColor" viewBox="0 0 24 24">
-                            <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+            <div class="relative p-6 border-b border-gray-200">
+                <!-- Close button - centered and positioned absolutely -->
+                <div class="absolute right-4 top-1/2 transform -translate-y-1/2 md:right-6">
+                    <button @click="closeModal()" class="text-gray-400 hover:text-gray-600 p-2 rounded-full hover:bg-gray-100 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                         </svg>
-                    </template>
-                    
-                    <!-- Title -->
-                    <h2 class="text-xl font-semibold text-gray-900" x-text="selectedAnnouncement?.title"></h2>
+                    </button>
                 </div>
                 
-                <!-- Close button -->
-                <button @click="closeModal()" class="text-gray-400 hover:text-gray-600">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
+                <!-- Content area with icon and title - left aligned -->
+                <div class="flex items-start gap-3 pr-16 md:pr-20">
+                    <!-- Gold Icon -->
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-1" style="background-color: #AF831A;">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
+                        </svg>
+                    </div>
+                    
+                    <!-- Title -->
+                    <h2 class="text-xl font-semibold text-gray-900 text-left leading-tight" x-text="selectedAnnouncement?.title"></h2>
+                </div>
             </div>
             
             <!-- Modal Body -->
             <div class="p-6">
                 <!-- Announcement metadata -->
-                <div class="flex items-center gap-4 mb-4 text-sm text-gray-500">
+                <div class="flex flex-wrap items-center gap-4 mb-6 text-sm text-gray-500">
                     <!-- Date -->
                     <div class="flex items-center gap-1">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -319,9 +322,9 @@ sort($categories);
             </div>
             
             <!-- Modal Footer -->
-            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg">
+            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg text-center">
                 <button @click="closeModal()" 
-                        class="px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors">
+                        class="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors font-medium">
                     Close
                 </button>
             </div>
