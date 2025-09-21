@@ -49,6 +49,22 @@ return [
         'attachments' => [],
         'static' => true, // Mark as static to prevent editing
         'admin_deletable' => true // Allow admin deletion
+    ],
+    [
+        'id' => 'static-blackout-dates-2025',
+        'title' => 'Blackout Dates & Holidays 2025',
+        'content' => generateBlackoutDatesHtml(),
+        'category' => 'general',
+        'author' => 'Management',
+        'location_specific' => false,
+        'pinned' => true,
+        'priority' => 2,
+        'expiration_date' => null,
+        'date_created' => '2025-01-03 00:00:00',
+        'date_modified' => '2025-01-03 00:00:00',
+        'attachments' => [],
+        'static' => true, // Mark as static to prevent editing
+        'admin_deletable' => true // Allow admin deletion
     ]
 ];
 
@@ -212,6 +228,359 @@ function generateEducationScheduleHtml() {
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
             </svg>
             All sessions run from 9:00 AM - 11:00 AM unless otherwise specified
+        </p>
+    </div>
+    <?php
+    return ob_get_clean();
+}
+
+/**
+ * Generate the mobile-first responsive HTML for the blackout dates & holidays
+ */
+function generateBlackoutDatesHtml() {
+    ob_start();
+    ?>
+    <div class="bg-gradient-to-br from-red-50 to-pink-50 rounded-xl p-6 mb-6">
+        <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4m-6 0h6m-6 0v7a2 2 0 11-4 0V7a2 2 0 114 0z"></path>
+                </svg>
+            </div>
+            <div>
+                <h3 class="text-xl font-bold text-red-900">Blackout Dates & Holidays 2025</h3>
+                <p class="text-red-700 text-sm">Complete 2025 calendar of holiday closures, blocked-out dates for time off requests, seize the season periods, and extended Saturday hours. Please review all important dates and plan accordingly.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Reference Stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="bg-white rounded-lg border p-4 text-center">
+            <div class="text-2xl font-bold text-red-600">10</div>
+            <div class="text-sm text-gray-600">Holiday Closures</div>
+        </div>
+        <div class="bg-white rounded-lg border p-4 text-center">
+            <div class="text-2xl font-bold text-orange-600">9</div>
+            <div class="text-sm text-gray-600">Blackout Periods</div>
+        </div>
+        <div class="bg-white rounded-lg border p-4 text-center">
+            <div class="text-2xl font-bold text-yellow-600">3</div>
+            <div class="text-sm text-gray-600">High Volume</div>
+        </div>
+        <div class="bg-white rounded-lg border p-4 text-center">
+            <div class="text-2xl font-bold text-green-600">4</div>
+            <div class="text-sm text-gray-600">Extended Hours</div>
+        </div>
+    </div>
+
+    <!-- Holiday Closures Section -->
+    <div class="bg-white rounded-lg border mb-6" x-data="{ open: true }">
+        <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50">
+            <div class="flex items-center gap-3">
+                <div class="w-6 h-6 bg-red-100 rounded-full flex items-center justify-center">
+                    <span class="text-red-600 text-xs font-bold">10</span>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900">Holiday Closures</h3>
+            </div>
+            <svg class="w-5 h-5 text-gray-400 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+        </button>
+        
+        <div x-show="open" x-transition class="px-6 pb-6">
+            <div class="space-y-3">
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">New Year's Day</div>
+                        <div class="text-sm text-gray-600">January 1, 2025 (Wednesday)</div>
+                    </div>
+                    <span class="px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">Closed</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Easter</div>
+                        <div class="text-sm text-gray-600">April 20-21, 2025 (Sunday and Monday)</div>
+                    </div>
+                    <span class="px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">Closed</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Mother's Day</div>
+                        <div class="text-sm text-gray-600">May 11, 2025 (Sunday)</div>
+                    </div>
+                    <span class="px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">Closed</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Memorial Day</div>
+                        <div class="text-sm text-gray-600">May 25-26, 2025 (Sunday and Monday)</div>
+                    </div>
+                    <span class="px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">Closed</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Independence Day</div>
+                        <div class="text-sm text-gray-600">July 4, 2025 (Friday)</div>
+                    </div>
+                    <span class="px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">Closed</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Labor Day</div>
+                        <div class="text-sm text-gray-600">September 1, 2025 (Monday)</div>
+                    </div>
+                    <span class="px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">Closed</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Thanksgiving</div>
+                        <div class="text-sm text-gray-600">November 26-30, 2025 (Wednesday-Sunday)</div>
+                    </div>
+                    <span class="px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">Closed</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Christmas</div>
+                        <div class="text-sm text-gray-600">December 24-27, 2025 (Wednesday-Saturday)</div>
+                    </div>
+                    <span class="px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">Closed</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">New Year's Eve</div>
+                        <div class="text-sm text-gray-600">December 31, 2025</div>
+                    </div>
+                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full">Limited Hours</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3">
+                    <div>
+                        <div class="font-medium text-gray-900">New Year's Day 2026</div>
+                        <div class="text-sm text-gray-600">January 1, 2026 (Wednesday)</div>
+                    </div>
+                    <span class="px-3 py-1 bg-red-100 text-red-800 text-sm font-medium rounded-full">Closed</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blocked-Out Dates Section -->
+    <div class="bg-white rounded-lg border mb-6" x-data="{ open: true }">
+        <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50">
+            <div class="flex items-center gap-3">
+                <div class="w-6 h-6 bg-orange-100 rounded-full flex items-center justify-center">
+                    <span class="text-orange-600 text-xs font-bold">9</span>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900">Blocked-Out Dates</h3>
+            </div>
+            <svg class="w-5 h-5 text-gray-400 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+        </button>
+        
+        <div x-show="open" x-transition class="px-6 pb-6">
+            <div class="space-y-3">
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Valentine's Day</div>
+                        <div class="text-sm text-gray-600">February 9-14</div>
+                        <div class="text-xs text-gray-500">No time off allowed</div>
+                    </div>
+                    <span class="px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full">No Time Off</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Easter</div>
+                        <div class="text-sm text-gray-600">April 19-20</div>
+                        <div class="text-xs text-gray-500">No time off allowed</div>
+                    </div>
+                    <span class="px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full">No Time Off</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Mother's Day</div>
+                        <div class="text-sm text-gray-600">May 9-10</div>
+                        <div class="text-xs text-gray-500">No time off allowed (excluding mothers on May 10)</div>
+                    </div>
+                    <span class="px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full">No Time Off</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Memorial Day</div>
+                        <div class="text-sm text-gray-600">May 24-24</div>
+                        <div class="text-xs text-gray-500">No time off allowed</div>
+                    </div>
+                    <span class="px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full">No Time Off</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Prom and Graduation</div>
+                        <div class="text-sm text-gray-600">May-June</div>
+                        <div class="text-xs text-gray-500">Exact dates from Nassau location TSM Weekly & Hillsborough Guidance</div>
+                    </div>
+                    <span class="px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full">No Time Off</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Independence Day</div>
+                        <div class="text-sm text-gray-600">June 27-July 2</div>
+                        <div class="text-xs text-gray-500">No time off allowed</div>
+                    </div>
+                    <span class="px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full">No Time Off</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Back-to-School</div>
+                        <div class="text-sm text-gray-600">August 7-12</div>
+                        <div class="text-xs text-gray-500">No time off allowed</div>
+                    </div>
+                    <span class="px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full">No Time Off</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Halloween</div>
+                        <div class="text-sm text-gray-600">October 26-29</div>
+                        <div class="text-xs text-gray-500">No time off allowed</div>
+                    </div>
+                    <span class="px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full">No Time Off</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3">
+                    <div>
+                        <div class="font-medium text-gray-900">Thanksgiving & Christmas</div>
+                        <div class="text-sm text-gray-600">November 1-December 31</div>
+                        <div class="text-xs text-gray-500">No time off allowed</div>
+                    </div>
+                    <span class="px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full">No Time Off</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seize the Season Periods Section -->
+    <div class="bg-white rounded-lg border mb-6" x-data="{ open: true }">
+        <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50">
+            <div class="flex items-center gap-3">
+                <div class="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center">
+                    <span class="text-yellow-600 text-xs font-bold">3</span>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900">Seize the Season Periods</h3>
+            </div>
+            <svg class="w-5 h-5 text-gray-400 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+        </button>
+        
+        <div x-show="open" x-transition class="px-6 pb-6">
+            <div class="space-y-3">
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Thanksgiving</div>
+                        <div class="text-sm text-gray-600">November 12-26, 2025</div>
+                        <div class="text-xs text-gray-500">High-volume sales week</div>
+                    </div>
+                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full">High Volume</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Christmas</div>
+                        <div class="text-sm text-gray-600">December 7-23, 2025</div>
+                        <div class="text-xs text-gray-500">High-volume sales week</div>
+                    </div>
+                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full">High Volume</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3">
+                    <div>
+                        <div class="font-medium text-gray-900">New Year</div>
+                        <div class="text-sm text-gray-600">December 26-31, 2025</div>
+                        <div class="text-xs text-gray-500">High-volume sales week</div>
+                    </div>
+                    <span class="px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full">High Volume</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Saturday Extended Hours Section -->
+    <div class="bg-white rounded-lg border mb-6" x-data="{ open: true }">
+        <button @click="open = !open" class="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-gray-50">
+            <div class="flex items-center gap-3">
+                <div class="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                    <span class="text-green-600 text-xs font-bold">4</span>
+                </div>
+                <h3 class="text-lg font-semibold text-gray-900">Saturday Extended Hours</h3>
+            </div>
+            <svg class="w-5 h-5 text-gray-400 transition-transform" :class="{ 'rotate-180': open }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+        </button>
+        
+        <div x-show="open" x-transition class="px-6 pb-6">
+            <div class="space-y-3">
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Valentine's Day</div>
+                        <div class="text-sm text-gray-600">Saturday, February 8, 2025</div>
+                        <div class="text-xs text-gray-500">9 AM-7 PM</div>
+                    </div>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">Extended Hours</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Easter</div>
+                        <div class="text-sm text-gray-600">Saturday, April 19, 2025</div>
+                        <div class="text-xs text-gray-500">9 AM-7 PM</div>
+                    </div>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">Extended Hours</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3 border-b border-gray-100">
+                    <div>
+                        <div class="font-medium text-gray-900">Thanksgiving</div>
+                        <div class="text-sm text-gray-600">Saturdays, November 8, 15, and 22, 2025</div>
+                        <div class="text-xs text-gray-500">9 AM-7 PM</div>
+                    </div>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">Extended Hours</span>
+                </div>
+                
+                <div class="flex justify-between items-center py-3">
+                    <div>
+                        <div class="font-medium text-gray-900">Christmas</div>
+                        <div class="text-sm text-gray-600">Saturdays, December 6, 13, and 20, 2025</div>
+                        <div class="text-xs text-gray-500">9 AM-7 PM</div>
+                    </div>
+                    <span class="px-3 py-1 bg-green-100 text-green-800 text-sm font-medium rounded-full">Extended Hours</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Note -->
+    <div class="mt-6 text-center">
+        <p class="text-xs text-gray-500">
+            <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            Please review all dates carefully and plan time off requests accordingly
         </p>
     </div>
     <?php
