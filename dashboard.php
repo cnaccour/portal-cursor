@@ -88,7 +88,7 @@ require __DIR__.'/includes/header.php';
             }
             echo "</div>";
             echo "</div>";
-            echo "<a href='/reports/view.php?id=" . htmlspecialchars($row['id'], ENT_QUOTES) . "' class='ml-3 px-3 py-1 text-xs font-medium rounded-md border border-gray-300 hover:bg-gray-50 transition-colors'>";
+            echo "<a href='reports/view.php?id=" . htmlspecialchars($row['id'], ENT_QUOTES) . "' class='ml-3 px-3 py-1 text-xs font-medium rounded-md border border-gray-300 hover:bg-gray-50 transition-colors'>";
             echo "View";
             echo "</a>";
             echo "</div>";
