@@ -95,10 +95,7 @@ require __DIR__.'/../includes/header.php';
 
 <div class="max-w-2xl mx-auto">
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold flex items-center gap-3">
-            <svg class="w-6 h-6" style="color: #AF831A;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 8h6M7 21h10a2 2 0 002-2V9a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-            </svg>
+        <h1 class="text-2xl font-semibold">
             Submit Time Off Request
         </h1>
         <p class="text-gray-600 mt-2">Request time off for vacation, personal days, sick leave, or other needs.</p>
@@ -152,7 +149,7 @@ require __DIR__.'/../includes/header.php';
         <!-- Work Location -->
         <div>
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Work Location</h3>
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
                 <?php 
                 $locations = [
                     'land-o-lakes' => "Land O' Lakes",
@@ -206,7 +203,7 @@ require __DIR__.'/../includes/header.php';
         <!-- Reason for Time Off -->
         <div>
             <h3 class="text-lg font-semibold text-gray-900 mb-4">Reason for Time Off</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                 <?php 
                 $reasons = [
                     'vacation' => [
@@ -271,14 +268,14 @@ require __DIR__.'/../includes/header.php';
             <label class="flex items-start gap-3 cursor-pointer">
                 <input type="checkbox" name="has_compensation" value="1" 
                        <?= isset($_POST['has_compensation']) ? 'checked' : '' ?>
-                       class="mt-1 w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500 focus:ring-2">
+                       class="mt-1 w-4 h-4 border-gray-300 rounded focus:ring-2" style="accent-color: #AF831A;">
                 <span class="text-sm text-gray-700">I have compensation days available for this request</span>
             </label>
             
             <label class="flex items-start gap-3 cursor-pointer">
                 <input type="checkbox" name="understands_blackout" value="1" required
                        <?= isset($_POST['understands_blackout']) ? 'checked' : '' ?>
-                       class="mt-1 w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500 focus:ring-2">
+                       class="mt-1 w-4 h-4 border-gray-300 rounded focus:ring-2" style="accent-color: #AF831A;">
                 <span class="text-sm text-gray-700">I understand that this request may fall during blackout dates and agree to any applicable policies</span>
             </label>
         </div>
