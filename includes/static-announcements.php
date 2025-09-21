@@ -44,7 +44,7 @@ function generateEducationScheduleHtml() {
         ['date' => '07/08/25', 'session' => 'Updo How To', 'time' => '9:00 AM - 11:00 AM', 'instructor' => 'Jakaterina F.', 'status' => 'completed'],
         ['date' => '07/22/25', 'session' => 'Consultation', 'time' => '9:00 AM - 11:00 AM', 'instructor' => 'Mike Wilkins', 'status' => 'completed'],
         ['date' => '08/05/25', 'session' => 'Social Media', 'time' => '9:00 AM - 11:00 AM', 'instructor' => 'Annalee Wingate', 'status' => 'completed'],
-        ['date' => '08/19/25', 'session' => 'JJS Business Retention', 'time' => '9:00 AM - 11:00 PM', 'instructor' => 'Mikayla Santulo', 'status' => 'completed'],
+        ['date' => '08/19/25', 'session' => 'JJS Business / Retention', 'time' => '9:00 AM - 11:00 AM', 'instructor' => 'Mikayla Santulo', 'status' => 'completed'],
         ['date' => '09/02/25', 'session' => 'Intro to Vivids', 'time' => '9:00 AM - 11:00 AM', 'instructor' => 'Angelica Semanchik', 'status' => 'completed'],
         ['date' => '09/16/25', 'session' => 'Pre Keratin Smoothing Certification', 'time' => '9:00 AM - 11:00 AM', 'instructor' => 'Christina Flynn', 'status' => 'completed'],
         ['date' => '09/30/25', 'session' => 'Product Knowledge', 'time' => '9:00 AM - 11:00 AM', 'instructor' => 'TBA', 'status' => 'upcoming'],
