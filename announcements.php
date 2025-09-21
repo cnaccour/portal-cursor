@@ -106,24 +106,23 @@ sort($categories);
              x-show="(selectedCategory === 'all' || selectedCategory === $el.dataset.category) && (searchTerm === '' || $el.dataset.search.includes(searchTerm.toLowerCase()))"
              @click="openModal(<?= htmlspecialchars(json_encode($announcement, JSON_HEX_QUOT | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_TAG), ENT_QUOTES) ?>)"
              style="display: block">
-            <div class="p-6">
-                <div class="flex items-start gap-4">
-                    <!-- Pin Icon (only for pinned announcements) -->
-                    <?php if ($announcement['pinned']): ?>
-                    <div class="flex-shrink-0 mt-1">
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path>
-                        </svg>
-                    </div>
-                    <?php endif; ?>
-                    
-                    <!-- Content -->
-                    <div class="flex-1 min-w-0">
+            <div class="p-6 relative">
+                <!-- Pin Icon (only for pinned announcements) - positioned absolutely -->
+                <?php if ($announcement['pinned']): ?>
+                <div class="absolute top-3 right-3">
+                    <svg class="w-4 h-4 text-red-500" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                    </svg>
+                </div>
+                <?php endif; ?>
+                
+                <!-- Content -->
+                <div class="w-full <?= $announcement['pinned'] ? 'pr-8' : '' ?>">
                         <!-- Title -->
                         <h3 class="text-lg font-semibold text-gray-900 mb-2"><?= htmlspecialchars($announcement['title']) ?></h3>
                         
-                        <!-- Description (Excerpt) -->
-                        <div class="text-gray-600 text-sm leading-relaxed mb-4">
+                        <!-- Description (Excerpt) - Full Width -->
+                        <div class="text-gray-600 text-sm leading-relaxed mb-4 w-full">
                             <?php 
                             // For excerpts, strip HTML tags and show plain text
                             $plainContent = strip_tags($announcement['content']);
@@ -134,21 +133,18 @@ sort($categories);
                             ?>
                         </div>
                         
-                        <!-- Date -->
-                        <div class="flex items-center text-xs text-gray-500">
-                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <span><?= date('M j, Y', strtotime($announcement['date_created'])) ?></span>
-                        </div>
-                    </div>
-                    
-                    <!-- Right Side Tags and Arrow -->
-                    <div class="flex items-center gap-2">
-                        <!-- Priority Badge -->
-                        <?php if ($announcement['pinned']): ?>
-                            <span class="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded">High</span>
-                        <?php endif; ?>
+                        <!-- Bottom Row: Date on left, Tags and Arrow on right -->
+                        <div class="flex items-center justify-between gap-4">
+                            <!-- Date -->
+                            <div class="flex items-center text-xs text-gray-500">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                                <span><?= date('M j, Y', strtotime($announcement['date_created'])) ?></span>
+                            </div>
+                            
+                            <!-- Right Side Tags and Arrow -->
+                            <div class="flex items-center gap-2 flex-shrink-0">
                         
                         <!-- Attachment Indicator -->
                         <?php if (!empty($announcement['attachments']) && count($announcement['attachments']) > 0): ?>
@@ -163,11 +159,12 @@ sort($categories);
                         <!-- Category Tag -->
                         <span class="px-2 py-1 bg-gray-100 text-gray-700 text-xs font-medium rounded capitalize"><?= htmlspecialchars($announcement['category']) ?></span>
                         
-                        <!-- Arrow -->
-                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                        </svg>
-                    </div>
+                                <!-- Arrow -->
+                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                </svg>
+                            </div>
+                        </div>
                 </div>
             </div>
         </div>
