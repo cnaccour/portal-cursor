@@ -1,24 +1,25 @@
 <?php
-// Production database connection for both Replit and cPanel environments
-// Uses environment detection for automatic configuration
+// Local-only mock "database" for login testing in Replit.
+// REMOVE this file and restore the real db.php when you deploy.
 
-if (session_status() === PHP_SESSION_NONE) { 
-    session_start(); 
-}
+// Mock invitations data for development
+$mock_invitations = [];
 
-// Database configuration based on environment
-$host = 'localhost';
-$dbname = 'portaljjosephsal_salon_portal';
-$username = 'portaljjosephsal_portal_user';
-$password = 'jjsportaladmin81';
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$dbname;charset=utf8mb4", $username, $password, [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        PDO::ATTR_EMULATE_PREPARES => false,
-    ]);
-} catch (PDOException $e) {
-    error_log('Database connection failed: ' . $e->getMessage());
-    die('Database connection failed. Please contact support.');
-}
+$mock_users = [
+  [
+    'id' => 1,
+    'name' => 'Admin User',
+    'email' => 'admin@example.com',
+    // password is: admin123
+    'password_hash' => password_hash('admin123', PASSWORD_DEFAULT),
+    'role' => 'admin',
+  ],
+  [
+    'id' => 2,
+    'name' => 'Staff User',
+    'email' => 'staff@example.com',
+    // password is: staff123
+    'password_hash' => password_hash('staff123', PASSWORD_DEFAULT),
+    'role' => 'admin', // Set to admin as requested
+  ],
+];

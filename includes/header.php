@@ -28,7 +28,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
 <header class="bg-white" x-data="{ mobileMenuOpen: false }">
   <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
     <!-- Logo - icon only on mobile, with text on desktop -->
-    <a href="./" class="flex items-center gap-3">
+    <a href="/" class="flex items-center gap-3">
       <img src="assets/images/logo.png" alt="J. Joseph Salon Logo" class="h-10 w-auto">
       <div class="hidden md:block">
         <div class="leading-tight">
@@ -82,7 +82,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
           async loadNotifications() {
             this.loading = true;
             try {
-              const response = await fetch('./api/notifications.php');
+              const response = await fetch('/api/notifications.php');
               if (response.ok) {
                 const data = await response.json();
                 if (data.success) {
@@ -117,7 +117,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             try {
               // Mark as read if not already read
               if (!notification.is_read) {
-                const response = await fetch('./api/notifications/mark-read.php', {
+                const response = await fetch('/api/notifications/mark-read.php', {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
@@ -307,7 +307,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         </div>
       <?php else: ?>
         <!-- Home first for logged out users -->
-        <a href="./" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+        <a href="/" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
           </svg>
@@ -445,7 +445,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         
       <?php else: ?>
         <!-- Home first for logged out users -->
-        <a href="./" 
+        <a href="/" 
            @click="mobileMenuOpen = false"
            class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -219,7 +219,7 @@ function announcementManager() {
         },
         
         async sendFormRequest(formData) {
-            const response = await fetch('./api/save-announcement.php', {
+            const response = await fetch('/api/save-announcement.php', {
                 method: 'POST',
                 body: formData
             });
@@ -273,7 +273,7 @@ function announcementManager() {
             formData.append('csrf_token', window.csrfToken);
             formData.append('announcement_id', announcementId);
             
-            const response = await fetch('./api/delete-announcement.php', {
+            const response = await fetch('/api/delete-announcement.php', {
                 method: 'POST',
                 body: formData
             });
@@ -397,7 +397,7 @@ function announcementManager() {
             formData.append('announcement_id', announcementId);
             formData.append('file', file);
             
-            const response = await fetch('./api/upload-attachment.php', {
+            const response = await fetch('/api/upload-attachment.php', {
                 method: 'POST',
                 body: formData
             });
@@ -439,7 +439,7 @@ function announcementManager() {
             formData.append('announcement_id', this.selectedAnnouncement.id);
             formData.append('filename', attachment.filename);
             
-            const response = await fetch('./api/delete-attachment.php', {
+            const response = await fetch('/api/delete-attachment.php', {
                 method: 'POST',
                 body: formData
             });

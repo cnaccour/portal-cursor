@@ -6,14 +6,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $email = trim($_POST['email'] ?? '');
   $pass  = $_POST['password'] ?? '';
 
-  // Database query to find user
-  try {
-    $stmt = $pdo->prepare("SELECT id, name, email, password_hash, role FROM users WHERE email = ? AND deleted_at IS NULL");
-    $stmt->execute([$email]);
-    $u = $stmt->fetch();
-  } catch (Exception $e) {
-    error_log('Login query failed: ' . $e->getMessage());
-    $u = null;
+  // Local-only: search the mock_users array
+  $u = null;
+  foreach ($mock_users as $user) {
+    if ($user['email'] === $email) {
+      $u = $user;
+      break;
+    }
   }
 
   if ($u && password_verify($pass, $u['password_hash'])) {
@@ -22,13 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['name'] = $u['name'];
     $_SESSION['role'] = $u['role'] ?? 'staff'; // Default to staff if no role set
     $_SESSION['email'] = $u['email']; // Add email to session
-    
-    // Generate CSRF token
-    if (empty($_SESSION['csrf_token'])) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    }
-    
-    header('Location: dashboard.php');
+    header('Location: /dashboard.php');
     exit;
   } else {
     $err = "Invalid email or password.";

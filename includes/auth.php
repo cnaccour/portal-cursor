@@ -8,7 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 function require_login() {
   if (empty($_SESSION['user_id'])) {
-    header('Location: login.php');
+    header('Location: /login.php');
     exit;
   }
 }

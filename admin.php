@@ -422,7 +422,7 @@ function deleteUser(userId, userName) {
     formData.append('user_id', userId);
     formData.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
     
-    fetch('./api/users/delete-user.php', {
+    fetch('/api/users/delete-user.php', {
         method: 'POST',
         body: formData
     })
@@ -450,7 +450,7 @@ function restoreUser(userId, userName) {
     formData.append('user_id', userId);
     formData.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
     
-    fetch('./api/users/restore-user.php', {
+    fetch('/api/users/restore-user.php', {
         method: 'POST',
         body: formData
     })
@@ -475,7 +475,7 @@ function toggleUserStatus(userId, newStatus) {
     formData.append('status', newStatus);
     formData.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
     
-    fetch('./api/users/update-status.php', {
+    fetch('/api/users/update-status.php', {
         method: 'POST',
         body: formData
     })
@@ -520,7 +520,7 @@ function hideInvitationsTab() {
 }
 
 function loadInvitations() {
-    fetch('./api/invitations/list-invitations.php')
+    fetch('/api/invitations/list-invitations.php')
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -630,7 +630,7 @@ function revokeInvitation(invitationId, email) {
     formData.append('invitation_id', invitationId);
     formData.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
     
-    fetch('./api/invitations/revoke-invitation.php', {
+    fetch('/api/invitations/revoke-invitation.php', {
         method: 'POST',
         body: formData
     })
@@ -697,7 +697,7 @@ document.getElementById('inviteForm').addEventListener('submit', function(e) {
     submitBtn.disabled = true;
     submitBtn.textContent = 'Sending...';
     
-    fetch('./api/invitations/send-invitation.php', {
+    fetch('/api/invitations/send-invitation.php', {
         method: 'POST',
         body: formData
     })
@@ -857,7 +857,7 @@ async function resetPassword(event) {
     }
     
     try {
-        const response = await fetch('./api/users/reset-password.php', {
+        const response = await fetch('/api/users/reset-password.php', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
