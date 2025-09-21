@@ -142,12 +142,17 @@ sort($categories);
                         <!-- Description (Excerpt) - Full Width -->
                         <div class="text-gray-600 text-sm leading-relaxed mb-4 w-full">
                             <?php 
-                            // For excerpts, strip HTML tags and show plain text
-                            $plainContent = strip_tags($announcement['content']);
-                            $excerpt = strlen($plainContent) > 150 
-                                ? substr($plainContent, 0, 150) . '...' 
-                                : $plainContent;
-                            echo htmlspecialchars($excerpt);
+                            // Use custom excerpt if available, otherwise generate from content
+                            if (!empty($announcement['excerpt'])) {
+                                echo htmlspecialchars($announcement['excerpt']);
+                            } else {
+                                // For excerpts, strip HTML tags and show plain text
+                                $plainContent = strip_tags($announcement['content']);
+                                $excerpt = strlen($plainContent) > 150 
+                                    ? substr($plainContent, 0, 150) . '...' 
+                                    : $plainContent;
+                                echo htmlspecialchars($excerpt);
+                            }
                             ?>
                         </div>
                         
