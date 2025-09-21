@@ -349,6 +349,6 @@ $message = '';
     // Make CSRF token available to external JavaScript
     window.csrfToken = '<?= $_SESSION['csrf_token'] ?>';
 </script>
-<script src="/assets/js/announcement-manager.js"></script>
+<script src="/portal/assets/js/announcement-manager.js"></script>
 
 <?php require __DIR__.'/includes/footer.php'; ?>
