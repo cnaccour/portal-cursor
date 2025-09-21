@@ -82,7 +82,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
           async loadNotifications() {
             this.loading = true;
             try {
-              const response = await fetch('/api/notifications.php');
+              const response = await fetch('./api/notifications.php');
               if (response.ok) {
                 const data = await response.json();
                 if (data.success) {
@@ -117,7 +117,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             try {
               // Mark as read if not already read
               if (!notification.is_read) {
-                const response = await fetch('/api/notifications/mark-read.php', {
+                const response = await fetch('./api/notifications/mark-read.php', {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
