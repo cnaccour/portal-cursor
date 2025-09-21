@@ -24,7 +24,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
   <?php endif; ?>
 </head>
 <body class="bg-gray-50 text-gray-900">
-<header class="bg-white border-b" x-data="{ mobileMenuOpen: false }">
+<header class="bg-white" x-data="{ mobileMenuOpen: false }">
   <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
     <!-- Logo - icon only on mobile, with text on desktop -->
     <a href="/" class="flex items-center gap-3">
