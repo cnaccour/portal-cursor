@@ -419,7 +419,7 @@ function generateBlackoutDatesHtml() {
                 <div class="flex justify-between items-center py-3 border-b border-gray-100">
                     <div>
                         <div class="font-medium text-gray-900">Memorial Day</div>
-                        <div class="text-sm text-gray-600">May 24-24</div>
+                        <div class="text-sm text-gray-600">May 24</div>
                         <div class="text-xs text-gray-500">No time off allowed</div>
                     </div>
                     <span class="px-3 py-1 bg-orange-100 text-orange-800 text-sm font-medium rounded-full">No Time Off</span>
