@@ -8,8 +8,8 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>JJS Team Portal</title>
-  <link rel="icon" href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>favicon.ico">
-  <link href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>assets/css/output.css" rel="stylesheet">
+  <link rel="icon" href="favicon.ico">
+  <link href="assets/css/output.css" rel="stylesheet">
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
@@ -28,8 +28,8 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
 <header class="bg-white" x-data="{ mobileMenuOpen: false }">
   <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
     <!-- Logo - icon only on mobile, with text on desktop -->
-    <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>index.php" class="flex items-center gap-3">
-      <img src="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>assets/images/logo.png" alt="J. Joseph Salon Logo" class="h-10 w-auto">
+    <a href="./" class="flex items-center gap-3">
+      <img src="assets/images/logo.png" alt="J. Joseph Salon Logo" class="h-10 w-auto">
       <div class="hidden md:block">
         <div class="leading-tight">
           <span class="font-semibold text-gray-900">JJS</span>
@@ -43,7 +43,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
     <nav class="hidden md:flex text-sm items-center gap-1">
       <?php if (!empty($_SESSION['user_id'])): ?>
         <!-- Home/Dashboard first -->
-        <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>dashboard.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+        <a href="dashboard.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z"></path>
@@ -54,14 +54,14 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         <!-- Separator -->
         <div class="w-px h-4 bg-gray-300 mx-2"></div>
         
-        <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>announcements.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+        <a href="announcements.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
           </svg>
           Announcements
         </a>
         
-        <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>forms.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+        <a href="forms.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
           </svg>
@@ -82,7 +82,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
           async loadNotifications() {
             this.loading = true;
             try {
-              const response = await fetch((window.location.pathname.includes('/forms/') || window.location.pathname.includes('/reports/') ? '../' : './') + 'api/notifications.php');
+              const response = await fetch('./api/notifications.php');
               if (response.ok) {
                 const data = await response.json();
                 if (data.success) {
@@ -117,7 +117,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             try {
               // Mark as read if not already read
               if (!notification.is_read) {
-                const response = await fetch((window.location.pathname.includes('/forms/') || window.location.pathname.includes('/reports/') ? '../' : './') + 'api/notifications/mark-read.php', {
+                const response = await fetch('./api/notifications/mark-read.php', {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
@@ -246,7 +246,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             </div>
             
             <!-- Settings -->
-            <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>dashboard.php" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+            <a href="dashboard.php" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
               <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -272,19 +272,19 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
               <div x-show="submenuOpen" @mouseenter="submenuOpen = true" @mouseleave="submenuOpen = false"
                    x-transition 
                    class="absolute right-full top-0 mr-1 w-48 bg-white rounded-lg shadow-lg border py-2 z-50">
-                <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>admin-announcements.php" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                <a href="admin-announcements.php" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                   <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
                   </svg>
                   Announcements
                 </a>
-                <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>reports.php" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                <a href="reports.php" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                   <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                   </svg>
                   Reports
                 </a>
-                <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>admin.php" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                <a href="admin.php" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                   <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                   </svg>
@@ -296,7 +296,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             
             <!-- Distinguished Sign Out -->
             <div class="border-t pt-2 mt-2">
-              <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>logout.php" class="flex items-center px-4 py-3 text-sm text-red-700 hover:bg-red-50 hover:text-red-900 font-medium">
+              <a href="logout.php" class="flex items-center px-4 py-3 text-sm text-red-700 hover:bg-red-50 hover:text-red-900 font-medium">
                 <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                 </svg>
@@ -307,14 +307,14 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         </div>
       <?php else: ?>
         <!-- Home first for logged out users -->
-        <a href="index.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+        <a href="./" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
           </svg>
           Home
         </a>
         
-        <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>announcements.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+        <a href="announcements.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
           </svg>
@@ -325,7 +325,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         <div class="w-px h-4 bg-gray-300 mx-2"></div>
         
         <!-- Distinguished Login Button -->
-        <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>login.php" class="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium">
+        <a href="login.php" class="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
           </svg>
@@ -356,7 +356,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
     <nav class="px-4 py-4 space-y-1">
       <?php if (!empty($_SESSION['user_id'])): ?>
         <!-- Dashboard first -->
-        <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>dashboard.php" 
+        <a href="dashboard.php" 
            @click="mobileMenuOpen = false"
            class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
@@ -369,7 +369,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         <!-- Separator -->
         <hr class="border-gray-200 my-2">
         
-        <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>announcements.php" 
+        <a href="announcements.php" 
            @click="mobileMenuOpen = false"
            class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
@@ -378,7 +378,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
           Announcements
         </a>
         
-        <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>forms.php" 
+        <a href="forms.php" 
            @click="mobileMenuOpen = false"
            class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
@@ -405,7 +405,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
           <!-- Mobile Admin Tools -->
           <div class="space-y-1">
             <div class="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">Admin Tools</div>
-            <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>admin-announcements.php" 
+            <a href="admin-announcements.php" 
                @click="mobileMenuOpen = false"
                class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -413,7 +413,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
               </svg>
               Manage Announcements
             </a>
-            <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>reports.php" 
+            <a href="reports.php" 
                @click="mobileMenuOpen = false"
                class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -421,7 +421,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
               </svg>
               Reports
             </a>
-            <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>admin.php" 
+            <a href="admin.php" 
                @click="mobileMenuOpen = false"
                class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -434,7 +434,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
           
           <!-- Mobile Sign Out - Distinguished -->
           <hr class="border-gray-200 my-3">
-          <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>logout.php" 
+          <a href="logout.php" 
              class="flex items-center gap-3 px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
@@ -445,7 +445,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         
       <?php else: ?>
         <!-- Home first for logged out users -->
-        <a href="index.php" 
+        <a href="./" 
            @click="mobileMenuOpen = false"
            class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -454,7 +454,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
           Home
         </a>
         
-        <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>announcements.php" 
+        <a href="announcements.php" 
            @click="mobileMenuOpen = false"
            class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -467,7 +467,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         <hr class="border-gray-200 my-3">
         
         <!-- Distinguished Login Button -->
-        <a href="<?= isset($_SERVER['REQUEST_URI']) && (strpos($_SERVER['REQUEST_URI'], '/forms/') !== false || strpos($_SERVER['REQUEST_URI'], '/reports/') !== false) ? '../' : '' ?>login.php" 
+        <a href="login.php" 
            @click="mobileMenuOpen = false"
            class="flex items-center gap-3 px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
