@@ -8,7 +8,9 @@ if (session_status() === PHP_SESSION_NONE) {
 
 function require_login() {
   if (empty($_SESSION['user_id'])) {
-    header('Location: login.php');
+    // Determine if we're in a subdirectory
+    $redirect_path = file_exists('login.php') ? 'login.php' : '../login.php';
+    header('Location: ' . $redirect_path);
     exit;
   }
 }
