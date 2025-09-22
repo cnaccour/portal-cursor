@@ -176,10 +176,8 @@ require __DIR__.'/includes/header.php';
         <div class="form-card bg-white rounded-xl border border-gray-200 shadow-sm" 
              id="form-card-<?= $form['form_key'] ?>"
              x-data="{ 
-            editMode: false, 
-            showSubmissions: false,
-            submissionsCount: 0,
-            loadingSubmissions: false
+            editMode: false,
+            submissionsCount: 0
         }">
             <!-- Form Header -->
             <div class="p-6 border-b border-gray-100">
@@ -220,13 +218,13 @@ require __DIR__.'/includes/header.php';
                     <span x-text="editMode ? 'Cancel' : 'Edit Settings'"></span>
                 </button>
                 
-                <button @click="showSubmissions = !showSubmissions; if(showSubmissions && !loadingSubmissions) loadSubmissions()" 
-                        class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
+                <a href="form-submissions.php?form=<?= $form['form_key'] ?>" 
+                   class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                     </svg>
-                    <span x-text="showSubmissions ? 'Hide Submissions' : 'View Submissions'"></span>
-                </button>
+                    View Submissions
+                </a>
                 
                 <a href="forms/time-off-request.php" target="_blank" 
                    class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
@@ -286,24 +284,6 @@ require __DIR__.'/includes/header.php';
                 </form>
             </div>
             
-            <!-- Submissions Viewer -->
-            <div x-show="showSubmissions" x-transition class="border-t border-gray-200">
-                <div class="p-6">
-                    <div class="flex items-center justify-between mb-4">
-                        <h4 class="text-lg font-semibold text-gray-900">Form Submissions</h4>
-                        <div class="text-sm text-gray-500" x-text="submissionsCount + ' total'"></div>
-                    </div>
-                    
-                    <div id="submissions-<?= $form['form_key'] ?>" class="space-y-4">
-                        <div class="text-center py-8 text-gray-500">
-                            <svg class="w-8 h-8 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                            </svg>
-                            Click "View Submissions" to load form data
-                        </div>
-                    </div>
-                </div>
-            </div>
             
             <script>
                 // Load submissions count on page load
@@ -320,88 +300,6 @@ require __DIR__.'/includes/header.php';
                         })
                         .catch(error => console.error('Error loading count:', error));
                 });
-                
-                function loadSubmissions() {
-                    const container = document.getElementById('submissions-<?= $form['form_key'] ?>');
-                    container.innerHTML = '<div class="text-center py-4"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div></div>';
-                    
-                    fetch(`./api/forms/get-submissions.php?form_key=<?= $form['form_key'] ?>`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                displaySubmissions(container, data.submissions);
-                            } else {
-                                container.innerHTML = '<div class="text-center py-8 text-red-500">Error loading submissions</div>';
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            container.innerHTML = '<div class="text-center py-8 text-red-500">Error loading submissions</div>';
-                        });
-                }
-                
-                function displaySubmissions(container, submissions) {
-                    if (submissions.length === 0) {
-                        container.innerHTML = '<div class="text-center py-8 text-gray-500">No submissions yet</div>';
-                        return;
-                    }
-                    
-                    let html = '';
-                    submissions.forEach(submission => {
-                        html += `
-                            <div class="bg-gray-50 rounded-lg p-4 border">
-                                <div class="flex items-start justify-between mb-3">
-                                    <div>
-                                        <h5 class="font-medium text-gray-900">${submission.first_name} ${submission.last_name}</h5>
-                                        <p class="text-sm text-gray-600">${submission.email}</p>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-xs text-gray-500">${new Date(submission.submitted_at).toLocaleDateString()}</span>
-                                        <button onclick="shareSubmission(${submission.id})" 
-                                                class="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">
-                                            Share
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                                    <div><strong>Location:</strong> ${submission.work_location}</div>
-                                    <div><strong>Dates:</strong> ${submission.date_range}</div>
-                                    <div><strong>Reason:</strong> ${submission.reason}</div>
-                                    <div><strong>Status:</strong> <span class="capitalize">${submission.status || 'pending'}</span></div>
-                                </div>
-                                ${submission.additional_info ? `<div class="mt-3 p-3 bg-white rounded border"><strong>Additional Info:</strong> ${submission.additional_info}</div>` : ''}
-                            </div>
-                        `;
-                    });
-                    container.innerHTML = html;
-                }
-                
-                function shareSubmission(submissionId) {
-                    const email = prompt('Enter email address to share this submission:');
-                    if (email) {
-                        fetch('./api/forms/share-submission.php', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ 
-                                submission_id: submissionId, 
-                                email: email,
-                                csrf_token: window.csrfToken 
-                            })
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data.success) {
-                                alert('Submission shared successfully!');
-                            } else {
-                                alert('Error sharing submission: ' + (data.error || 'Unknown error'));
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                            alert('Error sharing submission');
-                        });
-                    }
-                }
             </script>
         </div>
     <?php endforeach; ?>
