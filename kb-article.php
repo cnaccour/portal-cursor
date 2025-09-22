@@ -276,7 +276,7 @@ require __DIR__.'/includes/header.php';
     <div class="mb-8">
         <div class="flex items-center gap-3 mb-4">
             <?php if (!empty($article['category'])): ?>
-                <span class="px-3 py-1 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+                <span class="px-3 py-1 text-white text-sm font-medium rounded-full" style="background-color: #AF831A;">
                     <?= htmlspecialchars($article['category']) ?>
                 </span>
             <?php endif; ?>
@@ -285,7 +285,7 @@ require __DIR__.'/includes/header.php';
             </span>
         </div>
         
-        <h1 class="text-4xl font-bold text-gray-900 mb-4">
+        <h1 class="text-2xl font-bold text-gray-900 mb-4">
             <?= htmlspecialchars($article['title']) ?>
         </h1>
         
@@ -304,7 +304,7 @@ require __DIR__.'/includes/header.php';
     </div>
 
     <!-- Article Content -->
-    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8 article-content">
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8 article-content max-w-none">
         <?php
         // Special template for email setup article
         if ($article['slug'] === 'email-setup-instructions') {
