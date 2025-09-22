@@ -90,6 +90,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $reason, $additional_info, $has_compensation, $understands_blackout, $submitted_by
             ]);
             
+            // Send email notifications to configured recipients
+            try {
+                require_once __DIR__.'/../includes/email-notifications.php';
+                
+                // Get notification email addresses from form configuration
+                $config_stmt = $pdo->prepare("SELECT notification_emails FROM forms_config WHERE form_key = ?");
+                $config_stmt->execute(['time_off_request']);
+                $config_result = $config_stmt->fetch(PDO::FETCH_ASSOC);
+                
+                if ($config_result && !empty($config_result['notification_emails'])) {
+                    $notification_emails = json_decode($config_result['notification_emails'], true);
+                    
+                    if (is_array($notification_emails) && !empty($notification_emails)) {
+                        $submission_data = [
+                            'first_name' => $first_name,
+                            'last_name' => $last_name,
+                            'email' => $email,
+                            'work_location' => $work_location,
+                            'date_range' => $date_range,
+                            'reason' => $reason,
+                            'additional_info' => $additional_info,
+                            'has_compensation' => $has_compensation,
+                            'understands_blackout' => $understands_blackout
+                        ];
+                        
+                        EmailNotifications::sendTimeOffRequestNotification($submission_data, $notification_emails);
+                    }
+                }
+                
+            } catch (Exception $email_error) {
+                // Log email error but don't fail the submission
+                error_log('Email notification error: ' . $email_error->getMessage());
+            }
+            
             $success = "Your time off request has been submitted successfully! You will be notified when it's reviewed.";
         }
         
