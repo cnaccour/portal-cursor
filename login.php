@@ -38,6 +38,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 require __DIR__.'/includes/header.php';
 ?>
 
+<style>
+.login-input:focus {
+  outline: none;
+  border-color: #AF831A;
+  box-shadow: 0 0 0 2px rgba(175, 131, 26, 0.2);
+}
+</style>
+
 <div class="max-w-md mx-auto bg-white p-6 rounded-xl border mt-10">
   <h1 class="text-xl font-semibold mb-4">Login</h1>
   <?php if (!empty($err)): ?>
@@ -46,11 +54,11 @@ require __DIR__.'/includes/header.php';
   <form method="post" class="space-y-3">
     <div>
       <label class="block text-sm mb-1">Email</label>
-      <input class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500" type="email" name="email" required>
+      <input class="w-full border border-gray-300 rounded-lg px-3 py-2 login-input" type="email" name="email" required>
     </div>
     <div>
       <label class="block text-sm mb-1">Password</label>
-      <input class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500" type="password" name="password" required>
+      <input class="w-full border border-gray-300 rounded-lg px-3 py-2 login-input" type="password" name="password" required>
     </div>
     <button class="mt-2 px-4 py-2 rounded-lg bg-gray-900 text-white">Sign in</button>
   </form>
