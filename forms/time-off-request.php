@@ -293,25 +293,31 @@ require __DIR__.'/../includes/header.php';
     <!-- Date Range -->
     <section class="bg-white p-6 rounded-xl border">
         <h2 class="text-lg font-semibold mb-4">Time Off Period</h2>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="space-y-4">
             <div>
-                <label class="block text-sm font-medium mb-2">Start Date <span class="text-red-500">*</span></label>
-                <input type="date" x-model="startDate" @change="updateDateRange" 
-                       min="<?= date('Y-m-d') ?>"
-                       class="w-full border rounded-lg px-3 py-2 form-field">
+                <label class="block text-sm font-medium mb-2">Select Date Range <span class="text-red-500">*</span></label>
+                <p class="text-xs text-gray-500 mb-3">Click on a start date, then click on an end date to select your time off period</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">From</label>
+                        <input type="date" x-model="startDate" @change="updateDateRange" 
+                               min="<?= date('Y-m-d') ?>"
+                               class="w-full border rounded-lg px-3 py-2 form-field">
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-600 mb-1">To</label>
+                        <input type="date" x-model="endDate" @change="updateDateRange" 
+                               :min="startDate || '<?= date('Y-m-d') ?>'"
+                               class="w-full border rounded-lg px-3 py-2 form-field">
+                    </div>
+                </div>
             </div>
-            <div>
-                <label class="block text-sm font-medium mb-2">End Date <span class="text-red-500">*</span></label>
-                <input type="date" x-model="endDate" @change="updateDateRange" 
-                       :min="startDate || '<?= date('Y-m-d') ?>'"
-                       class="w-full border rounded-lg px-3 py-2 form-field">
+            <input type="hidden" name="date_range" x-model="dateRange" required>
+            <div x-show="dayCount > 0" x-transition class="date-summary">
+                <span x-text="dayCount === 1 ? '1 day selected' : dayCount + ' days selected'"></span>
+                <span class="mx-3">•</span>
+                <span x-text="formatDateRange()"></span>
             </div>
-        </div>
-        <input type="hidden" name="date_range" x-model="dateRange" required>
-        <div x-show="dayCount > 0" x-transition class="date-summary">
-            <span x-text="dayCount === 1 ? '1 day selected' : dayCount + ' days selected'"></span>
-            <span class="mx-3">•</span>
-            <span x-text="formatDateRange()"></span>
         </div>
     </section>
 
@@ -367,7 +373,9 @@ require __DIR__.'/../includes/header.php';
                 <input type="checkbox" name="understands_blackout" value="1" required
                        <?= isset($_POST['understands_blackout']) ? 'checked' : '' ?>
                        class="checkbox-custom flex-shrink-0 mt-0.5">
-                <span class="text-gray-700">I understand that this request may fall during blackout dates and agree to any applicable policies</span>
+                <span class="text-gray-700">I understand that this request may fall during blackout dates and agree to any applicable policies 
+                    <a href="../announcements.php" class="text-blue-600 hover:text-blue-800 underline ml-1" target="_blank">View policy</a>
+                </span>
             </label>
         </div>
     </section>
