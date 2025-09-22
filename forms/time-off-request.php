@@ -366,15 +366,15 @@ require __DIR__.'/../includes/header.php';
                 <input type="checkbox" name="has_compensation" value="1" 
                        <?= isset($_POST['has_compensation']) ? 'checked' : '' ?>
                        class="checkbox-custom flex-shrink-0 mt-0.5">
-                <span class="text-gray-700">I have compensation days available for this request</span>
+                <span class="text-gray-700">I have compensation days available for this request.</span>
             </label>
             
             <label class="flex items-start gap-3 cursor-pointer">
                 <input type="checkbox" name="understands_blackout" value="1" required
                        <?= isset($_POST['understands_blackout']) ? 'checked' : '' ?>
                        class="checkbox-custom flex-shrink-0 mt-0.5">
-                <span class="text-gray-700">I understand that this request may fall during blackout dates and agree to any applicable policies 
-                    <a href="../announcements.php" class="text-blue-600 hover:text-blue-800 underline ml-1" target="_blank">View policy</a>
+                <span class="text-gray-700">I understand that this request may fall during blackout dates and agree to any applicable policies. 
+                    <a href="../announcements.php" class="underline ml-1" style="color: #AF831A;" target="_blank">View policy</a>
                 </span>
             </label>
         </div>
