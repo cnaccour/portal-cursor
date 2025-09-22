@@ -1,6 +1,6 @@
 <?php
 require __DIR__.'/../includes/auth.php';
-require_login();
+// Forms are accessible to all users - no login required
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
