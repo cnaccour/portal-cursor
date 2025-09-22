@@ -42,6 +42,10 @@ require __DIR__.'/includes/header.php';
     background-color: #F3F4F6;
 }
 .category-filter.active {
+    background-color: #1F2937;
+    color: white;
+}
+.category-filter.active[data-category]:not([data-category="all"]) {
     background-color: #AF831A;
     color: white;
 }
@@ -149,7 +153,7 @@ require __DIR__.'/includes/header.php';
                     <!-- Category Badge -->
                     <?php if (!empty($article['category'])): ?>
                         <div class="mb-4">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $article['category'] === 'Setup Guides' ? 'text-white' : 'bg-blue-100 text-blue-800' ?>" <?= $article['category'] === 'Setup Guides' ? 'style="background-color: #AF831A;"' : '' ?>>
                                 <?= htmlspecialchars($article['category']) ?>
                             </span>
                         </div>
@@ -162,7 +166,14 @@ require __DIR__.'/includes/header.php';
                     
                     <!-- Content Preview -->
                     <div class="text-sm text-gray-600 mb-4 line-clamp-3">
-                        <?= htmlspecialchars(substr(strip_tags($article['content']), 0, 150)) ?><?= strlen(strip_tags($article['content'])) > 150 ? '...' : '' ?>
+                        <?php
+                        if ($article['slug'] === 'email-setup-instructions') {
+                            echo 'Complete guide for setting up email accounts on iPhone, Android, and web browsers with IMAP and SMTP configuration details.';
+                        } else {
+                            $excerpt = strip_tags($article['content']);
+                            echo htmlspecialchars(substr($excerpt, 0, 150)) . (strlen($excerpt) > 150 ? '...' : '');
+                        }
+                        ?>
                     </div>
                     
                     <!-- Tags -->
