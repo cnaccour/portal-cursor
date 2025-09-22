@@ -102,6 +102,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 require __DIR__.'/../includes/header.php';
 ?>
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 <style>
 /* Gold theme focus styling */
 .form-field {
@@ -241,21 +244,21 @@ require __DIR__.'/../includes/header.php';
         <h2 class="text-lg font-semibold mb-4">Personal Information</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-                <label class="block text-sm font-medium mb-2">First Name <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-medium mb-2">First Name <span style="color: #AF831A;">*</span></label>
                 <input type="text" name="first_name" required 
                        value="<?= htmlspecialchars($_POST['first_name'] ?? '') ?>"
                        placeholder="Enter first name"
                        class="w-full border rounded-lg px-3 py-2 form-field">
             </div>
             <div>
-                <label class="block text-sm font-medium mb-2">Last Name <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-medium mb-2">Last Name <span style="color: #AF831A;">*</span></label>
                 <input type="text" name="last_name" required 
                        value="<?= htmlspecialchars($_POST['last_name'] ?? '') ?>"
                        placeholder="Enter last name"
                        class="w-full border rounded-lg px-3 py-2 form-field">
             </div>
             <div>
-                <label class="block text-sm font-medium mb-2">Email <span class="text-red-500">*</span></label>
+                <label class="block text-sm font-medium mb-2">Email <span style="color: #AF831A;">*</span></label>
                 <input type="email" name="email" required 
                        value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
                        placeholder="Enter email address"
@@ -295,24 +298,13 @@ require __DIR__.'/../includes/header.php';
         <h2 class="text-lg font-semibold mb-4">Time Off Period</h2>
         <div class="space-y-4">
             <div>
-                <label class="block text-sm font-medium mb-2">Select Date Range <span class="text-red-500">*</span></label>
-                <p class="text-xs text-gray-500 mb-3">Click on a start date, then click on an end date to select your time off period</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs text-gray-600 mb-1">From</label>
-                        <input type="date" x-model="startDate" @change="updateDateRange" 
-                               min="<?= date('Y-m-d') ?>"
-                               class="w-full border rounded-lg px-3 py-2 form-field">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-600 mb-1">To</label>
-                        <input type="date" x-model="endDate" @change="updateDateRange" 
-                               :min="startDate || '<?= date('Y-m-d') ?>'"
-                               class="w-full border rounded-lg px-3 py-2 form-field">
-                    </div>
-                </div>
+                <label class="block text-sm font-medium mb-2">Select Date Range <span style="color: #AF831A;">*</span></label>
+                <p class="text-xs text-gray-500 mb-3">Click to open calendar and select your start and end dates</p>
+                <input type="text" id="dateRangePicker" name="date_range" required 
+                       placeholder="Choose date range..."
+                       value="<?= htmlspecialchars($_POST['date_range'] ?? '') ?>"
+                       class="w-full border rounded-lg px-3 py-2 form-field" readonly>
             </div>
-            <input type="hidden" name="date_range" x-model="dateRange" required>
             <div x-show="dayCount > 0" x-transition class="date-summary">
                 <span x-text="dayCount === 1 ? '1 day selected' : dayCount + ' days selected'"></span>
                 <span class="mx-3">•</span>
@@ -393,20 +385,9 @@ require __DIR__.'/../includes/header.php';
 <script>
 function timeOffForm() {
     return {
-        startDate: '<?= $_POST['start_date'] ?? '' ?>',
-        endDate: '<?= $_POST['end_date'] ?? '' ?>',
-        dateRange: '<?= $_POST['date_range'] ?? '' ?>',
         dayCount: 0,
-        
-        updateDateRange() {
-            if (this.startDate && this.endDate) {
-                this.dateRange = this.startDate + ' to ' + this.endDate;
-                this.calculateDays();
-            } else {
-                this.dateRange = '';
-                this.dayCount = 0;
-            }
-        },
+        startDate: '',
+        endDate: '',
         
         calculateDays() {
             if (this.startDate && this.endDate) {
@@ -419,6 +400,8 @@ function timeOffForm() {
                 } else {
                     this.dayCount = 0;
                 }
+            } else {
+                this.dayCount = 0;
             }
         },
         
@@ -441,6 +424,32 @@ function timeOffForm() {
         },
         
         init() {
+            // Initialize flatpickr date range picker
+            flatpickr("#dateRangePicker", {
+                mode: "range",
+                minDate: "today",
+                dateFormat: "Y-m-d",
+                onChange: (selectedDates, dateStr) => {
+                    if (selectedDates.length === 2) {
+                        this.startDate = selectedDates[0].toISOString().split('T')[0];
+                        this.endDate = selectedDates[1].toISOString().split('T')[0];
+                        this.calculateDays();
+                        
+                        // Update the display format
+                        const picker = document.getElementById('dateRangePicker');
+                        picker.value = this.startDate + ' to ' + this.endDate;
+                    } else if (selectedDates.length === 1) {
+                        this.startDate = selectedDates[0].toISOString().split('T')[0];
+                        this.endDate = '';
+                        this.dayCount = 0;
+                    } else {
+                        this.startDate = '';
+                        this.endDate = '';
+                        this.dayCount = 0;
+                    }
+                }
+            });
+            
             this.calculateDays();
         }
     }
