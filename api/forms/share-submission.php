@@ -4,12 +4,17 @@
  * POST /api/forms/share-submission.php
  */
 
-if (session_status() === PHP_SESSION_NONE) { session_start(); }
-require_once __DIR__ . '/../../includes/auth.php';
+if (session_status() === PHP_SESSION_NONE) { 
+    session_start(); 
+}
 
-// Ensure user is logged in and has admin access
-require_login();
-require_role('admin');
+// Simple authentication check for API endpoints
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    http_response_code(401);
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'error' => 'Unauthorized']);
+    exit;
+}
 
 // Only allow POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

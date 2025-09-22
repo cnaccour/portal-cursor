@@ -173,7 +173,9 @@ require __DIR__.'/includes/header.php';
         <?php 
         $notification_emails = json_decode($form['notification_emails'] ?? '[]', true) ?: [];
         ?>
-        <div class="form-card bg-white rounded-xl border border-gray-200 shadow-sm" x-data="{ 
+        <div class="form-card bg-white rounded-xl border border-gray-200 shadow-sm" 
+             id="form-card-<?= $form['form_key'] ?>"
+             x-data="{ 
             editMode: false, 
             showSubmissions: false,
             submissionsCount: 0,
@@ -310,7 +312,10 @@ require __DIR__.'/includes/header.php';
                         .then(response => response.json())
                         .then(data => {
                             if (data.success) {
-                                document.querySelector('[x-data]').__x.$data.submissionsCount = data.count;
+                                const formCard = document.getElementById('form-card-<?= $form['form_key'] ?>');
+                                if (formCard && formCard._x_dataStack) {
+                                    formCard._x_dataStack[0].submissionsCount = data.count;
+                                }
                             }
                         })
                         .catch(error => console.error('Error loading count:', error));
