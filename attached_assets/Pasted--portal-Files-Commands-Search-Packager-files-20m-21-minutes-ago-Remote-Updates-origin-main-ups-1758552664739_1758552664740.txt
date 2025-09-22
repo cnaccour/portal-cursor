@@ -1,0 +1,108 @@
+
+
+
+portal
+Files
+Commands
+Search
+Packager files
+20m
+ • 
+21 minutes ago
+Remote Updates
+origin/main•upstream
+last fetched 18 hours ago
+20 commits to push
+Commit
+There are no changes to commit.
+/admin-forms.php
+
+Update time off request form to use a single date range picker
+21 minutes ago
+•
+Free
+Saved your changes before rolling back
+Rolled back to 'Update form icons to gold and style buttons for opening forms'
+Finished
+21 minutes ago
+New chat
+I've finished reverting, what should I do now?
+
+in time off request form
+
+Time off period needs to be just 1 calendar where the user can select from date to date instead of 2 seperate ones.
+
+I understand that this request may fall during blackout dates and agree to any applicable policies > View policy " links to blackout dates and holidays announcement" make sure the link is relative
+
+18 minutes ago
+
+2 messages & 6 actions
+I'll update the time off request form to use a single date range picker and add the policy link to the blackout dates announcement. Let me make these changes:
+18 minutes ago
+Update time off request form to use a single date range picker
+45 seconds of work
+add periods to the end of both acknowledgments sentences. View policy link should be in gold color, no more blues
+
+13 minutes ago
+
+2 messages & 4 actions
+I'll add periods to both acknowledgment sentences and change the policy link to your gold theme color.
+12 minutes ago
+Update acknowledgment sentences and policy link color
+31 seconds of work
+Select Date Range is still showing 2 fields rather one like i mentioned above.
+
+all the * signs in the form need to be gold color not red
+
+11 minutes ago
+
+3 messages & 13 actions
+I understand now - you want a true single date range picker instead of two separate date fields, and need all the required field asterisks to be gold instead of red. Let me implement both changes:
+10 minutes ago
+Update form styling and date selection for time off requests
+1 minute of work
+make the gold box that appears under the time off preiod date range which shows how many days selected black please
+
+9 minutes ago
+
+2 messages & 4 actions
+I'll change the gold date summary box to black as requested.
+8 minutes ago
+Change the color of the date selection summary box to black
+31 seconds of work
+ive hit the clear notifications multiple times, but it seems they dont clear, because they keep reappearing everytime i log in and out, please keep in mind the website will be hosted on cpanel, so im not sure if this is a caching issue since we are just working local now. AI_RULES.MD
+
+7 minutes ago
+
+3 messages & 11 actions
+I need to investigate the notification system to understand why notifications aren't clearing properly. Let me search the codebase to find how notifications are managed and stored.
+6 minutes ago
+Fix issue preventing notifications from clearing and reappearing
+1 minute of work
+on desktop when i click the circle with A to access the admin tools etc, Sign Out needs to be gold color not red
+
+5 minutes ago
+
+4 messages & 10 actions
+I need to find and update the "Sign Out" link in the admin tools dropdown to use your gold theme color instead of red.
+4 minutes ago
+Update sign out button color to a distinct gold hue
+50 seconds of work
+lets work on Admin-forms.php
+
+remember Shift reports is not really a form so we are just displaying under forms, but it has its own reports page where can see report submissions.
+
+Time off request though and any future form we add should be on admin-forms.php
+
+in that page, i would like to see my form, be able to edit its settings, as in the Title, description, Mark it as active or inactive, be able to see submissions, be able to share a submission though email, be able to add to which emails the form submissions should be submitted to ie
+
+Just now
+Working..
+
+Scroll to latest
+
+Make, test, iterate…
+
+Build
+Loading... - Replit
+Could not connect to the reCAPTCHA service. Please check your internet connection and reload to get a reCAPTCHA challenge.
