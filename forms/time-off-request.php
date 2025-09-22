@@ -34,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($work_location)) $errors[] = 'Work location is required';
         if (empty($date_range)) $errors[] = 'Date range is required';
         if (empty($reason)) $errors[] = 'Reason for time off is required';
+        if (!$has_compensation) $errors[] = 'You must confirm compensation days availability';
         if (!$understands_blackout) $errors[] = 'You must acknowledge the blackout dates policy';
         
         // Validate email format
@@ -303,7 +304,7 @@ require __DIR__.'/../includes/header.php';
 
     <!-- Work Location -->
     <section class="bg-white p-6 rounded-xl border">
-        <h2 class="text-lg font-semibold mb-4">Work Location</h2>
+        <h2 class="text-lg font-semibold mb-4">Work Location <span style="color: #AF831A;">*</span></h2>
         <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
             <?php 
             $locations = [
@@ -349,7 +350,7 @@ require __DIR__.'/../includes/header.php';
 
     <!-- Reason for Time Off -->
     <section class="bg-white p-6 rounded-xl border">
-        <h2 class="text-lg font-semibold mb-4">Reason for Time Off</h2>
+        <h2 class="text-lg font-semibold mb-4">Reason for Time Off <span style="color: #AF831A;">*</span></h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             <?php 
             $reasons = [
@@ -386,20 +387,20 @@ require __DIR__.'/../includes/header.php';
 
     <!-- Acknowledgments -->
     <section class="bg-white p-6 rounded-xl border">
-        <h2 class="text-lg font-semibold mb-4">Acknowledgments</h2>
+        <h2 class="text-lg font-semibold mb-4">Acknowledgments <span style="color: #AF831A;">*</span></h2>
         <div class="space-y-4">
             <label class="flex items-start gap-3 cursor-pointer">
-                <input type="checkbox" name="has_compensation" value="1" 
+                <input type="checkbox" name="has_compensation" value="1" required
                        <?= isset($_POST['has_compensation']) ? 'checked' : '' ?>
                        class="checkbox-custom flex-shrink-0 mt-0.5">
-                <span class="text-gray-700">I have compensation days available for this request.</span>
+                <span class="text-gray-700">I have compensation days available for this request. <span style="color: #AF831A;">*</span></span>
             </label>
             
             <label class="flex items-start gap-3 cursor-pointer">
                 <input type="checkbox" name="understands_blackout" value="1" required
                        <?= isset($_POST['understands_blackout']) ? 'checked' : '' ?>
                        class="checkbox-custom flex-shrink-0 mt-0.5">
-                <span class="text-gray-700">I understand that this request may fall during blackout dates and agree to any applicable policies. 
+                <span class="text-gray-700">I understand that this request may fall during blackout dates and agree to any applicable policies. <span style="color: #AF831A;">*</span>
                     <a href="../announcements.php" class="underline ml-1" style="color: #AF831A;" target="_blank">View policy</a>
                 </span>
             </label>
