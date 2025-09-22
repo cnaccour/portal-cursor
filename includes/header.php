@@ -334,7 +334,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             
             <!-- Distinguished Sign Out -->
             <div class="border-t pt-2 mt-2">
-              <a href="<?= file_exists('logout.php') ? 'logout.php' : '../logout.php' ?>" class="flex items-center px-4 py-3 text-sm text-red-700 hover:bg-red-50 hover:text-red-900 font-medium">
+              <a href="<?= file_exists('logout.php') ? 'logout.php' : '../logout.php' ?>" class="flex items-center px-4 py-3 text-sm font-medium" style="color: #AF831A;" onmouseover="this.style.backgroundColor='#FFFBF0'; this.style.color='#92400E';" onmouseout="this.style.backgroundColor=''; this.style.color='#AF831A';">
                 <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                 </svg>
@@ -464,7 +464,10 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
           <!-- Mobile Sign Out - Distinguished -->
           <hr class="border-gray-200 my-3">
           <a href="<?= file_exists('logout.php') ? 'logout.php' : '../logout.php' ?>" 
-             class="flex items-center gap-3 px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium">
+             class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors font-medium" 
+             style="background-color: #AF831A; color: white;" 
+             onmouseover="this.style.backgroundColor='#92400E';" 
+             onmouseout="this.style.backgroundColor='#AF831A';">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
             </svg>
