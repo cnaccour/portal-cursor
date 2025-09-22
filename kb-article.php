@@ -84,7 +84,7 @@ require __DIR__.'/includes/header.php';
     padding: 0.125rem 0.25rem;
     font-size: 0.875rem;
     font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-    color: #DC2626;
+    color: #374151;
 }
 
 .article-content pre {
@@ -156,16 +156,7 @@ require __DIR__.'/includes/header.php';
 }
 
 .article-actions {
-    position: sticky;
-    top: 20px;
-    float: right;
-    background: white;
-    border: 1px solid #E5E7EB;
-    border-radius: 8px;
-    padding: 1rem;
-    margin: 0 0 2rem 2rem;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    width: 200px;
+    display: none;
 }
 
 @media (max-width: 768px) {
@@ -223,14 +214,10 @@ require __DIR__.'/includes/header.php';
     <div class="breadcrumb">
         <nav class="flex items-center gap-2 text-sm">
             <a href="knowledge-base.php" class="text-gray-600 hover:text-gray-900">Knowledge Base</a>
-            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-            </svg>
+            <span class="text-gray-400">→</span>
             <?php if (!empty($article['category'])): ?>
                 <span class="text-gray-600"><?= htmlspecialchars($article['category']) ?></span>
-                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
+                <span class="text-gray-400">→</span>
             <?php endif; ?>
             <span class="text-gray-900 font-medium"><?= htmlspecialchars($article['title']) ?></span>
         </nav>
@@ -318,7 +305,21 @@ require __DIR__.'/includes/header.php';
 
     <!-- Article Content -->
     <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-8 article-content">
-        <?= $article['content'] ?>
+        <?php
+        // Special template for email setup article
+        if ($article['slug'] === 'email-setup-instructions') {
+            include __DIR__.'/templates/email-setup-article.php';
+        } else {
+            // For other articles, clean up the content to remove duplicate titles
+            $content = $article['content'];
+            // Remove first h1 or h2 tag if it contains the article title
+            $title_pattern = '/^\s*<h[12][^>]*>.*?' . preg_quote(htmlspecialchars($article['title']), '/') . '.*?<\/h[12]>\s*/i';
+            $content = preg_replace($title_pattern, '', $content);
+            // Also try to remove common duplicate patterns
+            $content = preg_replace('/^\s*<h[12][^>]*>[^<]*' . preg_quote('📧', '/') . '[^<]*<\/h[12]>\s*/i', '', $content);
+            echo $content;
+        }
+        ?>
     </div>
 
     <!-- Footer Actions (Mobile) -->
