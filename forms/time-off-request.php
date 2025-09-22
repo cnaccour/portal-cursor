@@ -1,6 +1,6 @@
 <?php
 require __DIR__.'/../includes/auth.php';
-require_login();
+// Forms are accessible to all users - no login required
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $additional_info = trim($_POST['additional_info'] ?? '');
         $has_compensation = isset($_POST['has_compensation']) ? 1 : 0;
         $understands_blackout = isset($_POST['understands_blackout']) ? 1 : 0;
-        $submitted_by = $_SESSION['user_id'];
+        $submitted_by = $_SESSION['user_id'] ?? null;
         
         // Parse date range (format: "2024-01-01 to 2024-01-05")
         $start_date = '';
@@ -257,7 +257,7 @@ require __DIR__.'/../includes/header.php';
             <div>
                 <label class="block text-sm font-medium mb-2">Email <span class="text-red-500">*</span></label>
                 <input type="email" name="email" required 
-                       value="<?= htmlspecialchars($_POST['email'] ?? $_SESSION['email'] ?? '') ?>"
+                       value="<?= htmlspecialchars($_POST['email'] ?? '') ?>"
                        placeholder="Enter email address"
                        class="w-full border rounded-lg px-3 py-2 form-field">
             </div>
