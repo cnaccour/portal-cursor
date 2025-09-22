@@ -11,7 +11,10 @@ require __DIR__.'/includes/header.php';
   
   <!-- Shift Report -->
   <div class="bg-white p-6 rounded-lg border hover:border-gray-300 transition-colors">
-    <h3 class="text-lg font-semibold mb-2">Shift Report</h3>
+    <div class="flex items-start justify-between mb-2">
+      <h3 class="text-lg font-semibold">Shift Report</h3>
+      <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Sign-in required</span>
+    </div>
     <p class="text-gray-600 mb-4">Complete daily shift checklist and report for morning or evening shifts.</p>
     <a href="forms/shift-reports.php" class="inline-flex px-4 py-2 rounded-md bg-black text-white hover:bg-gray-800 transition-colors">
       Create Shift Report →

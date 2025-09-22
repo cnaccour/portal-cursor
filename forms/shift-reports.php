@@ -1,6 +1,6 @@
 <?php
 require __DIR__.'/../includes/auth.php';
-// Forms are accessible to all users - no login required
+require_login();
 require __DIR__.'/../includes/header.php';
 ?>
 
