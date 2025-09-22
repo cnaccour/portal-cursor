@@ -202,14 +202,14 @@ require __DIR__.'/../includes/header.php';
 
 /* Date range display */
 .date-summary {
-    background: linear-gradient(135deg, #AF831A 0%, #D4AF37 100%);
+    background: #000000;
     color: white;
     padding: 12px 20px;
     border-radius: 8px;
     font-weight: 500;
     text-align: center;
     margin-top: 12px;
-    box-shadow: 0 2px 4px rgba(175, 131, 26, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 </style>
 
