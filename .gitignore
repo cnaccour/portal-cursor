@@ -52,3 +52,5 @@ composer.phar
 
 # TailwindCSS binary
 tailwindcss
+
+.env.*

@@ -26,11 +26,13 @@ class ShiftReportManager {
      */
     private function isDatabaseAvailable() {
         try {
-            $pdo = getPDO();
+            // Include db.php to get the PDO connection
+            require_once __DIR__ . '/db.php';
+            global $pdo;
             if (!$pdo) return false;
             
-            // Check if shift_reports table exists (PostgreSQL syntax)
-            $stmt = $pdo->query("SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'shift_reports' LIMIT 1");
+            // Check if shift_reports table exists (MySQL syntax)
+            $stmt = $pdo->query("SHOW TABLES LIKE 'shift_reports'");
             return (bool)$stmt->fetchColumn();
         } catch (Throwable $e) {
             return false;
@@ -53,7 +55,9 @@ class ShiftReportManager {
         }
         
         try {
-            $pdo = getPDO();
+            // Include db.php to get the PDO connection
+            require_once __DIR__ . '/db.php';
+            global $pdo;
             
             // Get user ID from session
             $user_id = $_SESSION['user_id'] ?? null;
@@ -101,7 +105,9 @@ class ShiftReportManager {
         }
         
         try {
-            $pdo = getPDO();
+            // Include db.php to get the PDO connection
+            require_once __DIR__ . '/db.php';
+            global $pdo;
             
             $sql = "SELECT sr.*, u.name as user_name, u.email as user_email 
                     FROM shift_reports sr 
@@ -204,7 +210,9 @@ class ShiftReportManager {
         }
         
         try {
-            $pdo = getPDO();
+            // Include db.php to get the PDO connection
+            require_once __DIR__ . '/db.php';
+            global $pdo;
             
             $sql = "SELECT sr.*, u.name as user_name, u.email as user_email 
                     FROM shift_reports sr 

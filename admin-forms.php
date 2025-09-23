@@ -30,18 +30,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $notification_emails = array_filter(array_map('trim', explode(',', $_POST['notification_emails'] ?? '')));
             
             // Insert or update form configuration
+            // MySQL upsert (cPanel-compatible)
             $stmt = $pdo->prepare("
-                INSERT INTO forms_config (form_key, title, description, is_active, notification_emails, updated_at) 
+                INSERT INTO forms_config (form_key, title, description, is_active, notification_emails, updated_at)
                 VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
-                ON CONFLICT (form_key) 
-                DO UPDATE SET 
-                    title = EXCLUDED.title,
-                    description = EXCLUDED.description,
-                    is_active = EXCLUDED.is_active,
-                    notification_emails = EXCLUDED.notification_emails,
+                ON DUPLICATE KEY UPDATE
+                    title = VALUES(title),
+                    description = VALUES(description),
+                    is_active = VALUES(is_active),
+                    notification_emails = VALUES(notification_emails),
                     updated_at = CURRENT_TIMESTAMP
             ");
-            
             $stmt->execute([$form_key, $title, $description, $is_active, json_encode($notification_emails)]);
             
             $success = "Form settings updated successfully!";

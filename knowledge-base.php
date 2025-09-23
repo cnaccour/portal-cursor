@@ -54,6 +54,12 @@ require __DIR__.'/includes/header.php';
     border-color: #AF831A;
     box-shadow: 0 0 0 3px rgba(175, 131, 26, 0.1);
 }
+/* Gold category badge styling */
+.kb-category-badge {
+    background-color: #FDF4E6; /* light gold tint */
+    color: #AF831A;           /* brand gold text */
+    border: 1px solid #F2D28E;/* subtle gold border */
+}
 </style>
 
 <div class="mb-8">
@@ -153,7 +159,7 @@ require __DIR__.'/includes/header.php';
                     <!-- Category Badge -->
                     <?php if (!empty($article['category'])): ?>
                         <div class="mb-4">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium <?= $article['category'] === 'Setup Guides' ? 'text-white' : 'bg-blue-100 text-blue-800' ?>" <?= $article['category'] === 'Setup Guides' ? 'style="background-color: #AF831A;"' : '' ?>>
+                            <span class="kb-category-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium">
                                 <?= htmlspecialchars($article['category']) ?>
                             </span>
                         </div>

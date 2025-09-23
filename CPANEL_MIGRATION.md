@@ -6,7 +6,7 @@ Complete step-by-step guide for migrating J. Joseph Salon Team Portal from Repli
 ## Pre-Migration Checklist
 
 ### ✅ **Hosting Requirements**
-- **PHP 8.0+** support
+- **PHP 8.2+** support
 - **MySQL/MariaDB** database 
 - **cPanel/WHM** hosting environment
 - **Email sending capabilities** (mail() or SMTP)
@@ -54,27 +54,49 @@ chown -R your_username:your_username ~/public_html/portal
 5. **Add User to Database** with ALL PRIVILEGES
 
 ### ✅ **Import Database Schema**
-Run migration files in this exact order via phpMyAdmin:
+Run migration files in this order (via phpMyAdmin or CLI):
 ```sql
--- Execute these in order:
+-- Core tables
 1. database/migrations/001_create_notifications.sql
 2. database/migrations/002_create_user_tables.sql
 3. database/migrations/003_create_invitations_table.sql
-4. database/migrations/003_migrate_mock_users.sql
-5. database/migrations/004_create_shift_reports_table.sql
+4. database/migrations/004_create_shift_reports_table.sql
 
--- New: Knowledge Base Support
-6. CREATE TABLE kb_articles (
-    id SERIAL PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    slug VARCHAR(255) UNIQUE,
-    content TEXT,
-    category VARCHAR(100),
-    tags TEXT,
-    status VARCHAR(20) DEFAULT 'draft',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
+-- Development-only (SKIP on production)
+-- 5. database/migrations/003_migrate_mock_users.sql
+-- 6. database/migrations/005_insert_demo_shift_reports.sql
+-- 7. database/migrations/006_add_eliana_stewson_user.sql
+
+-- Knowledge Base table (create if it doesn't exist)
+-- If your environment does not yet have kb_articles, run this first:
+CREATE TABLE IF NOT EXISTS kb_articles (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  slug VARCHAR(255) UNIQUE,
+  content LONGTEXT,
+  category VARCHAR(100),
+  tags TEXT,
+  status VARCHAR(20) DEFAULT 'draft',
+  allow_print TINYINT(1) NOT NULL DEFAULT 1,
+  enable_sections TINYINT(1) NOT NULL DEFAULT 1,
+  created_by INT NULL,
+  updated_by INT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Add foreign keys (optional, recommended)
+ALTER TABLE kb_articles
+  ADD CONSTRAINT fk_kb_created_by FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
+  ADD CONSTRAINT fk_kb_updated_by FOREIGN KEY (updated_by) REFERENCES users(id) ON DELETE SET NULL;
+
+-- If kb_articles already exists but lacks recent fields, ensure these columns exist:
+-- (Equivalent to migrations 009–011 in the repo)
+ALTER TABLE kb_articles
+  ADD COLUMN IF NOT EXISTS allow_print TINYINT(1) NOT NULL DEFAULT 1,
+  ADD COLUMN IF NOT EXISTS enable_sections TINYINT(1) NOT NULL DEFAULT 1,
+  ADD COLUMN IF NOT EXISTS created_by INT NULL,
+  ADD COLUMN IF NOT EXISTS updated_by INT NULL;
 ```
 
 ## Configuration Changes Required
@@ -108,10 +130,11 @@ find . -type d -exec chmod 755 {} \;
 # Ensure specific ownership (replace with your cPanel username)
 chown -R your_username:your_username ~/public_html/portal
 
-# Make storage directories writable
+# Writable directories
 chmod 755 storage/
 chmod 755 storage/notifications/
-chmod 755 assets/kb/  # For knowledge base uploads
+chmod 755 attached_assets/
+chmod 755 attached_assets/kb_images/   # KB image uploads
 ```
 
 ### 3. **Create .htaccess File**
@@ -199,14 +222,15 @@ public_html/portal/
 │   ├── forms/
 │   ├── invitations/
 │   ├── notifications/
-│   └── kb/                 # New: Knowledge base API
+│   └── upload-kb-image.php # KB image upload endpoint
 ├── assets/
 │   ├── css/
 │   │   └── output.css
 │   ├── images/
 │   │   └── logo.png
 │   ├── js/
-│   └── kb/                 # New: KB uploads directory
+├── attached_assets/
+│   └── kb_images/          # KB image uploads directory
 ├── database/
 │   └── migrations/
 ├── forms/
@@ -224,7 +248,7 @@ public_html/portal/
 ├── forms.php
 ├── index.php
 ├── kb-article.php         # New: Article viewer
-├── knowledge-base.php     # Updated: Article listing
+├── knowledge-base.php     # Updated: Article listing (gold category badges)
 ├── login.php
 ├── logout.php
 ├── reports.php

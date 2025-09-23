@@ -93,13 +93,24 @@ Shared from JJS Team Portal
         $headers .= "Reply-To: noreply@jjosephsalon.com\r\n";
         $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
         
-        // In development, we'll simulate email sending
-        if (strpos($_SERVER['HTTP_HOST'], 'localhost') !== false || 
-            strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false ||
-            strpos($_SERVER['HTTP_HOST'], '.replit.dev') !== false) {
-            // Development environment - log instead of sending
-            error_log("EMAIL SENT (simulated): To: $email, Subject: $subject");
-            $success = "Email shared successfully! (Development mode - check server logs)";
+        // Detect development (MAMP/portaltest) and simulate email with on-page preview
+        $is_dev = (
+            (isset($_SERVER['HTTP_HOST']) && (
+                strpos($_SERVER['HTTP_HOST'], 'localhost') !== false ||
+                strpos($_SERVER['HTTP_HOST'], '127.0.0.1') !== false ||
+                strpos($_SERVER['HTTP_HOST'], 'portaltest') !== false
+            )) || file_exists('/Applications/MAMP/tmp/mysql/mysql.sock')
+        );
+
+        if ($is_dev) {
+            // Development environment - preview instead of sending
+            $email_preview = [
+                'to' => $email,
+                'subject' => $subject,
+                'headers' => $headers,
+                'body' => $message,
+            ];
+            $success = "Email shared successfully! (Development preview shown below)";
         } else {
             // Production environment - actually send email
             $mail_sent = mail($email, $subject, $message, $headers);
@@ -156,6 +167,14 @@ require __DIR__.'/includes/header.php';
             </svg>
             <span class="text-green-800 font-medium"><?= htmlspecialchars($success) ?></span>
         </div>
+        <?php if (!empty($email_preview) && is_array($email_preview)): ?>
+        <div class="mt-3 bg-white border rounded p-3">
+            <div class="text-sm text-gray-600 mb-2"><strong>Development Email Preview</strong></div>
+            <div class="text-xs text-gray-600"><strong>To:</strong> <?= htmlspecialchars($email_preview['to']) ?></div>
+            <div class="text-xs text-gray-600"><strong>Subject:</strong> <?= htmlspecialchars($email_preview['subject']) ?></div>
+            <pre class="mt-2 text-xs whitespace-pre-wrap text-gray-800"><?= htmlspecialchars($email_preview['body']) ?></pre>
+        </div>
+        <?php endif; ?>
     </div>
 <?php endif; ?>
 
@@ -199,7 +218,10 @@ require __DIR__.'/includes/header.php';
                 </svg>
                 <a href="api/forms/export-pdf.php?form_key=<?= urlencode($selected_form) ?>" 
                    target="_blank"
-                   class="text-blue-600 hover:text-blue-800 font-medium">Export as PDF</a>
+                   class="font-medium"
+                   style="color: #AF831A;"
+                   onmouseover="this.style.color='#8B6914'" 
+                   onmouseout="this.style.color='#AF831A'">Export as PDF</a>
             </div>
         </div>
     </div>
@@ -245,7 +267,10 @@ require __DIR__.'/includes/header.php';
                             <span x-text="showDetails ? 'Hide Details' : 'Show Details'"></span>
                         </button>
                         <button @click="showShareForm = !showShareForm" 
-                                class="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">
+                                class="px-3 py-1 text-sm rounded transition-colors"
+                                style="background-color:#AF831A; color:white;"
+                                onmouseover="this.style.backgroundColor='#8B6914'" 
+                                onmouseout="this.style.backgroundColor='#AF831A'">
                             Share
                         </button>
                     </div>
@@ -272,7 +297,12 @@ require __DIR__.'/includes/header.php';
                 
                 <!-- Share Form -->
                 <div x-show="showShareForm" x-transition class="border-t pt-4">
-                    <form method="post" class="flex gap-3 items-end">
+                    <form method="post" class="flex gap-3 items-end" onsubmit="return (function(f){
+                        var id = f.querySelector('input[name=\'submission_id\']').value;
+                        var url = 'api/forms/export-pdf.php?form_key=<?= urlencode($selected_form) ?>&submission_id='+encodeURIComponent(id);
+                        window.open(url, '_blank');
+                        return true; // continue to send email
+                    })(this)">
                         <input type="hidden" name="action" value="share_submission">
                         <input type="hidden" name="submission_id" value="<?= $submission['id'] ?>">
                         <div class="flex-1">
@@ -282,7 +312,10 @@ require __DIR__.'/includes/header.php';
                                    class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-yellow-600">
                         </div>
                         <button type="submit" 
-                                class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors">
+                                class="px-4 py-2 rounded-lg transition-colors"
+                                style="background-color:#AF831A; color:white;"
+                                onmouseover="this.style.backgroundColor='#8B6914'" 
+                                onmouseout="this.style.backgroundColor='#AF831A'">
                             Send
                         </button>
                         <button type="button" @click="showShareForm = false"

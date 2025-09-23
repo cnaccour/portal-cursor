@@ -49,6 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $category = trim($_POST['category'] ?? '');
             $tags_string = trim($_POST['tags'] ?? '');
             $status = $_POST['status'] ?? 'draft';
+            $allow_print = isset($_POST['allow_print']) ? 1 : 0;
+            $enable_sections = isset($_POST['enable_sections']) ? 1 : 0;
             
             // Validate required fields
             if (empty($title)) {
@@ -74,10 +76,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Update existing article
                 $stmt = $pdo->prepare("
                     UPDATE kb_articles 
-                    SET title = ?, slug = ?, content = ?, category = ?, tags = ?, status = ?, updated_at = CURRENT_TIMESTAMP 
+                    SET title = ?, slug = ?, content = ?, category = ?, tags = ?, status = ?, allow_print = ?, enable_sections = ?, updated_by = ?, updated_at = CURRENT_TIMESTAMP 
                     WHERE id = ?
                 ");
-                $stmt->execute([$title, $slug, $content, $category, $tags_json, $status, $article['id']]);
+                $stmt->execute([$title, $slug, $content, $category, $tags_json, $status, $allow_print, $enable_sections, $_SESSION['user_id'], $article['id']]);
                 $success = 'Article updated successfully';
                 
                 // Reload article data
@@ -93,10 +95,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } else {
                 // Create new article
                 $stmt = $pdo->prepare("
-                    INSERT INTO kb_articles (title, slug, content, category, tags, status) 
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    INSERT INTO kb_articles (title, slug, content, category, tags, status, allow_print, enable_sections, created_by, updated_by) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ");
-                $stmt->execute([$title, $slug, $content, $category, $tags_json, $status]);
+                $stmt->execute([$title, $slug, $content, $category, $tags_json, $status, $allow_print, $enable_sections, $_SESSION['user_id'], $_SESSION['user_id']]);
                 $article_id = $pdo->lastInsertId();
                 $success = 'Article created successfully';
                 
@@ -251,6 +253,30 @@ require __DIR__.'/includes/header.php';
             </div>
             
             <div class="md:col-span-2">
+                <div class="space-y-3">
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" name="allow_print" id="allow_print" 
+                               <?= ($article['allow_print'] ?? 1) ? 'checked' : '' ?>
+                               class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        <label for="allow_print" class="text-sm font-medium text-gray-700">
+                            Allow printing of this article
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500">Unchecking this will hide all print buttons for this article</p>
+                    
+                    <div class="flex items-center gap-3">
+                        <input type="checkbox" name="enable_sections" id="enable_sections" 
+                               <?= ($article['enable_sections'] ?? 1) ? 'checked' : '' ?>
+                               class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                        <label for="enable_sections" class="text-sm font-medium text-gray-700">
+                            Enable collapsible sections
+                        </label>
+                    </div>
+                    <p class="text-xs text-gray-500">Unchecking this will display the article as plain content without collapsible sections</p>
+                </div>
+            </div>
+            
+            <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Tags</label>
                 <input type="text" name="tags" 
                        value="<?= htmlspecialchars($article['tags_string'] ?? '') ?>"
@@ -270,13 +296,9 @@ require __DIR__.'/includes/header.php';
         <div class="flex items-center justify-between mb-4">
             <h2 class="text-lg font-semibold text-gray-900">Article Content</h2>
             <div class="flex items-center gap-2">
-                <button type="button" onclick="insertEmailSetupTemplate()" 
-                        class="text-sm px-3 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200 transition-colors">
-                    📧 Email Setup Template
-                </button>
-                <button type="button" onclick="toggleImageUpload()" 
+                <button type="button" id="toggle-html-view" onclick="toggleHtmlView()"
                         class="text-sm px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors">
-                    📷 Insert Image
+                    <span id="html-toggle-text">View HTML</span>
                 </button>
             </div>
         </div>
@@ -288,21 +310,30 @@ require __DIR__.'/includes/header.php';
             <div id="editor" style="min-height: 400px;">
                 <?= $article['content'] ?? '' ?>
             </div>
+            <textarea id="html-editor"
+                      class="w-full p-4 border border-gray-300 rounded-lg font-mono text-sm"
+                      style="min-height: 400px; display: none; background-color: #f8f9fa;"
+                      placeholder="HTML source code will appear here..."></textarea>
         </div>
         
         <!-- Hidden textarea to store content -->
         <textarea name="content" id="content-input" style="display: none;"></textarea>
         
-        <!-- Image Upload Section (hidden by default) -->
-        <div id="image-upload-section" class="mt-4 p-4 bg-gray-50 rounded-lg" style="display: none;">
-            <h3 class="text-sm font-medium text-gray-700 mb-2">Upload Image</h3>
-            <input type="file" id="image-upload" accept="image/*" class="mb-2">
-            <button type="button" onclick="uploadImage()" class="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700">
-                Upload & Insert
-            </button>
-            <button type="button" onclick="toggleImageUpload()" class="px-3 py-1 bg-gray-600 text-white rounded text-sm hover:bg-gray-700 ml-2">
-                Cancel
-            </button>
+        <!-- Image Upload Section -->
+        <div class="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+            <div class="flex items-center gap-2 mb-3">
+                <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                </svg>
+                <h3 class="text-sm font-medium text-gray-700">Upload Image</h3>
+            </div>
+            <div class="flex items-center gap-3">
+                <input type="file" id="image-upload" accept="image/*" class="text-sm text-gray-600 file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:text-sm file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
+                <button type="button" onclick="uploadImage()" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors font-medium">
+                    Upload & Insert
+                </button>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">Supported formats: JPG, PNG, GIF, WebP (max 5MB)</p>
         </div>
     </div>
     
@@ -346,9 +377,10 @@ const quill = new Quill('#editor', {
         toolbar: [
             [{ 'header': [1, 2, 3, false] }],
             ['bold', 'italic', 'underline', 'strike'],
-            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            [{ 'align': [] }],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }, { 'indent': '-1'}, { 'indent': '+1' }],
             [{ 'color': [] }, { 'background': [] }],
-            ['link', 'code-block'],
+            ['link', 'blockquote', 'code-block'],
             ['clean']
         ]
     },
@@ -372,6 +404,33 @@ quill.on('text-change', function() {
 
 // Set initial content
 document.getElementById('content-input').value = quill.root.innerHTML;
+
+// HTML View Toggle
+let isHtmlView = false;
+function toggleHtmlView() {
+    const editorEl = document.getElementById('editor');
+    const toolbarEl = document.getElementById('editor-toolbar');
+    const htmlEl = document.getElementById('html-editor');
+    const toggleText = document.getElementById('html-toggle-text');
+    
+    if (!isHtmlView) {
+        // Switch to HTML view
+        htmlEl.value = quill.root.innerHTML;
+        editorEl.style.display = 'none';
+        toolbarEl.style.display = 'none';
+        htmlEl.style.display = 'block';
+        toggleText.textContent = 'Visual Editor';
+        isHtmlView = true;
+    } else {
+        // Switch back to visual editor
+        quill.root.innerHTML = htmlEl.value;
+        editorEl.style.display = 'block';
+        toolbarEl.style.display = 'block';
+        htmlEl.style.display = 'none';
+        toggleText.textContent = 'View HTML';
+        isHtmlView = false;
+    }
+}
 
 // Tag preview functionality
 function updateTagPreview(tagsString) {
@@ -405,10 +464,6 @@ updateTagPreview('<?= htmlspecialchars($article['tags_string']) ?>');
 <?php endif; ?>
 
 // Image upload functionality
-function toggleImageUpload() {
-    const section = document.getElementById('image-upload-section');
-    section.style.display = section.style.display === 'none' ? 'block' : 'none';
-}
 
 function uploadImage() {
     const fileInput = document.getElementById('image-upload');
@@ -424,21 +479,32 @@ function uploadImage() {
         return;
     }
     
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Image size must be less than 5MB');
+        return;
+    }
+    
     const formData = new FormData();
     formData.append('image', file);
     formData.append('csrf_token', '<?= $_SESSION['csrf_token'] ?>');
     
     // Show loading state
-    const button = event.target;
+    const button = document.querySelector('button[onclick="uploadImage()"]');
     const originalText = button.textContent;
     button.textContent = 'Uploading...';
     button.disabled = true;
     
-    fetch('api/kb/upload-image.php', {
+    fetch('api/upload-kb-image.php', {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             // Insert image into editor
@@ -447,7 +513,6 @@ function uploadImage() {
             
             // Reset upload section
             fileInput.value = '';
-            toggleImageUpload();
             
             alert('Image uploaded successfully!');
         } else {
@@ -456,7 +521,7 @@ function uploadImage() {
     })
     .catch(error => {
         console.error('Upload error:', error);
-        alert('Upload failed. Please try again.');
+        alert('Upload failed: ' + error.message);
     })
     .finally(() => {
         button.textContent = originalText;
@@ -464,167 +529,6 @@ function uploadImage() {
     });
 }
 
-// Email Setup Template
-function insertEmailSetupTemplate() {
-    const template = `
-<h2>📧 Email Setup &amp; Instructions</h2>
-
-<div style="background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 8px; padding: 16px; margin: 16px 0;">
-    <h3>⚠️ Important Security Information</h3>
-    <p><strong>Default Password:</strong> salon123</p>
-    <p><em>Shared across all staff accounts</em></p>
-    <p><strong>Security Reminder:</strong> Change your password immediately after initial setup for better account security.</p>
-</div>
-
-<h3>🌐 Web Access</h3>
-<p>Access email through your browser:</p>
-
-<p><strong>Webmail URL:</strong><br>
-<code>webmail.jjosephsalon.com</code></p>
-
-<p><strong>Setup Steps:</strong></p>
-<ol>
-    <li>Open your web browser</li>
-    <li>Navigate to the webmail URL above</li>
-    <li>Enter your email credentials</li>
-    <li>Click 'Login' to access your account</li>
-    <li>Select 'Roundcube' to open your mailbox</li>
-</ol>
-
-<h3>📱 iPhone Setup</h3>
-<p><strong>IMAP Configuration</strong></p>
-
-<h4>Incoming Mail - IMAP</h4>
-<table style="border-collapse: collapse; width: 100%; border: 1px solid #ddd;">
-    <tr style="background: #f9f9f9;">
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Server</td>
-        <td style="border: 1px solid #ddd; padding: 8px;"><code>server.jjosephsalon.com</code></td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Port</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">993</td>
-    </tr>
-    <tr style="background: #f9f9f9;">
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Security</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">SSL/TLS</td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Username</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">Your email address</td>
-    </tr>
-    <tr style="background: #f9f9f9;">
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Password</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">Your password</td>
-    </tr>
-</table>
-
-<h4>Outgoing Mail - SMTP</h4>
-<table style="border-collapse: collapse; width: 100%; border: 1px solid #ddd;">
-    <tr style="background: #f9f9f9;">
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Server</td>
-        <td style="border: 1px solid #ddd; padding: 8px;"><code>server.jjosephsalon.com</code></td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Port</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">587</td>
-    </tr>
-    <tr style="background: #f9f9f9;">
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Security</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">STARTTLS</td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Username</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">Your email address</td>
-    </tr>
-    <tr style="background: #f9f9f9;">
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Password</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">Your password</td>
-    </tr>
-</table>
-
-<h4>Setup Steps:</h4>
-<ol>
-    <li>Open Settings → Mail → Accounts</li>
-    <li>Tap 'Add Account' → Select 'Other'</li>
-    <li>Choose 'Add Mail Account'</li>
-    <li>Enter your name, email, and password</li>
-    <li>Tap 'Next' and select 'IMAP' when prompted</li>
-    <li>Configure servers with settings above</li>
-    <li>Tap 'Save' to complete setup</li>
-</ol>
-
-<h3>🤖 Android Setup</h3>
-<p><strong>Gmail or Email App Configuration</strong></p>
-
-<h4>Incoming Mail - IMAP</h4>
-<table style="border-collapse: collapse; width: 100%; border: 1px solid #ddd;">
-    <tr style="background: #f9f9f9;">
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Server</td>
-        <td style="border: 1px solid #ddd; padding: 8px;"><code>server.jjosephsalon.com</code></td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Port</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">993</td>
-    </tr>
-    <tr style="background: #f9f9f9;">
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Security</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">SSL/TLS</td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Username</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">Your email address</td>
-    </tr>
-    <tr style="background: #f9f9f9;">
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Password</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">Your password</td>
-    </tr>
-</table>
-
-<h4>Outgoing Mail - SMTP</h4>
-<table style="border-collapse: collapse; width: 100%; border: 1px solid #ddd;">
-    <tr style="background: #f9f9f9;">
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Server</td>
-        <td style="border: 1px solid #ddd; padding: 8px;"><code>server.jjosephsalon.com</code></td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Port</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">587</td>
-    </tr>
-    <tr style="background: #f9f9f9;">
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Security</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">STARTTLS</td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Username</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">Your email address</td>
-    </tr>
-    <tr style="background: #f9f9f9;">
-        <td style="border: 1px solid #ddd; padding: 8px; font-weight: bold;">Password</td>
-        <td style="border: 1px solid #ddd; padding: 8px;">Your password</td>
-    </tr>
-</table>
-
-<h4>Setup Steps:</h4>
-<ol>
-    <li>Open Email or Gmail app</li>
-    <li>Tap 'Add Account' → Select 'Other'</li>
-    <li>Enter your account details and password</li>
-    <li>Choose 'IMAP' when prompted</li>
-    <li>Configure servers with settings above</li>
-    <li>Complete the setup process</li>
-    <li>Your email will now sync to your device</li>
-</ol>
-
-<div style="background: #E0F2FE; border: 1px solid #0284C7; border-radius: 8px; padding: 16px; margin: 16px 0;">
-    <p><strong>Need assistance with setup?</strong> Contact your manager for technical support.</p>
-</div>
-`;
-    
-    if (confirm('This will replace the current content with the email setup template. Continue?')) {
-        quill.root.innerHTML = template;
-        document.getElementById('content-input').value = template;
-    }
-}
 
 // Form submission handler
 document.querySelector('form').addEventListener('submit', function(e) {

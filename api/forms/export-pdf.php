@@ -20,6 +20,7 @@ try {
     require_once __DIR__ . '/../../includes/db.php';
     
     $form_key = $_GET['form_key'] ?? '';
+    $submission_id = isset($_GET['submission_id']) ? (int)$_GET['submission_id'] : 0;
     
     if (empty($form_key)) {
         throw new Exception('Form key is required');
@@ -34,11 +35,18 @@ try {
         throw new Exception('Form configuration not found');
     }
     
-    // Get submissions
+    // Get submissions (optionally filter to a single submission)
     $submissions = [];
     if ($form_key === 'time_off_request') {
-        $stmt = $pdo->query("SELECT * FROM time_off_requests ORDER BY submitted_at DESC");
-        $submissions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        if ($submission_id > 0) {
+            $stmt = $pdo->prepare("SELECT * FROM time_off_requests WHERE id = ?");
+            $stmt->execute([$submission_id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row) { $submissions = [$row]; }
+        } else {
+            $stmt = $pdo->query("SELECT * FROM time_off_requests ORDER BY submitted_at DESC");
+            $submissions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
     }
     
     // Set headers for PDF download
@@ -215,10 +223,14 @@ try {
     </div>
     
     <div class="summary">
-        <strong>Summary:</strong> <?= count($submissions) ?> total submissions
+        <strong>Summary:</strong> <?= count($submissions) ?> submission<?= count($submissions) === 1 ? '' : 's' ?>
         <?php if (!empty($submissions)): ?>
+            <?php if ($submission_id === 0): ?>
             • Latest: <?= date('M j, Y', strtotime($submissions[0]['submitted_at'])) ?>
             • Oldest: <?= date('M j, Y', strtotime(end($submissions)['submitted_at'])) ?>
+            <?php else: ?>
+            • Submission ID: <?= (int)$submission_id ?>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
     

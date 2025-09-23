@@ -3,9 +3,9 @@
     <div class="bg-amber-50 border border-amber-200 rounded-lg p-6">
         <h2 class="text-xl font-semibold text-gray-900 mb-3">Important Security Information</h2>
         <div class="space-y-2">
-            <div class="flex items-center gap-2">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-2">
                 <p class="text-gray-700"><strong>Default Password:</strong></p>
-                <div class="relative flex items-center">
+                <div class="flex items-center">
                     <span id="password-display" class="font-mono bg-gray-100 px-2 py-1 rounded">••••••••</span>
                     <button id="toggle-password" class="ml-2 p-1 text-gray-500 hover:text-gray-700">
                         <svg id="eye-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -21,15 +21,15 @@
     </div>
 
     <!-- Web Access -->
-    <div class="bg-white">
+    <div class="bg-slate-50 rounded-xl p-8 shadow-sm border border-gray-100">
         <h2 class="text-2xl font-bold text-gray-900 mb-4">Web Access</h2>
         <p class="text-gray-700 mb-4">Access email through your browser:</p>
         
-        <div class="bg-gray-50 p-4 rounded-lg mb-4">
+        <div class="bg-white p-4 rounded-lg mb-4 border border-gray-200">
             <p class="font-semibold text-gray-900 mb-2">Webmail URL:</p>
-            <div class="flex items-center justify-between w-full bg-white border rounded-lg px-3 py-2">
-                <code class="text-lg flex-1">webmail.jjosephsalon.com</code>
-                <button onclick="copyToClipboard('webmail.jjosephsalon.com')" class="ml-2 p-1 text-gray-500 hover:text-gray-700">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between w-full bg-white border rounded-lg px-3 py-2 gap-2">
+                <code class="text-lg break-all">webmail.jjosephsalon.com</code>
+                <button onclick="copyToClipboard('webmail.jjosephsalon.com')" class="flex-shrink-0 p-1 text-gray-500 hover:text-gray-700">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
                     </svg>
@@ -39,18 +39,22 @@
 
         <div>
             <h3 class="text-lg font-semibold text-gray-900 mb-3">Setup Steps:</h3>
-            <ol class="list-decimal list-inside space-y-2 text-gray-700">
-                <li>Open your web browser</li>
-                <li>Navigate to the webmail URL above</li>
-                <li>Enter your email credentials</li>
-                <li>Click 'Login' to access your account</li>
-                <li>Select 'Roundcube' to open your mailbox</li>
-            </ol>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                    <li>Open your web browser</li>
+                    <li>Navigate to the webmail URL above</li>
+                    <li>Enter your email credentials</li>
+                </ol>
+                <ol class="list-decimal list-inside space-y-2 text-gray-700" style="counter-reset: list-counter 3;">
+                    <li style="counter-increment: list-counter; display: list-item;" value="4">Click 'Login' to access your account</li>
+                    <li style="counter-increment: list-counter; display: list-item;" value="5">Select 'Roundcube' to open your mailbox</li>
+                </ol>
+            </div>
         </div>
     </div>
 
     <!-- iPhone Setup -->
-    <div class="bg-white">
+    <div class="bg-white rounded-xl p-8 shadow-sm border border-gray-100">
         <h2 class="text-2xl font-bold text-gray-900 mb-4">iPhone Setup</h2>
         <p class="text-gray-700 mb-4"><strong>IMAP Configuration</strong></p>
 
@@ -58,100 +62,102 @@
             <!-- Incoming Mail -->
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-3">Incoming Mail - IMAP</h3>
-                <div class="bg-gray-50 rounded-lg overflow-hidden">
-                    <table class="w-full">
-                        <tbody class="divide-y divide-gray-200">
-                            <tr class="bg-white">
-                                <td class="px-4 py-3 font-medium text-gray-900">Server</td>
-                                <td class="px-4 py-3 text-gray-700">
-                                    <div class="flex items-center justify-between">
-                                        <code>server.jjosephsalon.com</code>
-                                        <button onclick="copyToClipboard('server.jjosephsalon.com')" class="ml-2 p-1 text-gray-500 hover:text-gray-700">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="px-4 py-3 font-medium text-gray-900">Port</td>
-                                <td class="px-4 py-3 text-gray-700">993</td>
-                            </tr>
-                            <tr class="bg-white">
-                                <td class="px-4 py-3 font-medium text-gray-900">Security</td>
-                                <td class="px-4 py-3 text-gray-700">SSL/TLS</td>
-                            </tr>
-                            <tr>
-                                <td class="px-4 py-3 font-medium text-gray-900">Username</td>
-                                <td class="px-4 py-3 text-gray-700">Your email address</td>
-                            </tr>
-                            <tr class="bg-white">
-                                <td class="px-4 py-3 font-medium text-gray-900">Password</td>
-                                <td class="px-4 py-3 text-gray-700">Your password</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="space-y-3">
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-medium text-gray-900">Server</span>
+                            <button onclick="copyToClipboard('server.jjosephsalon.com')" class="p-1 text-gray-500 hover:text-gray-700">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <code class="text-sm text-gray-700 break-all">server.jjosephsalon.com</code>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <span class="font-medium text-gray-900 text-sm">Port</span>
+                            <div class="text-gray-700 mt-1">993</div>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <span class="font-medium text-gray-900 text-sm">Security</span>
+                            <div class="text-gray-700 mt-1">SSL/TLS</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <span class="font-medium text-gray-900">Username</span>
+                        <div class="text-gray-700 text-sm mt-1">Your email address</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <span class="font-medium text-gray-900">Password</span>
+                        <div class="text-gray-700 text-sm mt-1">Your password</div>
+                    </div>
                 </div>
             </div>
 
             <!-- Outgoing Mail -->
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-3">Outgoing Mail - SMTP</h3>
-                <div class="bg-gray-50 rounded-lg overflow-hidden">
-                    <table class="w-full">
-                        <tbody class="divide-y divide-gray-200">
-                            <tr class="bg-white">
-                                <td class="px-4 py-3 font-medium text-gray-900">Server</td>
-                                <td class="px-4 py-3 text-gray-700">
-                                    <div class="flex items-center justify-between">
-                                        <code>server.jjosephsalon.com</code>
-                                        <button onclick="copyToClipboard('server.jjosephsalon.com')" class="ml-2 p-1 text-gray-500 hover:text-gray-700">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="px-4 py-3 font-medium text-gray-900">Port</td>
-                                <td class="px-4 py-3 text-gray-700">587</td>
-                            </tr>
-                            <tr class="bg-white">
-                                <td class="px-4 py-3 font-medium text-gray-900">Security</td>
-                                <td class="px-4 py-3 text-gray-700">STARTTLS</td>
-                            </tr>
-                            <tr>
-                                <td class="px-4 py-3 font-medium text-gray-900">Username</td>
-                                <td class="px-4 py-3 text-gray-700">Your email address</td>
-                            </tr>
-                            <tr class="bg-white">
-                                <td class="px-4 py-3 font-medium text-gray-900">Password</td>
-                                <td class="px-4 py-3 text-gray-700">Your password</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="space-y-3">
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-medium text-gray-900">Server</span>
+                            <button onclick="copyToClipboard('server.jjosephsalon.com')" class="p-1 text-gray-500 hover:text-gray-700">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <code class="text-sm text-gray-700 break-all">server.jjosephsalon.com</code>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <span class="font-medium text-gray-900 text-sm">Port</span>
+                            <div class="text-gray-700 mt-1">587</div>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <span class="font-medium text-gray-900 text-sm">Security</span>
+                            <div class="text-gray-700 mt-1">STARTTLS</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <span class="font-medium text-gray-900">Username</span>
+                        <div class="text-gray-700 text-sm mt-1">Your email address</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <span class="font-medium text-gray-900">Password</span>
+                        <div class="text-gray-700 text-sm mt-1">Your password</div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="mt-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-3">Setup Steps:</h3>
-            <ol class="list-decimal list-inside space-y-2 text-gray-700">
-                <li>Open Settings → Mail → Accounts</li>
-                <li>Tap 'Add Account' → Select 'Other'</li>
-                <li>Choose 'Add Mail Account'</li>
-                <li>Enter your name, email, and password</li>
-                <li>Tap 'Next' and select 'IMAP' when prompted</li>
-                <li>Configure servers with settings above</li>
-                <li>Tap 'Save' to complete setup</li>
-            </ol>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                    <li>Open Settings → Mail → Accounts</li>
+                    <li>Tap 'Add Account' → Select 'Other'</li>
+                    <li>Choose 'Add Mail Account'</li>
+                    <li>Enter your name, email, and password</li>
+                </ol>
+                <ol class="list-decimal list-inside space-y-2 text-gray-700" style="counter-reset: list-counter 4;">
+                    <li style="counter-increment: list-counter; display: list-item;" value="5">Tap 'Next' and select 'IMAP' when prompted</li>
+                    <li style="counter-increment: list-counter; display: list-item;" value="6">Configure servers with settings above</li>
+                    <li style="counter-increment: list-counter; display: list-item;" value="7">Tap 'Save' to complete setup</li>
+                </ol>
+            </div>
         </div>
     </div>
 
     <!-- Android Setup -->
-    <div class="bg-white">
+    <div class="bg-gray-50 rounded-xl p-8 shadow-sm border border-gray-100">
         <h2 class="text-2xl font-bold text-gray-900 mb-4">Android Setup</h2>
         <p class="text-gray-700 mb-4"><strong>Gmail or Email App Configuration</strong></p>
 
@@ -159,95 +165,97 @@
             <!-- Incoming Mail -->
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-3">Incoming Mail - IMAP</h3>
-                <div class="bg-gray-50 rounded-lg overflow-hidden">
-                    <table class="w-full">
-                        <tbody class="divide-y divide-gray-200">
-                            <tr class="bg-white">
-                                <td class="px-4 py-3 font-medium text-gray-900">Server</td>
-                                <td class="px-4 py-3 text-gray-700">
-                                    <div class="flex items-center justify-between">
-                                        <code>server.jjosephsalon.com</code>
-                                        <button onclick="copyToClipboard('server.jjosephsalon.com')" class="ml-2 p-1 text-gray-500 hover:text-gray-700">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="px-4 py-3 font-medium text-gray-900">Port</td>
-                                <td class="px-4 py-3 text-gray-700">993</td>
-                            </tr>
-                            <tr class="bg-white">
-                                <td class="px-4 py-3 font-medium text-gray-900">Security</td>
-                                <td class="px-4 py-3 text-gray-700">SSL/TLS</td>
-                            </tr>
-                            <tr>
-                                <td class="px-4 py-3 font-medium text-gray-900">Username</td>
-                                <td class="px-4 py-3 text-gray-700">Your email address</td>
-                            </tr>
-                            <tr class="bg-white">
-                                <td class="px-4 py-3 font-medium text-gray-900">Password</td>
-                                <td class="px-4 py-3 text-gray-700">Your password</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="space-y-3">
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-medium text-gray-900">Server</span>
+                            <button onclick="copyToClipboard('server.jjosephsalon.com')" class="p-1 text-gray-500 hover:text-gray-700">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <code class="text-sm text-gray-700 break-all">server.jjosephsalon.com</code>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <span class="font-medium text-gray-900 text-sm">Port</span>
+                            <div class="text-gray-700 mt-1">993</div>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <span class="font-medium text-gray-900 text-sm">Security</span>
+                            <div class="text-gray-700 mt-1">SSL/TLS</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <span class="font-medium text-gray-900">Username</span>
+                        <div class="text-gray-700 text-sm mt-1">Your email address</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <span class="font-medium text-gray-900">Password</span>
+                        <div class="text-gray-700 text-sm mt-1">Your password</div>
+                    </div>
                 </div>
             </div>
 
             <!-- Outgoing Mail -->
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-3">Outgoing Mail - SMTP</h3>
-                <div class="bg-gray-50 rounded-lg overflow-hidden">
-                    <table class="w-full">
-                        <tbody class="divide-y divide-gray-200">
-                            <tr class="bg-white">
-                                <td class="px-4 py-3 font-medium text-gray-900">Server</td>
-                                <td class="px-4 py-3 text-gray-700">
-                                    <div class="flex items-center justify-between">
-                                        <code>server.jjosephsalon.com</code>
-                                        <button onclick="copyToClipboard('server.jjosephsalon.com')" class="ml-2 p-1 text-gray-500 hover:text-gray-700">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="px-4 py-3 font-medium text-gray-900">Port</td>
-                                <td class="px-4 py-3 text-gray-700">587</td>
-                            </tr>
-                            <tr class="bg-white">
-                                <td class="px-4 py-3 font-medium text-gray-900">Security</td>
-                                <td class="px-4 py-3 text-gray-700">STARTTLS</td>
-                            </tr>
-                            <tr>
-                                <td class="px-4 py-3 font-medium text-gray-900">Username</td>
-                                <td class="px-4 py-3 text-gray-700">Your email address</td>
-                            </tr>
-                            <tr class="bg-white">
-                                <td class="px-4 py-3 font-medium text-gray-900">Password</td>
-                                <td class="px-4 py-3 text-gray-700">Your password</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="space-y-3">
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-medium text-gray-900">Server</span>
+                            <button onclick="copyToClipboard('server.jjosephsalon.com')" class="p-1 text-gray-500 hover:text-gray-700">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <code class="text-sm text-gray-700 break-all">server.jjosephsalon.com</code>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <span class="font-medium text-gray-900 text-sm">Port</span>
+                            <div class="text-gray-700 mt-1">587</div>
+                        </div>
+                        <div class="bg-white rounded-lg p-4 border border-gray-200">
+                            <span class="font-medium text-gray-900 text-sm">Security</span>
+                            <div class="text-gray-700 mt-1">STARTTLS</div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <span class="font-medium text-gray-900">Username</span>
+                        <div class="text-gray-700 text-sm mt-1">Your email address</div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-4 border border-gray-200">
+                        <span class="font-medium text-gray-900">Password</span>
+                        <div class="text-gray-700 text-sm mt-1">Your password</div>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="mt-6">
             <h3 class="text-lg font-semibold text-gray-900 mb-3">Setup Steps:</h3>
-            <ol class="list-decimal list-inside space-y-2 text-gray-700">
-                <li>Open Email or Gmail app</li>
-                <li>Tap 'Add Account' → Select 'Other'</li>
-                <li>Enter your account details and password</li>
-                <li>Choose 'IMAP' when prompted</li>
-                <li>Configure servers with settings above</li>
-                <li>Complete the setup process</li>
-                <li>Your email will now sync to your device</li>
-            </ol>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <ol class="list-decimal list-inside space-y-2 text-gray-700">
+                    <li>Open Email or Gmail app</li>
+                    <li>Tap 'Add Account' → Select 'Other'</li>
+                    <li>Enter your account details and password</li>
+                    <li>Choose 'IMAP' when prompted</li>
+                </ol>
+                <ol class="list-decimal list-inside space-y-2 text-gray-700" style="counter-reset: list-counter 4;">
+                    <li style="counter-increment: list-counter; display: list-item;" value="5">Configure servers with settings above</li>
+                    <li style="counter-increment: list-counter; display: list-item;" value="6">Complete the setup process</li>
+                    <li style="counter-increment: list-counter; display: list-item;" value="7">Your email will now sync to your device</li>
+                </ol>
+            </div>
         </div>
     </div>
 
@@ -257,45 +265,3 @@
         <p class="text-gray-700">Contact your manager for technical support with email setup.</p>
     </div>
 </div>
-
-<script>
-// Password toggle functionality
-document.addEventListener('DOMContentLoaded', function() {
-    const toggleBtn = document.getElementById('toggle-password');
-    const passwordDisplay = document.getElementById('password-display');
-    let isPasswordVisible = false;
-    
-    if (toggleBtn) {
-        toggleBtn.addEventListener('click', function() {
-            isPasswordVisible = !isPasswordVisible;
-            if (isPasswordVisible) {
-                passwordDisplay.textContent = 'salon123';
-            } else {
-                passwordDisplay.textContent = '••••••••';
-            }
-        });
-    }
-});
-
-// Copy to clipboard functionality
-function copyToClipboard(text) {
-    navigator.clipboard.writeText(text).then(function() {
-        // Show success message
-        const originalText = event.target.closest('button').innerHTML;
-        const button = event.target.closest('button');
-        
-        button.innerHTML = `
-            <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-        `;
-        
-        setTimeout(function() {
-            button.innerHTML = originalText;
-        }, 2000);
-    }).catch(function(err) {
-        console.error('Failed to copy: ', err);
-        alert('Failed to copy to clipboard');
-    });
-}
-</script>
