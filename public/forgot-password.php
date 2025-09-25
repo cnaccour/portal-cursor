@@ -12,7 +12,15 @@ try {
   } else {
     require_once __DIR__ . '/includes/db.php';
   }
-  require_once __DIR__ . '/../lib/Email.php';
+  // Email helper is deployed inside docroot under /lib
+  if (file_exists(__DIR__ . '/lib/Email.php')) {
+    require_once __DIR__ . '/lib/Email.php';
+  } elseif (file_exists(__DIR__ . '/../lib/Email.php')) {
+    // Fallback if deployed above docroot
+    require_once __DIR__ . '/../lib/Email.php';
+  } else {
+    throw new RuntimeException('Email library not found');
+  }
 } catch (Throwable $bootErr) {
   echo 'Bootstrap error: ' . htmlspecialchars($bootErr->getMessage());
   exit;
