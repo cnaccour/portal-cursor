@@ -14,19 +14,15 @@ function send_smtp_email(string $to, string $subject, string $body, string $altB
         $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
         try {
             $mail->isSMTP();
+            // Force SMTP settings to the new account
             $mail->Host = 'server.jjosephsalon.com';
-            $mail->Port = 587;
             $mail->SMTPAuth = true;
-            // Use STARTTLS if supported by installed PHPMailer
-            if (defined('PHPMailer\\PHPMailer\\PHPMailer::ENCRYPTION_STARTTLS')) {
-                $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-            } else {
-                $mail->SMTPSecure = 'tls';
-            }
             $mail->Username = 'noreply@portal.jjosephsalon.com';
             $mail->Password = 'u~MItj[l@Ov~IokK';
+            $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port = 587;
 
-            // Explicit From/Reply-To with display name
+            // Force From/Reply-To with display name
             $mail->setFrom('noreply@portal.jjosephsalon.com', 'J Joseph Portal');
             $mail->addReplyTo('noreply@portal.jjosephsalon.com', 'J Joseph Portal');
             $mail->addAddress($to);
