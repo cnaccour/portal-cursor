@@ -11,9 +11,13 @@ RewriteCond %{REQUEST_FILENAME} -f [OR]
 RewriteCond %{REQUEST_FILENAME} -d
 RewriteRule ^ - [L]
 
-# Route to PHP front controllers or index
+# Route to PHP front controller (exclude static assets)
+RewriteCond %{REQUEST_URI} !^/assets/
+RewriteCond %{REQUEST_URI} !^/attached_assets/
 RewriteRule ^(api/.*) $1 [L]
-RewriteRule ^ index.php [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . index.php [L]
 </IfModule>
 # Options and Directory Index
 Options -Indexes
