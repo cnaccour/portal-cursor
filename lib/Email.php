@@ -12,7 +12,10 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 function send_smtp_email(string $to, string $subject, string $body, string $altBody = ''): array {
     if (class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
         $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
-        try {
+    try {
+        // Enable SMTP debug logging (to PHP error_log)
+        $mail->SMTPDebug = 2;
+        $mail->Debugoutput = 'error_log';
             // Explicit SMTP configuration
             $mail->isSMTP();
             $mail->SMTPAuth = true;
