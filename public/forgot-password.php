@@ -1,4 +1,6 @@
 <?php
+// Debug: log entry to confirm forgot-password.php executes
+file_put_contents(__DIR__ . '/../forgot_debug.log', date('Y-m-d H:i:s') . " forgot-password.php loaded\n", FILE_APPEND);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
