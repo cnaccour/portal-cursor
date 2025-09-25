@@ -1,0 +1,10 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/portaljjosephsal/public_html/portal-test
+    - /bin/rsync -av --delete ./public/ $DEPLOYPATH/
+    - /bin/rsync -av --delete ./attached_assets/ $DEPLOYPATH/attached_assets/
+    - /bin/rsync -av --delete ./assets/ $DEPLOYPATH/assets/
+    - /bin/rsync -av --delete ./vendor/ $DEPLOYPATH/vendor/
+    - /bin/rsync -av --delete ./.htaccess $DEPLOYPATH/.htaccess
+    - /bin/rsync -av --delete ./index.php $DEPLOYPATH/index.php
