@@ -16,6 +16,18 @@ try {
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES => false,
     ]);
+
+    // Runtime guard: create password_resets if it doesn't exist
+    $pdo->exec("CREATE TABLE IF NOT EXISTS password_resets (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        email VARCHAR(255) NOT NULL,
+        token VARCHAR(255) NOT NULL,
+        expires_at DATETIME NOT NULL,
+        used_at DATETIME NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        INDEX idx_email (email),
+        UNIQUE KEY uniq_token (token)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
 } catch (PDOException $e) {
     error_log('Database connection failed: ' . $e->getMessage());
     die('Database connection failed. Please contact support.');

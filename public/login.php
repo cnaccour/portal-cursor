@@ -62,6 +62,10 @@ require __DIR__.'/includes/header.php';
     </div>
     <button class="mt-2 px-4 py-2 rounded-lg bg-gray-900 text-white">Sign in</button>
   </form>
+  <div class="mt-4 flex items-center justify-between">
+    <a href="signup.php" class="text-sm text-gray-600 underline">Create an account</a>
+    <a href="forgot-password.php" class="text-sm text-gray-600 underline">Forgot Password?</a>
+  </div>
 </div>
 
 <?php require __DIR__.'/includes/footer.php'; ?>
