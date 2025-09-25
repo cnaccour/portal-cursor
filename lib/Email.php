@@ -23,12 +23,12 @@ function send_smtp_email(string $to, string $subject, string $body, string $altB
             } else {
                 $mail->SMTPSecure = 'tls';
             }
-            $mail->Username = 'noreply@jjosephsalon.com';
-            $mail->Password = 'jjsadmin81';
+            $mail->Username = 'noreply@portal.jjosephsalon.com';
+            $mail->Password = 'u~MItj[l@Ov~IokK';
 
             // Explicit From/Reply-To with display name
-            $mail->setFrom('noreply@jjosephsalon.com', 'J Joseph Portal');
-            $mail->addReplyTo('noreply@jjosephsalon.com', 'J Joseph Portal');
+            $mail->setFrom('noreply@portal.jjosephsalon.com', 'J Joseph Portal');
+            $mail->addReplyTo('noreply@portal.jjosephsalon.com', 'J Joseph Portal');
             $mail->addAddress($to);
             $mail->Subject = $subject;
             $mail->isHTML(true);
@@ -43,8 +43,8 @@ function send_smtp_email(string $to, string $subject, string $body, string $altB
     }
     // Fallback: use mail()
     $headers = [];
-    $headers[] = 'From: J Joseph Portal <noreply@jjosephsalon.com>';
-    $headers[] = 'Reply-To: J Joseph Portal <noreply@jjosephsalon.com>';
+    $headers[] = 'From: J Joseph Portal <noreply@portal.jjosephsalon.com>';
+    $headers[] = 'Reply-To: J Joseph Portal <noreply@portal.jjosephsalon.com>';
     $headers[] = 'MIME-Version: 1.0';
     $headers[] = 'Content-type: text/html; charset=utf-8';
     $sent = @mail($to, $subject, $body, implode("\r\n", $headers));
