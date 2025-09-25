@@ -34,6 +34,15 @@ try {
         ");
         $stmt->execute([$limit, $offset]);
         $submissions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } elseif ($selected_form === 'bi_weekly_report') {
+        // Get total count
+        $count_stmt = $pdo->query("SELECT COUNT(*) FROM bi_weekly_reports");
+        $total_submissions = $count_stmt->fetchColumn();
+        
+        // Get paginated submissions
+        $stmt = $pdo->prepare("\n            SELECT * FROM bi_weekly_reports\n            ORDER BY submitted_at DESC\n            LIMIT ? OFFSET ?\n        ");
+        $stmt->execute([$limit, $offset]);
+        $submissions = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
     
     $total_pages = ceil($total_submissions / $limit);

@@ -47,6 +47,16 @@ try {
             $stmt = $pdo->query("SELECT * FROM time_off_requests ORDER BY submitted_at DESC");
             $submissions = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
+    } elseif ($form_key === 'bi_weekly_report') {
+        if ($submission_id > 0) {
+            $stmt = $pdo->prepare("SELECT * FROM bi_weekly_reports WHERE id = ?");
+            $stmt->execute([$submission_id]);
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($row) { $submissions = [$row]; }
+        } else {
+            $stmt = $pdo->query("SELECT * FROM bi_weekly_reports ORDER BY submitted_at DESC");
+            $submissions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        }
     }
     
     // Set headers for PDF download
@@ -266,10 +276,29 @@ try {
                         <div class="detail-value"><?= htmlspecialchars($submission['date_range']) ?></div>
                     </div>
                     
-                    <div class="detail-item">
-                        <div class="detail-label">Reason</div>
-                        <div class="detail-value"><?= htmlspecialchars($submission['reason']) ?></div>
-                    </div>
+                    <?php if ($form_key === 'time_off_request'): ?>
+                        <div class="detail-item">
+                            <div class="detail-label">Reason</div>
+                            <div class="detail-value"><?= htmlspecialchars($submission['reason']) ?></div>
+                        </div>
+                    <?php else: ?>
+                        <div class="detail-item">
+                            <div class="detail-label">Satisfaction (1-5)</div>
+                            <div class="detail-value"><?= htmlspecialchars((string)$submission['satisfaction']) ?></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Appointments</div>
+                            <div class="detail-value"><?= htmlspecialchars((string)$submission['kpi_appointments']) ?></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Service Sales</div>
+                            <div class="detail-value">$<?= number_format((float)$submission['kpi_service_sales'], 2) ?></div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Retail Sales</div>
+                            <div class="detail-value">$<?= number_format((float)$submission['kpi_retail_sales'], 2) ?></div>
+                        </div>
+                    <?php endif; ?>
                     
                     <div class="detail-item">
                         <div class="detail-label">Compensation Available</div>
@@ -294,11 +323,32 @@ try {
                     <?php endif; ?>
                 </div>
                 
-                <?php if (!empty($submission['additional_info'])): ?>
+                <?php if ($form_key === 'time_off_request' && !empty($submission['additional_info'])): ?>
                     <div class="additional-info">
                         <div class="detail-label">Additional Information</div>
                         <div class="detail-value"><?= nl2br(htmlspecialchars($submission['additional_info'])) ?></div>
                     </div>
+                <?php endif; ?>
+
+                <?php if ($form_key === 'bi_weekly_report'): ?>
+                    <?php if (!empty($submission['achievements'])): ?>
+                    <div class="additional-info">
+                        <div class="detail-label">Top Achievements</div>
+                        <div class="detail-value"><?= nl2br(htmlspecialchars($submission['achievements'])) ?></div>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (!empty($submission['challenges'])): ?>
+                    <div class="additional-info">
+                        <div class="detail-label">Challenges</div>
+                        <div class="detail-value"><?= nl2br(htmlspecialchars($submission['challenges'])) ?></div>
+                    </div>
+                    <?php endif; ?>
+                    <?php if (!empty($submission['goals_next'])): ?>
+                    <div class="additional-info">
+                        <div class="detail-label">Goals for Next Period</div>
+                        <div class="detail-value"><?= nl2br(htmlspecialchars($submission['goals_next'])) ?></div>
+                    </div>
+                    <?php endif; ?>
                 <?php endif; ?>
             </div>
         <?php endforeach; ?>

@@ -1,3 +1,20 @@
+# cPanel/Apache production overrides (no-op for local dev)
+<IfModule mod_rewrite.c>
+RewriteEngine On
+
+# Force HTTPS (skip if behind proxy without HTTPS)
+RewriteCond %{HTTPS} off
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Serve existing files/directories
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Route to PHP front controllers or index
+RewriteRule ^(api/.*) $1 [L]
+RewriteRule ^ index.php [L]
+</IfModule>
 # Options and Directory Index
 Options -Indexes
 DirectoryIndex index.php

@@ -74,12 +74,15 @@ try {
     $stmt = $pdo->query("SELECT * FROM forms_config ORDER BY created_at ASC");
     $forms_config = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    // Add default time off request form if not exists
+    // Add default forms if not exists
     $time_off_exists = false;
+    $biweekly_exists = false;
     foreach ($forms_config as $config) {
         if ($config['form_key'] === 'time_off_request') {
             $time_off_exists = true;
-            break;
+        }
+        if ($config['form_key'] === 'bi_weekly_report') {
+            $biweekly_exists = true;
         }
     }
     
@@ -92,6 +95,21 @@ try {
             'time_off_request',
             'Time Off Request',
             'Submit requests for vacation, personal days, sick leave, or other time off needs.',
+            true,
+            json_encode(['bfernandez@jjosephsalon.com'])
+        ]);
+        
+        // Refresh configs
+        $stmt = $pdo->query("SELECT * FROM forms_config ORDER BY created_at ASC");
+        $forms_config = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    if (!$biweekly_exists) {
+        $stmt = $pdo->prepare("\n            INSERT INTO forms_config (form_key, title, description, is_active, notification_emails) \n            VALUES (?, ?, ?, ?, ?)\n        ");
+        $stmt->execute([
+            'bi_weekly_report',
+            'Bi-Weekly Report',
+            'Summarize your last two weeks: KPIs, wins, challenges, goals, and requests.',
             true,
             json_encode(['bfernandez@jjosephsalon.com'])
         ]);
@@ -225,7 +243,12 @@ require __DIR__.'/includes/header.php';
                     View Submissions
                 </a>
                 
-                <a href="forms/time-off-request.php" target="_blank" 
+                <?php 
+                    $preview_path = '#';
+                    if ($form['form_key'] === 'time_off_request') { $preview_path = 'forms/time-off-request.php'; }
+                    elseif ($form['form_key'] === 'bi_weekly_report') { $preview_path = 'forms/bi-weekly-report.php'; }
+                ?>
+                <a href="<?= $preview_path ?>" target="_blank" 
                    class="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm font-medium">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>

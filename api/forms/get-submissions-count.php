@@ -65,6 +65,38 @@ try {
         
         $stmt = $pdo->query("SELECT COUNT(*) FROM time_off_requests");
         $count = $stmt->fetchColumn();
+    } elseif ($form_key === 'bi_weekly_report') {
+        // Ensure bi_weekly_reports table exists
+        $pdo->exec("
+            CREATE TABLE IF NOT EXISTS bi_weekly_reports (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                first_name VARCHAR(255) NOT NULL,
+                last_name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL,
+                work_location VARCHAR(100) NOT NULL,
+                role VARCHAR(150) NOT NULL,
+                period_start_date DATE NOT NULL,
+                period_end_date DATE NOT NULL,
+                date_range VARCHAR(255),
+                hours_worked DECIMAL(8,2) DEFAULT 0,
+                satisfaction TINYINT NOT NULL,
+                kpi_appointments INT DEFAULT 0,
+                kpi_service_sales DECIMAL(10,2) DEFAULT 0,
+                kpi_retail_sales DECIMAL(10,2) DEFAULT 0,
+                achievements TEXT,
+                challenges TEXT,
+                client_feedback TEXT,
+                training_completed TEXT,
+                goals_next TEXT,
+                supplies_needed TEXT,
+                support_needed TEXT,
+                status VARCHAR(50) DEFAULT 'submitted',
+                submitted_by INT NULL,
+                submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ");
+        $stmt = $pdo->query("SELECT COUNT(*) FROM bi_weekly_reports");
+        $count = $stmt->fetchColumn();
     }
     
     header('Content-Type: application/json');
