@@ -1,0 +1,37 @@
+[
+    {
+        "title": "Welcome to the J. Joseph Salon Portal",
+        "content": "<p>This is a demo announcement to showcase the new announcement system. You can view important updates, policy changes, and salon news here. This system supports rich formatting and categorization for better organization.<\/p>",
+        "category": "general",
+        "author": "Admin User",
+        "location_specific": false,
+        "pinned": false,
+        "priority": 2,
+        "expiration_date": null,
+        "date_modified": "2025-09-19 16:32:05",
+        "attachments": [
+            {
+                "filename": "1758299523_fa82e375-36ce-49b9-94ff-1267202ae332.png",
+                "original_name": "fa82e375-36ce-49b9-94ff-1267202ae332.png",
+                "file_size": 1366,
+                "mime_type": "image\/png",
+                "upload_date": "2025-09-19 16:32:03"
+            }
+        ],
+        "id": "demo-announcement-001",
+        "date_created": "2024-01-15"
+    },
+    {
+        "id": "demo-announcement-002",
+        "title": "New Shift Reporting System Active",
+        "content": "The new digital shift reporting system is now live! All staff can submit their morning and evening shift reports through this portal. Please ensure you complete your reports at the end of each shift.",
+        "category": "system",
+        "author": "IT Department",
+        "date_created": "2024-01-10",
+        "expiration_date": null,
+        "location_specific": false,
+        "pinned": false,
+        "priority": 2,
+        "date_modified": "2024-01-10 00:00:00"
+    }
+]
