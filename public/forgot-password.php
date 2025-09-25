@@ -1,36 +1,59 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 session_start();
-require __DIR__.'/includes/db.php';
-require __DIR__.'/../lib/Email.php';
+
+// Bootstrap dependencies with resilience on cPanel
+try {
+  if (file_exists(__DIR__ . '/../config/db.php')) {
+    require_once __DIR__ . '/../config/db.php';
+  } else {
+    require_once __DIR__ . '/includes/db.php';
+  }
+  require_once __DIR__ . '/../lib/Email.php';
+} catch (Throwable $bootErr) {
+  echo 'Bootstrap error: ' . htmlspecialchars($bootErr->getMessage());
+  exit;
+}
 
 $info = '';
 $error = '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $email = trim($_POST['email'] ?? '');
-  if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-    $error = 'Please enter a valid email address.';
-  } else {
-    $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ? AND (deleted_at IS NULL OR deleted_at IS NULL)');
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
+try {
+  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $email = trim($_POST['email'] ?? '');
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+      $error = 'Please enter a valid email address.';
+    } else {
+      // Ensure $pdo is available
+      if (!isset($pdo)) { throw new RuntimeException('Database not initialized.'); }
 
-    // Always act the same to avoid user enumeration
-    $token = bin2hex(random_bytes(32));
-    $expires = (new DateTime('+1 hour'))->format('Y-m-d H:i:s');
-    if ($user) {
-      $ins = $pdo->prepare('INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, ?)');
-      $ins->execute([$email, $token, $expires]);
+      $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ? AND (deleted_at IS NULL)');
+      $stmt->execute([$email]);
+      $user = $stmt->fetch();
 
-      $base = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
-      $link = $base . '/reset-password.php?token=' . urlencode($token);
-      $subject = 'Reset your password';
-      $body = '<p>You requested a password reset. Click the link below to reset your password:</p><p><a href="' . htmlspecialchars($link) . '">' . htmlspecialchars($link) . '</a></p><p>This link will expire in 1 hour.</p>';
-      $alt = "Reset your password: $link (expires in 1 hour)";
-      send_smtp_email($email, $subject, $body, $alt);
+      // Always act the same to avoid user enumeration
+      $token = bin2hex(random_bytes(32));
+      $expires = (new DateTime('+1 hour'))->format('Y-m-d H:i:s');
+      if ($user) {
+        $ins = $pdo->prepare('INSERT INTO password_resets (email, token, expires_at) VALUES (?, ?, ?)');
+        $ins->execute([$email, $token, $expires]);
+
+        $base = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
+        $link = $base . '/reset-password.php?token=' . urlencode($token);
+        $subject = 'Reset your password';
+        $body = '<p>You requested a password reset. Click the link below to reset your password:</p><p><a href="' . htmlspecialchars($link) . '">' . htmlspecialchars($link) . '</a></p><p>This link will expire in 1 hour.</p>';
+        $alt = "Reset your password: $link (expires in 1 hour)";
+        // Use wrapper; ignore result to avoid user enumeration
+        send_smtp_email($email, $subject, $body, $alt);
+      }
+      $info = 'If the email exists in our system, a reset link has been sent.';
     }
-    $info = 'If the email exists in our system, a reset link has been sent.';
   }
+} catch (Throwable $e) {
+  $error = 'Error: ' . $e->getMessage();
 }
 
 require __DIR__.'/includes/header.php';
