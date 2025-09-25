@@ -13,14 +13,14 @@ function send_smtp_email(string $to, string $subject, string $body, string $altB
     if (class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
         $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
         try {
+            // Explicit SMTP configuration
             $mail->isSMTP();
-            // Force SMTP settings to the new account
-            $mail->Host = 'server.jjosephsalon.com';
             $mail->SMTPAuth = true;
+            $mail->Host = 'mail.jjosephsalon.com';
+            $mail->Port = 587;
+            $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Username = 'noreply@portal.jjosephsalon.com';
             $mail->Password = 'u~MItj[l@Ov~IokK';
-            $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port = 587;
 
             // Force From/Reply-To with display name
             $mail->setFrom('noreply@portal.jjosephsalon.com', 'J Joseph Portal');
@@ -37,12 +37,6 @@ function send_smtp_email(string $to, string $subject, string $body, string $altB
             return ['success' => false, 'error' => $err];
         }
     }
-    // Fallback: use mail()
-    $headers = [];
-    $headers[] = 'From: J Joseph Portal <noreply@portal.jjosephsalon.com>';
-    $headers[] = 'Reply-To: J Joseph Portal <noreply@portal.jjosephsalon.com>';
-    $headers[] = 'MIME-Version: 1.0';
-    $headers[] = 'Content-type: text/html; charset=utf-8';
-    $sent = @mail($to, $subject, $body, implode("\r\n", $headers));
-    return $sent ? ['success' => true] : ['success' => false, 'error' => 'mail() failed and PHPMailer unavailable'];
+    // No PHPMailer available
+    return ['success' => false, 'error' => 'PHPMailer not available'];
 }
