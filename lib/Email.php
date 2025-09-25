@@ -13,9 +13,11 @@ function send_smtp_email(string $to, string $subject, string $body, string $altB
     if (class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
         $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
     try {
-        // Enable SMTP debug logging (to PHP error_log)
+        // Enable SMTP debug logging into a custom file
         $mail->SMTPDebug = 2;
-        $mail->Debugoutput = 'error_log';
+        $mail->Debugoutput = function($str, $level) {
+            file_put_contents(__DIR__ . '/../smtp_debug.log', date('Y-m-d H:i:s') . " [$level] $str\n", FILE_APPEND);
+        };
             // Explicit SMTP configuration
             $mail->isSMTP();
             $mail->SMTPAuth = true;
