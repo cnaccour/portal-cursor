@@ -260,7 +260,8 @@ function shiftForm() {
     preparePayload(e) {
       const form = new FormData(e.target);
       const payload = Object.fromEntries(form.entries());
-      payload.checklist = this.checklist.filter(i=>i.done).map(i=>i.label);
+      // Store complete checklist with status instead of just checked items
+      payload.checklist = this.checklist;
       payload.refunds = (this.refunds || []).filter(r =>
         r.amount || r.reason || r.customer || r.service || r.notes
       );

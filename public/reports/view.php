@@ -35,13 +35,29 @@ if (!$row) {
   <div>
     <h2 class="text-lg font-semibold mb-2">Checklist</h2>
     <?php if (!empty($row['checklist'])): ?>
-      <ul class="list-disc list-inside text-sm">
+      <ul class="space-y-2 text-sm">
         <?php foreach ($row['checklist'] as $item): ?>
-          <li><?= htmlspecialchars($item) ?></li>
+          <?php if (is_array($item) && isset($item['label'])): ?>
+            <!-- New format with status -->
+            <li class="flex items-center gap-2">
+              <?php if ($item['done']): ?>
+                <span class="text-green-600">✓</span>
+              <?php else: ?>
+                <span class="text-gray-400">✗</span>
+              <?php endif; ?>
+              <span><?= htmlspecialchars($item['label']) ?></span>
+            </li>
+          <?php else: ?>
+            <!-- Legacy format (just text) -->
+            <li class="flex items-center gap-2">
+              <span class="text-green-600">✓</span>
+              <span><?= htmlspecialchars($item) ?></span>
+            </li>
+          <?php endif; ?>
         <?php endforeach; ?>
       </ul>
     <?php else: ?>
-      <p class="text-gray-500">No checklist items marked.</p>
+      <p class="text-gray-500">No checklist items available.</p>
     <?php endif; ?>
   </div>
 

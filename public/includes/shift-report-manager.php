@@ -180,7 +180,8 @@ class ShiftReportManager {
             $reports = [];
             while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
                 // Decode JSON fields
-                $row['checklist'] = json_decode($row['checklist_data'] ?? '[]', true);
+                $checklistData = json_decode($row['checklist_data'] ?? '[]', true);
+                $row['checklist'] = $checklistData;
                 $row['shipments'] = json_decode($row['shipments_data'] ?? '{}', true);
                 $row['refunds'] = json_decode($row['refunds_data'] ?? '[]', true);
                 $row['reviews'] = $row['reviews_count'];
@@ -228,7 +229,8 @@ class ShiftReportManager {
             }
             
             // Decode JSON fields
-            $row['checklist'] = json_decode($row['checklist_data'] ?? '[]', true);
+            $checklistData = json_decode($row['checklist_data'] ?? '[]', true);
+            $row['checklist'] = $checklistData;
             $row['shipments'] = json_decode($row['shipments_data'] ?? '{}', true);
             $row['refunds'] = json_decode($row['refunds_data'] ?? '[]', true);
             $row['reviews'] = $row['reviews_count'];
