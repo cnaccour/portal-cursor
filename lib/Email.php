@@ -30,6 +30,14 @@ function send_smtp_email(string $to, string $subject, string $body, string $altB
             $mail->SMTPAuth = true;
             $mail->Host = 'mail.jjosephsalon.com';
             $mail->Port = 587;
+            // Allow self-signed certs if needed
+            $mail->SMTPOptions = [
+                'ssl' => [
+                    'verify_peer' => false,
+                    'verify_peer_name' => false,
+                    'allow_self_signed' => true,
+                ],
+            ];
             $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Username = 'noreply@portal.jjosephsalon.com';
             $mail->Password = 'u~MItj[l@Ov~IokK';
