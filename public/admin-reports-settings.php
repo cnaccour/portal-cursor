@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         try {
             $location = $_POST['location'];
             $emails = $_POST['emails'];
-            $is_active = isset($_POST['is_enabled']) ? 1 : 0;
+            $is_active = isset($_POST['is_active']) ? 1 : 0;
             
             // Validate emails
             $email_array = array_filter(array_map('trim', explode(',', $emails)));
@@ -101,7 +101,7 @@ try {
     $error_message = "Error loading settings: " . $e->getMessage();
 }
 
-// Predefined locations
+// Predefined locations - match exactly what's in shift reports
 $predefined_locations = [
     'Land O\' Lakes',
     'Odessa', 
@@ -109,6 +109,13 @@ $predefined_locations = [
     'Tampa Bay',
     'Corporate Office'
 ];
+
+// Debug: show what we have
+if (isset($_GET['debug'])) {
+    echo '<pre>Predefined: '; print_r($predefined_locations); echo '</pre>';
+    echo '<pre>Existing: '; print_r($existing_locations); echo '</pre>';
+    echo '<pre>Available: '; print_r($available_locations); echo '</pre>';
+}
 
 // Get locations that already have settings
 $existing_locations = [];
@@ -280,9 +287,9 @@ function generateShiftReportEmailHTML($data) {
         </div>
         
         <div class="flex items-center">
-            <input type="checkbox" name="is_enabled" id="is_enabled" checked 
+            <input type="checkbox" name="is_active" id="is_active" checked 
                    class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded">
-            <label for="is_enabled" class="ml-2 text-sm text-gray-700">Enable email notifications for this location</label>
+            <label for="is_active" class="ml-2 text-sm text-gray-700">Enable email notifications for this location</label>
         </div>
         
         <?php if (!empty($available_locations)): ?>
@@ -385,7 +392,7 @@ function generateShiftReportEmailHTML($data) {
                         </div>
                         
                         <div class="flex items-center">
-                            <input type="checkbox" name="is_enabled" id="editIsActive" 
+                            <input type="checkbox" name="is_active" id="editIsActive" 
                                    class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded">
                             <label for="editIsActive" class="ml-2 text-sm text-gray-700">Enable email notifications</label>
                         </div>
