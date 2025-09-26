@@ -42,8 +42,13 @@ function send_smtp_email(string $to, string $subject, string $body, string $altB
             $mail->isHTML(true);
             $mail->Body = $body;
             if ($altBody !== '') { $mail->AltBody = $altBody; }
-            $mail->send();
-            return ['success' => true];
+            if (!$mail->send()) {
+                file_put_contents(__DIR__ . '/../smtp_debug.log', date('Y-m-d H:i:s') . " send failed: " . $mail->ErrorInfo . "\n", FILE_APPEND);
+                return ['success' => false, 'error' => $mail->ErrorInfo];
+            } else {
+                file_put_contents(__DIR__ . '/../smtp_debug.log', date('Y-m-d H:i:s') . " send succeeded\n", FILE_APPEND);
+                return ['success' => true];
+            }
         } catch (\Throwable $e) {
             $err = method_exists($mail ?? null, 'ErrorInfo') ? ($mail->ErrorInfo ?: $e->getMessage()) : $e->getMessage();
             return ['success' => false, 'error' => $err];
