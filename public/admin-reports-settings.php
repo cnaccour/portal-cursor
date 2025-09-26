@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         try {
             $location = $_POST['location'];
             $emails = $_POST['emails'];
-            $is_active = isset($_POST['is_active']) ? 1 : 0;
+            $is_enabled = isset($_POST['is_enabled']) ? 1 : 0;
             
             // Validate emails
             $email_array = array_filter(array_map('trim', explode(',', $emails)));
@@ -32,12 +32,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             
             if ($checkStmt->fetch()) {
                 // Update existing
-                $stmt = $pdo->prepare("UPDATE shift_report_email_settings SET email_addresses = ?, is_active = ?, updated_at = NOW() WHERE location = ?");
-                $stmt->execute([json_encode($email_array), $is_active, $location]);
+                $stmt = $pdo->prepare("UPDATE shift_report_email_settings SET email_recipients = ?, is_enabled = ?, updated_at = NOW() WHERE location = ?");
+                $stmt->execute([json_encode($email_array), $is_enabled, $location]);
             } else {
                 // Insert new
-                $stmt = $pdo->prepare("INSERT INTO shift_report_email_settings (location, email_addresses, is_active) VALUES (?, ?, ?)");
-                $stmt->execute([$location, json_encode($email_array), $is_active]);
+                $stmt = $pdo->prepare("INSERT INTO shift_report_email_settings (location, email_recipients, is_enabled) VALUES (?, ?, ?)");
+                $stmt->execute([$location, json_encode($email_array), $is_enabled]);
             }
             
             $success_message = "Email settings updated successfully for $location";
@@ -101,14 +101,26 @@ try {
     $error_message = "Error loading settings: " . $e->getMessage();
 }
 
-// Get unique locations from shift reports
-$locations = [];
+// Predefined locations
+$predefined_locations = [
+    'Land O\' Lakes',
+    'Odessa', 
+    'Citrus Park',
+    'Tampa Bay',
+    'Corporate Office'
+];
+
+// Get locations that already have settings
+$existing_locations = [];
 try {
-    $stmt = $pdo->query("SELECT DISTINCT location FROM shift_reports WHERE location IS NOT NULL ORDER BY location");
-    $locations = $stmt->fetchAll(PDO::FETCH_COLUMN);
+    $stmt = $pdo->query("SELECT location FROM shift_report_email_settings ORDER BY location");
+    $existing_locations = $stmt->fetchAll(PDO::FETCH_COLUMN);
 } catch (Exception $e) {
     // Ignore error, will use empty array
 }
+
+// Available locations for dropdown (not yet configured)
+$available_locations = array_diff($predefined_locations, $existing_locations);
 
 function generateShiftReportEmailHTML($data) {
     return '
@@ -243,9 +255,19 @@ function generateShiftReportEmailHTML($data) {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                <input type="text" name="location" required 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-                       placeholder="e.g., Land O' Lakes, Odessa, Citrus Park">
+                <?php if (!empty($available_locations)): ?>
+                    <select name="location" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                        <option value="">Select a location...</option>
+                        <?php foreach ($available_locations as $location): ?>
+                            <option value="<?= htmlspecialchars($location) ?>"><?= htmlspecialchars($location) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                <?php else: ?>
+                    <div class="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500">
+                        All locations have been configured
+                    </div>
+                <?php endif; ?>
             </div>
             
             <div>
@@ -258,18 +280,20 @@ function generateShiftReportEmailHTML($data) {
         </div>
         
         <div class="flex items-center">
-            <input type="checkbox" name="is_active" id="is_active" checked 
+            <input type="checkbox" name="is_enabled" id="is_enabled" checked 
                    class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded">
-            <label for="is_active" class="ml-2 text-sm text-gray-700">Enable email notifications for this location</label>
+            <label for="is_enabled" class="ml-2 text-sm text-gray-700">Enable email notifications for this location</label>
         </div>
         
-        <button type="submit" 
-                class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
-            Add Setting
-        </button>
+        <?php if (!empty($available_locations)): ?>
+            <button type="submit" 
+                    class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Add Setting
+            </button>
+        <?php endif; ?>
     </form>
 </div>
 
@@ -294,8 +318,8 @@ function generateShiftReportEmailHTML($data) {
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center gap-3">
                                 <h3 class="font-medium text-gray-900"><?= htmlspecialchars($setting['location']) ?></h3>
-                                <span class="px-2 py-1 rounded-full text-xs font-medium <?= $setting['is_active'] ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' ?>">
-                                    <?= $setting['is_active'] ? 'Active' : 'Inactive' ?>
+                                <span class="px-2 py-1 rounded-full text-xs font-medium <?= $setting['is_enabled'] ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' ?>">
+                                    <?= $setting['is_enabled'] ? 'Active' : 'Inactive' ?>
                                 </span>
                             </div>
                             
@@ -307,7 +331,7 @@ function generateShiftReportEmailHTML($data) {
                                 </button>
                                 
                                 <!-- Edit Button -->
-                                <button onclick="openEditModal('<?= htmlspecialchars($setting['location']) ?>', '<?= htmlspecialchars($setting['email_addresses']) ?>', <?= $setting['is_active'] ? 'true' : 'false' ?>)" 
+                                <button onclick="openEditModal('<?= htmlspecialchars($setting['location']) ?>', '<?= htmlspecialchars($setting['email_recipients']) ?>', <?= $setting['is_enabled'] ? 'true' : 'false' ?>)" 
                                         class="px-3 py-1 text-xs font-medium text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
                                     Edit
                                 </button>
@@ -327,7 +351,7 @@ function generateShiftReportEmailHTML($data) {
                         <div class="text-sm text-gray-600">
                             <strong>Email Addresses:</strong>
                             <?php 
-                            $emails = json_decode($setting['email_addresses'], true) ?: [];
+                            $emails = json_decode($setting['email_recipients'], true) ?: [];
                             echo htmlspecialchars(implode(', ', $emails));
                             ?>
                         </div>
@@ -361,9 +385,9 @@ function generateShiftReportEmailHTML($data) {
                         </div>
                         
                         <div class="flex items-center">
-                            <input type="checkbox" name="is_active" id="editIsActive" 
+                            <input type="checkbox" name="is_enabled" id="editIsEnabled" 
                                    class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded">
-                            <label for="editIsActive" class="ml-2 text-sm text-gray-700">Enable email notifications</label>
+                            <label for="editIsEnabled" class="ml-2 text-sm text-gray-700">Enable email notifications</label>
                         </div>
                     </div>
                     
@@ -423,10 +447,16 @@ function generateShiftReportEmailHTML($data) {
 </div>
 
 <script>
-function openEditModal(location, emails, isActive) {
+function openEditModal(location, emails, isEnabled) {
     document.getElementById('editLocation').value = location;
-    document.getElementById('editEmails').value = emails;
-    document.getElementById('editIsActive').checked = isActive;
+    // Parse JSON emails and convert back to comma-separated string
+    try {
+        const emailArray = JSON.parse(emails);
+        document.getElementById('editEmails').value = Array.isArray(emailArray) ? emailArray.join(', ') : emails;
+    } catch (e) {
+        document.getElementById('editEmails').value = emails;
+    }
+    document.getElementById('editIsEnabled').checked = isEnabled;
     document.getElementById('editModal').classList.remove('hidden');
 }
 
