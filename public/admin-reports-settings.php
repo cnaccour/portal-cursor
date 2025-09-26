@@ -292,14 +292,16 @@ function generateShiftReportEmailHTML($data) {
             <label for="is_active" class="ml-2 text-sm text-gray-700">Enable email notifications for this location</label>
         </div>
         
-        <button type="submit" 
-                <?php if (empty($available_locations)): ?>disabled<?php endif; ?>
-                class="inline-flex items-center px-4 py-2 <?= empty($available_locations) ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-900 hover:bg-gray-800' ?> text-white rounded-lg transition-colors">
-            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
-            <?= empty($available_locations) ? 'All Locations Configured' : 'Add Setting' ?>
-        </button>
+        <div class="flex justify-end">
+            <button type="submit" 
+                    <?php if (empty($available_locations)): ?>disabled<?php endif; ?>
+                    class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 <?= empty($available_locations) ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-900 hover:bg-gray-800' ?> text-white rounded-lg transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                <?= empty($available_locations) ? 'All Locations Configured' : 'Add Setting' ?>
+            </button>
+        </div>
     </form>
 </div>
 
@@ -321,7 +323,7 @@ function generateShiftReportEmailHTML($data) {
             <div class="space-y-4">
                 <?php foreach ($settings as $setting): ?>
                     <div class="border border-gray-200 rounded-lg p-4">
-                        <div class="flex items-center justify-between mb-3">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
                             <div class="flex items-center gap-3">
                                 <h3 class="font-medium text-gray-900"><?= htmlspecialchars($setting['location']) ?></h3>
                                 <span class="px-2 py-1 rounded-full text-xs font-medium <?= $setting['is_active'] ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' ?>">
@@ -329,18 +331,16 @@ function generateShiftReportEmailHTML($data) {
                                 </span>
                             </div>
                             
-                            <div class="flex items-center gap-2">
+                            <div class="flex flex-wrap items-center gap-2">
                                 <!-- Test Email Button -->
-                                <button onclick="alert('Test clicked'); openTestModal('<?= htmlspecialchars($setting['location']) ?>')" 
-                                        class="px-3 py-1 text-xs font-medium text-blue-600 hover:text-blue-800 border border-blue-300 rounded hover:bg-blue-50 transition-colors"
-                                        style="background: lightblue;">
+                                <button onclick="openTestModal(<?= json_encode($setting['location']) ?>)" 
+                                        class="px-3 py-1 text-xs font-medium text-blue-600 hover:text-blue-800 border border-blue-300 rounded hover:bg-blue-50 transition-colors">
                                     Test Email
                                 </button>
                                 
                                 <!-- Edit Button -->
-                                <button onclick="alert('Edit clicked for <?= htmlspecialchars($setting['location']) ?>'); openEditModal('<?= htmlspecialchars($setting['location']) ?>', '<?= htmlspecialchars($setting['email_addresses']) ?>', <?= $setting['is_active'] ? 'true' : 'false' ?>)" 
-                                        class="px-3 py-1 text-xs font-medium text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
-                                        style="background: lightgreen;">
+                                <button onclick="openEditModal(<?= json_encode($setting['location']) ?>, <?= json_encode($setting['email_addresses']) ?>, <?= $setting['is_active'] ? 'true' : 'false' ?>)" 
+                                        class="px-3 py-1 text-xs font-medium text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
                                     Edit
                                 </button>
                                 
@@ -456,8 +456,6 @@ function generateShiftReportEmailHTML($data) {
 
 <script>
 function openEditModal(location, emails, isActive) {
-    console.log('openEditModal called with:', location, emails, isActive);
-    alert('Opening edit modal for: ' + location);
     document.getElementById('editLocation').value = location;
     // Parse JSON emails and convert back to comma-separated string
     try {
