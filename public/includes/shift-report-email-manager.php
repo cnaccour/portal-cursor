@@ -51,9 +51,15 @@ class ShiftReportEmailManager {
             
             // Include the comprehensive email template function
             try {
+                error_log("ShiftReportEmailManager: About to include admin-reports-settings.php");
+                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: About to include admin-reports-settings.php\n", FILE_APPEND);
+                
                 require_once __DIR__ . '/../public/admin-reports-settings.php';
-                error_log("ShiftReportEmailManager: About to generate email template");
-                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: About to generate email template\n", FILE_APPEND);
+                error_log("ShiftReportEmailManager: admin-reports-settings.php included successfully");
+                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: admin-reports-settings.php included successfully\n", FILE_APPEND);
+                
+                error_log("ShiftReportEmailManager: About to call generateShiftReportEmailHTML");
+                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: About to call generateShiftReportEmailHTML\n", FILE_APPEND);
                 
                 $html_body = generateShiftReportEmailHTML($shiftData);
                 error_log("ShiftReportEmailManager: Generated email body length: " . strlen($html_body));
