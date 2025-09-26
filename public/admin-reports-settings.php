@@ -22,6 +22,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'update_settings') {
         try {
             $location = $_POST['location'];
+            if ($location === '__other__') {
+                $location_other = trim($_POST['location_other'] ?? '');
+                if ($location_other === '') {
+                    throw new Exception('Please enter a location name');
+                }
+                $location = $location_other;
+            }
             $emails = $_POST['emails'];
             $is_active = isset($_POST['is_active']) ? 1 : 0;
             
@@ -160,22 +167,6 @@ try {
     $error_message = "Error loading settings: " . $e->getMessage();
 }
 
-// Predefined locations - match exactly what's in shift reports
-$predefined_locations = [
-    'Land O\' Lakes',
-    'Odessa', 
-    'Citrus Park',
-    'Tampa Bay',
-    'Corporate Office'
-];
-
-// Debug: show what we have
-if (isset($_GET['debug'])) {
-    echo '<pre>Predefined: '; print_r($predefined_locations); echo '</pre>';
-    echo '<pre>Existing: '; print_r($existing_locations); echo '</pre>';
-    echo '<pre>Available: '; print_r($available_locations); echo '</pre>';
-}
-
 // Get locations that already have settings
 $existing_locations = [];
 try {
@@ -185,8 +176,28 @@ try {
     // Ignore error, will use empty array
 }
 
-// Available locations for dropdown (not yet configured)
-$available_locations = array_diff($predefined_locations, $existing_locations);
+// Get distinct locations from actual shift reports
+$reported_locations = [];
+try {
+    $stmt = $pdo->query("SELECT DISTINCT location FROM shift_reports WHERE location IS NOT NULL AND location <> '' ORDER BY location");
+    $reported_locations = $stmt->fetchAll(PDO::FETCH_COLUMN);
+} catch (Exception $e) {
+    // Ignore error
+}
+
+// Build list of all known locations (from data), unique and sorted
+$all_locations = array_unique(array_filter(array_map('trim', array_merge($reported_locations, $existing_locations))));
+sort($all_locations, SORT_NATURAL | SORT_FLAG_CASE);
+
+// Locations available to configure (exclude ones already configured)
+$available_locations = array_values(array_diff($all_locations, $existing_locations));
+
+// Debug: show what we have
+if (isset($_GET['debug'])) {
+    echo '<pre>Existing settings: '; print_r($existing_locations); echo '</pre>';
+    echo '<pre>Reported: '; print_r($reported_locations); echo '</pre>';
+    echo '<pre>Available: '; print_r($available_locations); echo '</pre>';
+}
 
 // Handle URL parameters for success/error messages
 if (isset($_GET['success'])) {
@@ -397,19 +408,16 @@ function generateShiftReportEmailHTML($data) {
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                <?php if (!empty($available_locations)): ?>
-                    <select name="location" required 
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                        <option value="">Select a location...</option>
-                        <?php foreach ($available_locations as $location): ?>
-                            <option value="<?= htmlspecialchars($location) ?>"><?= htmlspecialchars($location) ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                <?php else: ?>
-                    <div class="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500">
-                        All locations have been configured
-                    </div>
-                <?php endif; ?>
+                <select name="location" id="addLocationSelect" required 
+                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    <option value="">Select a location...</option>
+                    <?php foreach ($available_locations as $location): ?>
+                        <option value="<?= htmlspecialchars($location) ?>"><?= htmlspecialchars($location) ?></option>
+                    <?php endforeach; ?>
+                    <option value="__other__">Other...</option>
+                </select>
+                <input type="text" name="location_other" id="addLocationOther" value="" placeholder="Enter location name"
+                       class="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 hidden">
             </div>
             
             <div>
@@ -620,6 +628,20 @@ function closeTestModal() {
 
 // Add event listeners when page loads
 document.addEventListener('DOMContentLoaded', function() {
+    // Toggle Other location input in Add form
+    const sel = document.getElementById('addLocationSelect');
+    const other = document.getElementById('addLocationOther');
+    if (sel && other) {
+        sel.addEventListener('change', function() {
+            if (this.value === '__other__') {
+                other.classList.remove('hidden');
+                other.required = true;
+            } else {
+                other.classList.add('hidden');
+                other.required = false;
+            }
+        });
+    }
     // Test email buttons
     document.querySelectorAll('.test-email-btn').forEach(button => {
         button.addEventListener('click', function() {
