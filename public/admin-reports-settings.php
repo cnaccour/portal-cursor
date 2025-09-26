@@ -4,7 +4,7 @@ require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/auth.php';
 
 // Check if user is admin
-if (!isAdmin()) {
+if (!has_role('admin')) {
     header('Location: ../login.php');
     exit;
 }
