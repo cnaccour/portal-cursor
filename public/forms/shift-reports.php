@@ -319,16 +319,18 @@ function shiftForm() {
         console.log('Response status:', response.status);
         console.log('Response ok:', response.ok);
         
-        if (response.ok) {
-          // Redirect to success page
-          window.location.href = '../forms.php?ok=1';
-        } else {
-          // Get the response text to see what error occurred
-          return response.text().then(text => {
+        // Always get the response text first
+        return response.text().then(text => {
+          console.log('Response text:', text);
+          
+          if (response.ok) {
+            // Redirect to success page
+            window.location.href = '../forms.php?ok=1';
+          } else {
             console.error('Error response:', text);
             throw new Error(`Server error (${response.status}): ${text.substring(0, 200)}`);
-          });
-        }
+          }
+        });
       })
       .catch(error => {
         console.error('Error:', error);

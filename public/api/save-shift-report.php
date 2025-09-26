@@ -1,4 +1,8 @@
 <?php
+// Enable error reporting for debugging
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 // Debug logging
 error_log("Save shift report: Starting processing");
 file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " Save shift report: Starting processing\n", FILE_APPEND);
