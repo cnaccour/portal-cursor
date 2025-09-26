@@ -49,43 +49,13 @@ class ShiftReportEmailManager {
             error_log("ShiftReportEmailManager: Generated subject: $subject");
             file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Generated subject: $subject\n", FILE_APPEND);
             
-            // Include the comprehensive email template function
-            try {
-                error_log("ShiftReportEmailManager: About to include admin-reports-settings.php");
-                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: About to include admin-reports-settings.php\n", FILE_APPEND);
-                
-                $admin_reports_file = __DIR__ . '/../admin-reports-settings.php';
-                error_log("ShiftReportEmailManager: Checking if file exists: $admin_reports_file");
-                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Checking if file exists: $admin_reports_file\n", FILE_APPEND);
-                
-                if (!file_exists($admin_reports_file)) {
-                    error_log("ShiftReportEmailManager: File does not exist: $admin_reports_file");
-                    file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: File does not exist: $admin_reports_file\n", FILE_APPEND);
-                    throw new Exception("admin-reports-settings.php file not found at: $admin_reports_file");
-                }
-                
-                require_once $admin_reports_file;
-                error_log("ShiftReportEmailManager: admin-reports-settings.php included successfully");
-                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: admin-reports-settings.php included successfully\n", FILE_APPEND);
-                
-                error_log("ShiftReportEmailManager: About to call generateShiftReportEmailHTML");
-                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: About to call generateShiftReportEmailHTML\n", FILE_APPEND);
-                
-                $html_body = generateShiftReportEmailHTML($shiftData);
-                error_log("ShiftReportEmailManager: Generated email body length: " . strlen($html_body));
-                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Generated email body length: " . strlen($html_body) . "\n", FILE_APPEND);
-            } catch (Exception $e) {
-                error_log("ShiftReportEmailManager: Error generating email template: " . $e->getMessage());
-                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Error generating email template: " . $e->getMessage() . "\n", FILE_APPEND);
-                
-                // Fallback to simple email template
-                error_log("ShiftReportEmailManager: Using fallback email template");
-                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Using fallback email template\n", FILE_APPEND);
-                
-                $html_body = $this->generateSimpleEmailTemplate($shiftData);
-                error_log("ShiftReportEmailManager: Generated fallback email body length: " . strlen($html_body));
-                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Generated fallback email body length: " . strlen($html_body) . "\n", FILE_APPEND);
-            }
+            // Use simple email template directly - skip the complex one for now
+            error_log("ShiftReportEmailManager: Using simple email template");
+            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Using simple email template\n", FILE_APPEND);
+            
+            $html_body = $this->generateSimpleEmailTemplate($shiftData);
+            error_log("ShiftReportEmailManager: Generated email body length: " . strlen($html_body));
+            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Generated email body length: " . strlen($html_body) . "\n", FILE_APPEND);
             
             // Send emails - use same pattern as working forgot-password.php
             if (file_exists(__DIR__ . '/../public/lib/Email.php')) {
