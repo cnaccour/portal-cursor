@@ -47,13 +47,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 $stmt->execute([$location, json_encode($email_array), $is_active]);
             }
             
-            $success_message = "Email settings updated successfully for $location";
-            header('Location: admin-reports-settings.php?success=' . urlencode($success_message));
-            exit;
+            // Check if this is an AJAX request (from edit modal)
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                // Return JSON response for AJAX
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true, 'message' => "Email settings updated successfully for $location"]);
+                exit;
+            } else {
+                // Regular form submission - redirect
+                $success_message = "Email settings updated successfully for $location";
+                header('Location: admin-reports-settings.php?success=' . urlencode($success_message));
+                exit;
+            }
         } catch (Exception $e) {
-            $error_message = $e->getMessage();
-            header('Location: admin-reports-settings.php?error=' . urlencode($error_message));
-            exit;
+            // Check if this is an AJAX request
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                // Return JSON response for AJAX
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => $e->getMessage()]);
+                exit;
+            } else {
+                // Regular form submission - redirect
+                $error_message = $e->getMessage();
+                header('Location: admin-reports-settings.php?error=' . urlencode($error_message));
+                exit;
+            }
         }
     } elseif ($_POST['action'] === 'delete_setting') {
         try {
@@ -517,7 +535,7 @@ function generateShiftReportEmailHTML($data) {
         <div class="bg-white rounded-xl shadow-xl max-w-md w-full">
             <div class="p-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Edit Email Settings</h3>
-                <form method="POST" action="admin-reports-settings.php" id="editForm">
+                <form method="POST" id="editForm">
                     <input type="hidden" name="action" value="update_settings">
                     <input type="hidden" name="location" id="editLocation">
                     
@@ -637,6 +655,48 @@ document.addEventListener('DOMContentLoaded', function() {
             openEditModal(location, emails, isActive);
         });
     });
+    
+    // Handle edit form submission
+    const editForm = document.getElementById('editForm');
+    if (editForm) {
+        editForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = editForm.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+            
+            try {
+                const formData = new FormData(editForm);
+                const response = await fetch('admin-reports-settings.php', {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    if (result.success) {
+                        // Close modal and reload page to show updated data
+                        closeEditModal();
+                        window.location.reload();
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
+                } else {
+                    throw new Error('Failed to save changes');
+                }
+            } catch (error) {
+                alert('Error saving changes: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+    }
     
     // Close modals when clicking outside
     document.getElementById('editModal').addEventListener('click', function(e) {
