@@ -143,7 +143,7 @@ class ShiftReportEmailManager {
     }
     
     /**
-     * Generate detailed email template matching the test email style
+     * Generate simple working email template
      */
     private function generateSimpleEmailTemplate($data) {
         $location = htmlspecialchars($data['location'] ?? 'Unknown Location');
@@ -152,148 +152,26 @@ class ShiftReportEmailManager {
         $shift_type = htmlspecialchars($data['shift_type'] ?? 'Unknown Type');
         $notes = htmlspecialchars($data['notes'] ?? 'No additional notes');
         
-        // Process checklist data
-        $checklist = $data['checklist'] ?? [];
-        if (is_string($checklist)) {
-            $checklist = json_decode($checklist, true) ?? [];
-        }
-        
-        // Process refunds data
-        $refunds = $data['refunds'] ?? [];
-        if (is_string($refunds)) {
-            $refunds = json_decode($refunds, true) ?? [];
-        }
-        
-        // Process shipments data - fix the duplication issue
-        $shipments = $data['shipments'] ?? [];
-        if (is_string($shipments)) {
-            $shipments = json_decode($shipments, true) ?? [];
-        }
-        
-        // Process reviews data
-        $reviews = $data['reviews'] ?? [];
-        if (is_string($reviews)) {
-            $reviews = json_decode($reviews, true) ?? [];
-        }
-        
-        // Calculate stats
-        $checklist_completed = 0;
-        $checklist_total = count($checklist);
-        foreach ($checklist as $item) {
-            if (isset($item['completed']) && $item['completed']) {
-                $checklist_completed++;
-            } elseif (isset($item['done']) && $item['done']) {
-                $checklist_completed++;
-            }
-        }
-        
-        $refunds_count = count($refunds);
-        $refunds_amount = 0;
-        foreach ($refunds as $refund) {
-            $refunds_amount += floatval($refund['amount'] ?? 0);
-        }
-        
-        $shipments_count = count($shipments);
-        $reviews_count = count($reviews);
-        
-        // Build checklist HTML
-        $checklistHTML = '';
-        if (!empty($checklist)) {
-            foreach ($checklist as $item) {
-                $done = $item['completed'] ?? $item['done'] ?? false;
-                $label = $item['task'] ?? $item['label'] ?? 'Unknown Task';
-                $status = $done ? '✓' : '✗';
-                $statusClass = $done ? 'done' : 'pending';
-                $checklistHTML .= '<div class="checklist-item ' . $statusClass . '">' . $status . ' ' . htmlspecialchars($label) . '</div>';
-            }
-        }
-        
-        // Build refunds HTML
-        $refundsHTML = '';
-        if (!empty($refunds)) {
-            foreach ($refunds as $refund) {
-                $refundsHTML .= '<div class="refund-item">
-                    <div class="refund-header">$' . number_format(floatval($refund['amount'] ?? 0), 2) . ' - ' . htmlspecialchars($refund['reason'] ?? 'Unknown') . '</div>
-                    <div class="refund-details">Customer: ' . htmlspecialchars($refund['customer'] ?? 'Unknown') . ' | Service: ' . htmlspecialchars($refund['service'] ?? 'Unknown') . '</div>';
-                if (!empty($refund['notes'])) {
-                    $refundsHTML .= '<div class="refund-notes">Notes: ' . htmlspecialchars($refund['notes']) . '</div>';
-                }
-                $refundsHTML .= '</div>';
-            }
-        }
-        
-        // Build shipments HTML - fix duplication
-        $shipmentsHTML = '';
-        if (!empty($shipments)) {
-            foreach ($shipments as $shipment) {
-                // Only show if there's actual data
-                if (!empty($shipment['tracking']) || !empty($shipment['carrier']) || !empty($shipment['status'])) {
-                    $shipmentsHTML .= '<div class="shipment-item">
-                        <div class="shipment-label">Shipment</div>
-                        <div class="shipment-content">Tracking: ' . htmlspecialchars($shipment['tracking'] ?? 'N/A') . 
-                        ' | Carrier: ' . htmlspecialchars($shipment['carrier'] ?? 'N/A') . 
-                        ' | Status: ' . htmlspecialchars($shipment['status'] ?? 'N/A') . '</div>
-                    </div>';
-                }
-            }
-        }
-        
-        // Build reviews HTML
-        $reviewsHTML = '';
-        if (!empty($reviews)) {
-            foreach ($reviews as $review) {
-                $reviewsHTML .= '<div class="review-item">
-                    <div class="review-header">' . htmlspecialchars($review['platform'] ?? 'Unknown Platform') . ' - ' . htmlspecialchars($review['rating'] ?? 'Unknown Rating') . '</div>
-                    <div class="review-content">' . htmlspecialchars($review['comment'] ?? 'No comment') . '</div>
-                </div>';
-            }
-        }
-        
-        return '
-        <!DOCTYPE html>
-        <html lang="en">
+        return '<!DOCTYPE html>
+        <html>
         <head>
             <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
             <title>Shift Report - ' . $location . '</title>
             <style>
-                body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.5; color: #374151; margin: 0; padding: 20px; background-color: #f9fafb; }
-                .container { max-width: 700px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 20px; background-color: #f9fafb; }
+                .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
                 .header { background: #111827; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
                 .header h1 { margin: 0; font-size: 20px; font-weight: 600; }
                 .header p { margin: 5px 0 0 0; opacity: 0.8; font-size: 14px; }
                 .content { padding: 20px; }
-                .section { margin-bottom: 25px; }
-                .section-title { font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 12px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px; }
-                .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
-                .info-item { padding: 12px; background: #f9fafb; border-radius: 6px; border: 1px solid #e5e7eb; }
+                .section { margin-bottom: 20px; }
+                .section-title { font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 10px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px; }
+                .info-item { padding: 10px; background: #f9fafb; border-radius: 6px; margin-bottom: 10px; }
                 .info-label { font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 2px; }
                 .info-value { font-size: 14px; font-weight: 500; color: #111827; }
-                .stats-row { display: flex; gap: 15px; margin-bottom: 15px; }
-                .stat-item { flex: 1; text-align: center; padding: 15px; background: #f9fafb; border-radius: 6px; border: 1px solid #e5e7eb; }
-                .stat-number { font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 2px; }
-                .stat-label { font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: 500; }
-                .checklist-item { padding: 8px 0; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
-                .checklist-item.done { color: #059669; }
-                .checklist-item.pending { color: #dc2626; }
-                .refund-item { padding: 12px; background: #fef3c7; border-radius: 6px; margin-bottom: 10px; border: 1px solid #f59e0b; }
-                .refund-header { font-weight: 600; color: #92400e; margin-bottom: 4px; }
-                .refund-details { font-size: 13px; color: #78350f; margin-bottom: 4px; }
-                .refund-notes { font-size: 12px; color: #78350f; font-style: italic; }
-                .shipment-item { padding: 12px; background: #e0f2fe; border-radius: 6px; border: 1px solid #0284c7; margin-bottom: 10px; }
-                .shipment-label { font-weight: 600; color: #0c4a6e; margin-bottom: 4px; }
-                .shipment-content { font-size: 14px; color: #0c4a6e; }
-                .review-item { padding: 12px; background: #f0fdf4; border-radius: 6px; border: 1px solid #16a34a; margin-bottom: 10px; }
-                .review-header { font-weight: 600; color: #14532d; margin-bottom: 4px; }
-                .review-content { font-size: 14px; color: #14532d; }
-                .notes-section { padding: 15px; background: #f9fafb; border-radius: 6px; border: 1px solid #e5e7eb; }
-                .notes-content { color: #374151; line-height: 1.4; }
+                .notes-section { padding: 15px; background: #f9fafb; border-radius: 6px; }
                 .footer { padding: 15px 20px; text-align: center; border-top: 1px solid #e5e7eb; background: #f9fafb; border-radius: 0 0 8px 8px; }
                 .footer p { margin: 0; font-size: 12px; color: #6b7280; }
-                @media (max-width: 600px) {
-                    .info-grid { grid-template-columns: 1fr; }
-                    .stats-row { flex-direction: column; }
-                }
             </style>
         </head>
         <body>
@@ -306,64 +184,28 @@ class ShiftReportEmailManager {
                 <div class="content">
                     <div class="section">
                         <div class="section-title">Shift Information</div>
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <div class="info-label">Employee</div>
-                                <div class="info-value">' . $user_name . '</div>
-                            </div>
-                            <div class="info-item">
-                                <div class="info-label">Shift Type</div>
-                                <div class="info-value">' . $shift_type . '</div>
-                            </div>
+                        <div class="info-item">
+                            <div class="info-label">Employee</div>
+                            <div class="info-value">' . $user_name . '</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Location</div>
+                            <div class="info-value">' . $location . '</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Date</div>
+                            <div class="info-value">' . $shift_date . '</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Shift Type</div>
+                            <div class="info-value">' . $shift_type . '</div>
                         </div>
                     </div>
-                    
-                    <div class="section">
-                        <div class="section-title">Summary</div>
-                        <div class="stats-row">
-                            <div class="stat-item">
-                                <div class="stat-number">' . $checklist_completed . '/' . $checklist_total . '</div>
-                                <div class="stat-label">Tasks Completed</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-number">' . $refunds_count . '</div>
-                                <div class="stat-label">Refunds</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-number">' . $shipments_count . '</div>
-                                <div class="stat-label">Shipments</div>
-                            </div>
-                            <div class="stat-item">
-                                <div class="stat-number">' . $reviews_count . '</div>
-                                <div class="stat-label">Reviews</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    ' . ($checklistHTML ? '<div class="section">
-                        <div class="section-title">Checklist</div>
-                        ' . $checklistHTML . '
-                    </div>' : '') . '
-                    
-                    ' . ($refundsHTML ? '<div class="section">
-                        <div class="section-title">Refunds</div>
-                        ' . $refundsHTML . '
-                    </div>' : '') . '
-                    
-                    ' . ($shipmentsHTML ? '<div class="section">
-                        <div class="section-title">Shipments</div>
-                        ' . $shipmentsHTML . '
-                    </div>' : '') . '
-                    
-                    ' . ($reviewsHTML ? '<div class="section">
-                        <div class="section-title">Reviews</div>
-                        ' . $reviewsHTML . '
-                    </div>' : '') . '
                     
                     <div class="section">
                         <div class="section-title">Notes</div>
                         <div class="notes-section">
-                            <div class="notes-content">' . $notes . '</div>
+                            <p>' . $notes . '</p>
                         </div>
                     </div>
                 </div>
