@@ -8,7 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 $host = 'localhost';
 $dbname = 'portaljjosephsal_salon_portal';
 $username = 'portaljjosephsal_portal_user';
-$password = 'jjsadminportal99';
+$password = 'jjsadmin99';
 $dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
 
 try {
