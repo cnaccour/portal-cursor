@@ -134,7 +134,7 @@ if ($existingId > 0) {
     echo "Category: {$category}\n";
     echo "View (if published): kb-article.php?slug={$slug}\n";
 } else {
-    $stmt = $pdo->prepare("INSERT INTO kb_articles (title, slug, content, category, tags, status) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt = $pdo->prepare("INSERT INTO kb_articles (title, slug, content, category, tags, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)");
     $stmt->execute([
         $title,
         $slug,
