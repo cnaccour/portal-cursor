@@ -12,7 +12,23 @@ if (!is_file($jsonPath)) {
     exit(1);
 }
 
-require_once __DIR__ . '/../includes/db.php';
+// Load a DB connection compatible with cPanel first, fall back to local
+$dbIncluded = false;
+$dbPaths = [
+    __DIR__ . '/../public/includes/db.php', // cPanel/public entrypoint creds
+    __DIR__ . '/../includes/db.php',        // local dev creds
+];
+foreach ($dbPaths as $p) {
+    if (file_exists($p)) {
+        require_once $p;
+        $dbIncluded = true;
+        break;
+    }
+}
+if (!$dbIncluded) {
+    fwrite(STDERR, "Unable to load database configuration.\n");
+    exit(1);
+}
 
 // Ensure kb_articles table exists (align with db/schema.sql)
 $pdo->exec(<<<SQL
