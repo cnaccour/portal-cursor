@@ -36,8 +36,8 @@ try {
     $reportId = $shiftManager->saveShiftReport($data);
 
     if ($reportId) {
-        // Redirect back to dashboard with success flag
-        header('Location: /dashboard.php?ok=1');
+        // Redirect back to forms page with success flag
+        header('Location: /portal/forms.php?ok=1');
         exit;
     } else {
         throw new Exception('Failed to save shift report');
@@ -47,6 +47,6 @@ try {
     error_log("Save shift report error: " . $e->getMessage());
     
     // Redirect with error flag
-    header('Location: /dashboard.php?error=' . urlencode('Failed to save shift report. Please try again.'));
+    header('Location: /portal/forms.php?error=' . urlencode('Failed to save shift report. Please try again.'));
     exit;
 }
