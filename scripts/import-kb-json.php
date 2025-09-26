@@ -108,21 +108,34 @@ if (!empty($argv[2])) {
 }
 $slug = $requestedSlug;
 $forceSlug = !empty($argv[2]);
+
+// Prefer updating an existing article with the same title (idempotent import)
+$existingId = 0;
+$existingByTitle = $pdo->prepare("SELECT id, slug FROM kb_articles WHERE title = ? LIMIT 1");
+$existingByTitle->execute([$title]);
 if (!$forceSlug) {
-    $i = 2;
-    while (true) {
-        $check = $pdo->prepare("SELECT 1 FROM kb_articles WHERE slug = ? LIMIT 1");
-        $check->execute([$slug]);
-        if (!$check->fetchColumn()) break;
-        $slug = $baseSlug . '-' . $i;
-        $i++;
+    if ($row = $existingByTitle->fetch(PDO::FETCH_ASSOC)) {
+        $existingId = (int)$row['id'];
+        $slug = $row['slug'];
+    } else {
+        // Ensure slug uniqueness only if we aren't updating by title
+        $i = 2;
+        while (true) {
+            $check = $pdo->prepare("SELECT 1 FROM kb_articles WHERE slug = ? LIMIT 1");
+            $check->execute([$slug]);
+            if (!$check->fetchColumn()) break;
+            $slug = $baseSlug . '-' . $i;
+            $i++;
+        }
     }
 }
 
 // Upsert by slug: update if exists, else insert
-$check = $pdo->prepare("SELECT id FROM kb_articles WHERE slug = ? LIMIT 1");
-$check->execute([$slug]);
-$existingId = (int)($check->fetchColumn() ?: 0);
+if ($existingId === 0) {
+    $check = $pdo->prepare("SELECT id FROM kb_articles WHERE slug = ? LIMIT 1");
+    $check->execute([$slug]);
+    $existingId = (int)($check->fetchColumn() ?: 0);
+}
 
 if ($existingId > 0) {
     $upd = $pdo->prepare("UPDATE kb_articles SET title=?, content=?, category=?, tags=?, status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?");
