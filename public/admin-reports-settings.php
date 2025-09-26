@@ -511,8 +511,8 @@ function generateShiftReportEmailHTML($data) {
     </div>
 </div>
 
-<!-- Edit Modal -->
-<div id="editModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <!-- Edit Modal -->
+        <div id="editModal" class="fixed inset-0 hidden z-50">
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-xl shadow-xl max-w-md w-full">
             <div class="p-6">
@@ -552,8 +552,8 @@ function generateShiftReportEmailHTML($data) {
     </div>
 </div>
 
-<!-- Test Email Modal -->
-<div id="testModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden z-50">
+        <!-- Test Email Modal -->
+        <div id="testModal" class="fixed inset-0 hidden z-50">
     <div class="flex items-center justify-center min-h-screen p-4">
         <div class="bg-white rounded-xl shadow-xl max-w-md w-full">
             <div class="p-6">
