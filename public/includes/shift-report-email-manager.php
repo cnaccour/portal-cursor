@@ -183,6 +183,11 @@ class ShiftReportEmailManager {
             }
         }
         
+        // If shipments is not an array, it might be a single shipment object
+        if (!is_array($shipments) && !empty($shipments)) {
+            $shipments = [$shipments];
+        }
+        
         // Process reviews data safely
         $reviews = [];
         if (isset($data['reviews'])) {
@@ -190,6 +195,16 @@ class ShiftReportEmailManager {
                 $reviews = json_decode($data['reviews'], true) ?? [];
             } else {
                 $reviews = $data['reviews'] ?? [];
+            }
+        }
+        
+        // If reviews is not an array, it might be a single review object or just a count
+        if (!is_array($reviews) && !empty($reviews)) {
+            // If it's just a number, create a placeholder review
+            if (is_numeric($reviews)) {
+                $reviews = [['platform' => 'Multiple Platforms', 'rating' => 'Various', 'comment' => 'Total reviews: ' . $reviews]];
+            } else {
+                $reviews = [$reviews];
             }
         }
         
@@ -240,11 +255,11 @@ class ShiftReportEmailManager {
             $shipments_html = '<div class="section">
                 <div class="section-title">Shipments</div>';
             foreach ($shipments as $shipment) {
-                $tracking = htmlspecialchars($shipment['tracking'] ?? 'N/A');
-                $carrier = htmlspecialchars($shipment['carrier'] ?? 'N/A');
                 $status = htmlspecialchars($shipment['status'] ?? 'N/A');
+                $vendor = htmlspecialchars($shipment['vendor'] ?? 'N/A');
+                $notes = htmlspecialchars($shipment['notes'] ?? 'N/A');
                 $shipments_html .= '<div class="shipment-item">
-                    Tracking: ' . $tracking . ' | Carrier: ' . $carrier . ' | Status: ' . $status . '
+                    Status: ' . $status . ' | Vendor: ' . $vendor . ' | Notes: ' . $notes . '
                 </div>';
             }
             $shipments_html .= '</div>';
