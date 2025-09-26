@@ -60,6 +60,8 @@ try {
         $subject = 'Reset your password';
         $body = '<p>You requested a password reset. Click the link below to reset your password:</p><p><a href="' . htmlspecialchars($link) . '">' . htmlspecialchars($link) . '</a></p><p>This link will expire in 1 hour.</p>';
         $alt = "Reset your password: $link (expires in 1 hour)";
+      // Debug log before calling mailer
+      file_put_contents(__DIR__ . '/../forgot_debug.log', date('Y-m-d H:i:s') . " about to call send_smtp_email for $email\n", FILE_APPEND);
         // Use wrapper; ignore result to avoid user enumeration
         send_smtp_email($email, $subject, $body, $alt);
       }
