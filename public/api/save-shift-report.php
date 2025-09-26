@@ -51,14 +51,20 @@ try {
         $user_name = $_SESSION['user_name'] ?? 'Unknown User';
         $location = $data['location'] ?? 'Unknown Location';
         
+        // Debug logging
+        error_log("Attempting to send notification for shift report ID: $reportId");
+        error_log("User name: $user_name, Location: $location");
+        
         // Send notification to managers and admins
-        NotificationManager::notify_roles(['admin', 'manager'], [
+        $notificationResult = NotificationManager::notify_roles(['admin', 'manager'], [
             'type' => 'shift_report',
             'title' => 'Shift Report Submitted',
             'message' => "$user_name has submitted their shift report @ $location",
             'link_url' => '/portal/reports.php',
             'icon' => 'clipboard-check'
         ]);
+        
+        error_log("Notification result: " . ($notificationResult ? 'SUCCESS' : 'FAILED'));
         
         // Redirect back to forms page with success flag
         header('Location: /portal/forms.php?ok=1');
