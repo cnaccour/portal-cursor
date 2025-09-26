@@ -53,6 +53,9 @@ class ShiftReportEmailManager {
             error_log("ShiftReportEmailManager: Using simple email template");
             file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Using simple email template\n", FILE_APPEND);
             
+            error_log("ShiftReportEmailManager: About to generate email template");
+            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: About to generate email template\n", FILE_APPEND);
+            
             $html_body = $this->generateSimpleEmailTemplate($shiftData);
             error_log("ShiftReportEmailManager: Generated email body length: " . strlen($html_body));
             file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Generated email body length: " . strlen($html_body) . "\n", FILE_APPEND);
