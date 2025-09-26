@@ -1,11 +1,21 @@
 <?php
+// Debug logging
+error_log("Save shift report: Starting processing");
+file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " Save shift report: Starting processing\n", FILE_APPEND);
+
 require __DIR__.'/../includes/auth.php';
 require __DIR__.'/../includes/shift-report-manager.php';
 require __DIR__.'/../includes/notification-manager.php';
-require __DIR__.'/../../includes/shift-report-email-manager.php';
+require __DIR__.'/../includes/shift-report-email-manager.php';
 require_login();
 
+error_log("Save shift report: All includes loaded successfully");
+file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " Save shift report: All includes loaded successfully\n", FILE_APPEND);
+
 try {
+    error_log("Save shift report: Processing POST data");
+    file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " Save shift report: POST data: " . print_r($_POST, true) . "\n", FILE_APPEND);
+    
     // Handle JSON data for checklist and refunds
     $checklist = $_POST['checklist'] ?? [];
     if (is_string($checklist)) {
@@ -16,6 +26,9 @@ try {
     if (is_string($refunds)) {
         $refunds = json_decode($refunds, true) ?? [];
     }
+    
+    error_log("Save shift report: Processed checklist and refunds");
+    file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " Save shift report: Processed checklist and refunds\n", FILE_APPEND);
     
     // Filter refunds to remove empty entries
     $refunds = array_filter($refunds, function($r) {

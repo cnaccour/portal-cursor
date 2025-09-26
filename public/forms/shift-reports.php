@@ -316,11 +316,18 @@ function shiftForm() {
         body: formData
       })
       .then(response => {
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+        
         if (response.ok) {
           // Redirect to success page
           window.location.href = '../forms.php?ok=1';
         } else {
-          throw new Error('Failed to submit shift report');
+          // Get the response text to see what error occurred
+          return response.text().then(text => {
+            console.error('Error response:', text);
+            throw new Error(`Server error (${response.status}): ${text.substring(0, 200)}`);
+          });
         }
       })
       .catch(error => {
