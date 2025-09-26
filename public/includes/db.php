@@ -12,7 +12,7 @@ file_put_contents($debugFile, date('Y-m-d H:i:s') . " [DB START] File included, 
 $host = '127.0.0.1';
 $dbname = 'portaljjosephsal_salon_portal';
 $username = 'portaljjosephsal_portal_user';
-$password = 'jjsadmin99';
+$password = 'jjsadmin81@@';
 
 // Attempt multiple DSNs (cPanel variations)
 $dsnCandidates = [
