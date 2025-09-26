@@ -5,11 +5,11 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // cPanel MySQL settings (no .env or socket)
-$host = 'localhost';
+$host = '127.0.0.1';
 $dbname = 'portaljjosephsal_salon_portal';
 $username = 'portaljjosephsal_portal_user';
 $password = 'jjsadmin99';
-$dsn = "mysql:host=$host;dbname=$dbname;charset=utf8mb4";
+$dsn = "mysql:host=$host;port=3306;dbname=$dbname;charset=utf8mb4";
 
 try {
     $pdo = new PDO($dsn, $username, $password, [
