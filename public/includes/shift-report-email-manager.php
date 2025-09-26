@@ -46,10 +46,14 @@ class ShiftReportEmailManager {
             
             // Generate email content
             $subject = "Shift Report - " . $shiftData['location'] . " (" . $shiftData['shift_date'] . ")";
+            error_log("ShiftReportEmailManager: Generated subject: $subject");
+            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Generated subject: $subject\n", FILE_APPEND);
             
             // Include the comprehensive email template function
             require_once __DIR__ . '/../public/admin-reports-settings.php';
             $html_body = generateShiftReportEmailHTML($shiftData);
+            error_log("ShiftReportEmailManager: Generated email body length: " . strlen($html_body));
+            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Generated email body length: " . strlen($html_body) . "\n", FILE_APPEND);
             
             // Send emails - use same pattern as working forgot-password.php
             if (file_exists(__DIR__ . '/../public/lib/Email.php')) {
@@ -63,16 +67,24 @@ class ShiftReportEmailManager {
             
             $success_count = 0;
             $total_count = count($email_addresses);
+            error_log("ShiftReportEmailManager: About to send emails to $total_count recipients");
+            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: About to send emails to $total_count recipients\n", FILE_APPEND);
             
             foreach ($email_addresses as $email_address) {
                 error_log("ShiftReportEmailManager: Attempting to send email to: $email_address");
+                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Attempting to send email to: $email_address\n", FILE_APPEND);
+                
                 $result = send_smtp_email($email_address, $subject, $html_body);
                 error_log("ShiftReportEmailManager: Email send result: " . print_r($result, true));
+                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Email send result: " . print_r($result, true) . "\n", FILE_APPEND);
+                
                 if ($result['success']) {
                     $success_count++;
                     error_log("Shift report email sent successfully to: $email_address");
+                    file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " Shift report email sent successfully to: $email_address\n", FILE_APPEND);
                 } else {
                     error_log("Failed to send shift report email to: $email_address - " . ($result['error'] ?? 'Unknown error'));
+                    file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " Failed to send shift report email to: $email_address - " . ($result['error'] ?? 'Unknown error') . "\n", FILE_APPEND);
                 }
             }
             
