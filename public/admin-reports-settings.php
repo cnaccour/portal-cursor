@@ -20,6 +20,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'update_settings') {
+        // Debug logging
+        file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " ENTERING update_settings processing\n", FILE_APPEND);
+        file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " POST data: " . print_r($_POST, true) . "\n", FILE_APPEND);
+        file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " Is AJAX: " . (isset($_SERVER['HTTP_X_REQUESTED_WITH']) ? 'YES' : 'NO') . "\n", FILE_APPEND);
+        
         try {
             $location = $_POST['location'];
             $emails = $_POST['emails'];
@@ -50,24 +55,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             // Check if this is an AJAX request (from edit modal)
             if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
                 // Return JSON response for AJAX
+                file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " Sending JSON success response\n", FILE_APPEND);
                 header('Content-Type: application/json');
                 echo json_encode(['success' => true, 'message' => "Email settings updated successfully for $location"]);
                 exit;
             } else {
                 // Regular form submission - redirect
+                file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " Redirecting to success page\n", FILE_APPEND);
                 $success_message = "Email settings updated successfully for $location";
                 header('Location: admin-reports-settings.php?success=' . urlencode($success_message));
                 exit;
             }
         } catch (Exception $e) {
+            file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " Exception caught: " . $e->getMessage() . "\n", FILE_APPEND);
             // Check if this is an AJAX request
             if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
                 // Return JSON response for AJAX
+                file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " Sending JSON error response\n", FILE_APPEND);
                 header('Content-Type: application/json');
                 echo json_encode(['success' => false, 'message' => $e->getMessage()]);
                 exit;
             } else {
                 // Regular form submission - redirect
+                file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " Redirecting to error page\n", FILE_APPEND);
                 $error_message = $e->getMessage();
                 header('Location: admin-reports-settings.php?error=' . urlencode($error_message));
                 exit;
@@ -678,13 +688,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 if (response.ok) {
-                    const result = await response.json();
-                    if (result.success) {
-                        // Close modal and reload page to show updated data
-                        closeEditModal();
-                        window.location.reload();
-                    } else {
-                        alert('Error: ' + result.message);
+                    const responseText = await response.text();
+                    console.log('Response text:', responseText); // Debug log
+                    
+                    try {
+                        const result = JSON.parse(responseText);
+                        if (result.success) {
+                            // Close modal and reload page to show updated data
+                            closeEditModal();
+                            window.location.reload();
+                        } else {
+                            alert('Error: ' + result.message);
+                        }
+                    } catch (parseError) {
+                        console.error('JSON parse error:', parseError);
+                        console.error('Response was:', responseText);
+                        alert('Server returned invalid response. Check console for details.');
                     }
                 } else {
                     throw new Error('Failed to save changes');
