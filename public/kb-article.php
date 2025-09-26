@@ -222,11 +222,14 @@ require __DIR__.'/includes/header.php';
 
 /* Fallback layout to ensure sidebar on desktop even if Tailwind responsive classes are missing */
 .kb-layout { display: block; }
-@media (max-width: 767px) { .kb-toc { display: none; } }
+/* Flex fallback to guarantee two columns on desktop */
 @media (min-width: 768px) {
-    .kb-layout { display: grid; grid-template-columns: 1fr 3fr; gap: 1.5rem; }
-    .kb-toc { display: block; }
+    .kb-flex { display: flex; gap: 1.5rem; }
+    .kb-toc { display: block; flex: 0 0 25%; }
+    .kb-main { flex: 1 1 auto; }
 }
+@media (max-width: 767px) { .kb-toc { display: none; } }
+@media (min-width: 768px) { .kb-layout { display: grid; grid-template-columns: 1fr 3fr; gap: 1.5rem; } }
 
 @media print {
     .kb-toc, .breadcrumb, .article-actions, .tag-list, .kb-section-actions, .no-print { display: none !important; }
@@ -347,9 +350,9 @@ require __DIR__.'/includes/header.php';
     </div>
 
     <!-- Article Content with TOC and collapsible sections -->
-    <div class="kb-layout grid grid-cols-1 <?= ($article['enable_sections'] ?? 1) ? 'md:grid-cols-4' : 'md:grid-cols-1' ?> gap-6">
+    <div class="kb-layout kb-flex grid grid-cols-1 <?= ($article['enable_sections'] ?? 1) ? 'md:grid-cols-4' : 'md:grid-cols-1' ?> gap-6">
         <?php if ($article['enable_sections'] ?? 1): ?>
-        <aside class="hidden md:block kb-toc md:col-span-1">
+        <aside class="kb-toc md:col-span-1">
             <h3>Sections</h3>
             <nav id="kb-toc"></nav>
             <?php if (($article['allow_print'] ?? 1) && ($article['enable_sections'] ?? 1)): ?>
@@ -358,7 +361,7 @@ require __DIR__.'/includes/header.php';
         </aside>
         <?php endif; ?>
 
-        <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-4 md:p-8 article-content max-w-none <?= ($article['enable_sections'] ?? 1) ? 'md:col-span-3' : 'md:col-span-1' ?>" id="kb-content">
+        <div class="kb-main bg-white rounded-xl border border-gray-200 shadow-sm p-4 md:p-8 article-content max-w-none <?= ($article['enable_sections'] ?? 1) ? 'md:col-span-3' : 'md:col-span-1' ?>" id="kb-content">
             <?php if (($article['allow_print'] ?? 1) && ($article['enable_sections'] ?? 1)): ?>
             <div class="md:hidden no-print mb-4">
                 <button onclick="printFullManual()" class="w-full px-3 py-2 text-sm font-medium rounded" style="background-color:#AF831A; color:white;" onmouseover="this.style.backgroundColor='#8B6914'" onmouseout="this.style.backgroundColor='#AF831A'">Print Full Manual</button>
