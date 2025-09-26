@@ -193,9 +193,15 @@ class ShiftReportEmailManager {
             }
         }
         
-        // Debug logging for reviews
+        // Debug logging for all data
+        error_log("ShiftReportEmailManager: All data keys: " . print_r(array_keys($data), true));
+        file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: All data keys: " . print_r(array_keys($data), true) . "\n", FILE_APPEND);
+        
         error_log("ShiftReportEmailManager: Reviews data: " . print_r($reviews, true));
         file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Reviews data: " . print_r($reviews, true) . "\n", FILE_APPEND);
+        
+        error_log("ShiftReportEmailManager: Shipments data: " . print_r($shipments, true));
+        file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Shipments data: " . print_r($shipments, true) . "\n", FILE_APPEND);
         
         // Build sections
         $checklist_html = '';
@@ -234,19 +240,12 @@ class ShiftReportEmailManager {
             $shipments_html = '<div class="section">
                 <div class="section-title">Shipments</div>';
             foreach ($shipments as $shipment) {
-                // Only show if there's actual data (not just empty/unknown values)
-                $tracking = $shipment['tracking'] ?? '';
-                $carrier = $shipment['carrier'] ?? '';
-                $status = $shipment['status'] ?? '';
-                
-                if (!empty($tracking) || !empty($carrier) || !empty($status)) {
-                    $tracking = htmlspecialchars($tracking ?: 'N/A');
-                    $carrier = htmlspecialchars($carrier ?: 'N/A');
-                    $status = htmlspecialchars($status ?: 'N/A');
-                    $shipments_html .= '<div class="shipment-item">
-                        Tracking: ' . $tracking . ' | Carrier: ' . $carrier . ' | Status: ' . $status . '
-                    </div>';
-                }
+                $tracking = htmlspecialchars($shipment['tracking'] ?? 'N/A');
+                $carrier = htmlspecialchars($shipment['carrier'] ?? 'N/A');
+                $status = htmlspecialchars($shipment['status'] ?? 'N/A');
+                $shipments_html .= '<div class="shipment-item">
+                    Tracking: ' . $tracking . ' | Carrier: ' . $carrier . ' | Status: ' . $status . '
+                </div>';
             }
             $shipments_html .= '</div>';
         }
