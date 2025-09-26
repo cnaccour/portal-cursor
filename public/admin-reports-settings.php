@@ -1,6 +1,5 @@
 <?php
 require __DIR__.'/includes/auth.php';
-require __DIR__.'/includes/header.php';
 
 // Ensure user is admin
 if ($_SESSION['role'] !== 'admin') {
@@ -177,6 +176,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         // Don't redirect for test email - show message on same page
         // Only redirect for other actions to prevent form resubmission
     }
+}
+
+// Include header only for non-AJAX requests (page display)
+if (empty($_SERVER['HTTP_X_REQUESTED_WITH']) || strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) !== 'xmlhttprequest') {
+    require __DIR__.'/includes/header.php';
 }
 
 // Get all settings
