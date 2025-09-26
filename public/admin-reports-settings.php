@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $success_message = "Email settings updated successfully for $location";
             if (!empty($_POST['ajax'])) {
                 header('Content-Type: application/json');
-                echo json_encode(['success' => true, 'message' => $success_message]);
+                echo json_encode(['success' => true, 'message' => $success_message, 'location' => $location, 'emails' => implode(', ', $email_array), 'active' => (bool)$is_active]);
                 exit;
             }
         } catch (Exception $e) {
@@ -439,10 +439,12 @@ function generateShiftReportEmailHTML($data) {
                         
                         <div class="text-sm text-gray-600">
                             <strong>Email Addresses:</strong>
+                            <span class="emails-text">
                             <?php 
                             $emails = json_decode($setting['email_addresses'], true) ?: [];
                             echo htmlspecialchars(implode(', ', $emails));
                             ?>
+                            </span>
                         </div>
                         
                         <div class="text-xs text-gray-500 mt-2">
@@ -594,7 +596,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             if (btn.getAttribute('data-location') === loc) {
                                 const card = btn.closest('.border');
                                 if (card) {
-                                    const target = card.querySelector('strong + *');
+                                    const target = card.querySelector('.emails-text');
                                     if (target) target.textContent = emails;
                                 }
                             }
