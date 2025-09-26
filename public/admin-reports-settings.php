@@ -294,8 +294,7 @@ function generateShiftReportEmailHTML($data) {
         
         <button type="submit" 
                 <?php if (empty($available_locations)): ?>disabled<?php endif; ?>
-                class="inline-flex items-center px-4 py-2 <?= empty($available_locations) ? 'bg-gray-400 cursor-not-allowed' : 'bg-yellow-600 hover:bg-yellow-700' ?> text-white rounded-lg transition-colors"
-                style="background: green !important; color: white !important; border: 2px solid black;">
+                class="inline-flex items-center px-4 py-2 <?= empty($available_locations) ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-900 hover:bg-gray-800' ?> text-white rounded-lg transition-colors">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
             </svg>
@@ -332,14 +331,16 @@ function generateShiftReportEmailHTML($data) {
                             
                             <div class="flex items-center gap-2">
                                 <!-- Test Email Button -->
-                                <button onclick="openTestModal('<?= htmlspecialchars($setting['location']) ?>')" 
-                                        class="px-3 py-1 text-xs font-medium text-blue-600 hover:text-blue-800 border border-blue-300 rounded hover:bg-blue-50 transition-colors">
+                                <button onclick="alert('Test clicked'); openTestModal('<?= htmlspecialchars($setting['location']) ?>')" 
+                                        class="px-3 py-1 text-xs font-medium text-blue-600 hover:text-blue-800 border border-blue-300 rounded hover:bg-blue-50 transition-colors"
+                                        style="background: lightblue;">
                                     Test Email
                                 </button>
                                 
                                 <!-- Edit Button -->
-                                <button onclick="openEditModal('<?= htmlspecialchars($setting['location']) ?>', '<?= htmlspecialchars($setting['email_addresses']) ?>', <?= $setting['is_active'] ? 'true' : 'false' ?>)" 
-                                        class="px-3 py-1 text-xs font-medium text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                                <button onclick="alert('Edit clicked for <?= htmlspecialchars($setting['location']) ?>'); openEditModal('<?= htmlspecialchars($setting['location']) ?>', '<?= htmlspecialchars($setting['email_addresses']) ?>', <?= $setting['is_active'] ? 'true' : 'false' ?>)" 
+                                        class="px-3 py-1 text-xs font-medium text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                                        style="background: lightgreen;">
                                     Edit
                                 </button>
                                 
@@ -398,16 +399,14 @@ function generateShiftReportEmailHTML($data) {
                         </div>
                     </div>
                     
-                    <div class="flex justify-end gap-3 mt-6" style="border: 1px solid red; padding: 10px;">
+                    <div class="flex justify-end gap-3 mt-6">
                         <button type="button" onclick="closeEditModal()" 
-                                class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-                                style="background: blue; color: white;">
+                                class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                             Cancel
                         </button>
                         <button type="submit" 
-                                class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
-                                style="background: red; color: white;">
-                            Update
+                                class="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">
+                            Save Changes
                         </button>
                     </div>
                 </form>
@@ -457,6 +456,8 @@ function generateShiftReportEmailHTML($data) {
 
 <script>
 function openEditModal(location, emails, isActive) {
+    console.log('openEditModal called with:', location, emails, isActive);
+    alert('Opening edit modal for: ' + location);
     document.getElementById('editLocation').value = location;
     // Parse JSON emails and convert back to comma-separated string
     try {
