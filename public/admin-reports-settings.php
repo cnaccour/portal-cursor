@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         try {
             $location = $_POST['location'];
             $emails = $_POST['emails'];
-            $is_enabled = isset($_POST['is_enabled']) ? 1 : 0;
+            $is_active = isset($_POST['is_enabled']) ? 1 : 0;
             
             // Validate emails
             $email_array = array_filter(array_map('trim', explode(',', $emails)));
@@ -32,12 +32,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             
             if ($checkStmt->fetch()) {
                 // Update existing
-                $stmt = $pdo->prepare("UPDATE shift_report_email_settings SET email_recipients = ?, is_enabled = ?, updated_at = NOW() WHERE location = ?");
-                $stmt->execute([json_encode($email_array), $is_enabled, $location]);
+                $stmt = $pdo->prepare("UPDATE shift_report_email_settings SET email_addresses = ?, is_active = ?, updated_at = NOW() WHERE location = ?");
+                $stmt->execute([json_encode($email_array), $is_active, $location]);
             } else {
                 // Insert new
-                $stmt = $pdo->prepare("INSERT INTO shift_report_email_settings (location, email_recipients, is_enabled) VALUES (?, ?, ?)");
-                $stmt->execute([$location, json_encode($email_array), $is_enabled]);
+                $stmt = $pdo->prepare("INSERT INTO shift_report_email_settings (location, email_addresses, is_active) VALUES (?, ?, ?)");
+                $stmt->execute([$location, json_encode($email_array), $is_active]);
             }
             
             $success_message = "Email settings updated successfully for $location";
@@ -318,8 +318,8 @@ function generateShiftReportEmailHTML($data) {
                         <div class="flex items-center justify-between mb-3">
                             <div class="flex items-center gap-3">
                                 <h3 class="font-medium text-gray-900"><?= htmlspecialchars($setting['location']) ?></h3>
-                                <span class="px-2 py-1 rounded-full text-xs font-medium <?= $setting['is_enabled'] ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' ?>">
-                                    <?= $setting['is_enabled'] ? 'Active' : 'Inactive' ?>
+                                <span class="px-2 py-1 rounded-full text-xs font-medium <?= $setting['is_active'] ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800' ?>">
+                                    <?= $setting['is_active'] ? 'Active' : 'Inactive' ?>
                                 </span>
                             </div>
                             
@@ -331,7 +331,7 @@ function generateShiftReportEmailHTML($data) {
                                 </button>
                                 
                                 <!-- Edit Button -->
-                                <button onclick="openEditModal('<?= htmlspecialchars($setting['location']) ?>', '<?= htmlspecialchars($setting['email_recipients']) ?>', <?= $setting['is_enabled'] ? 'true' : 'false' ?>)" 
+                                <button onclick="openEditModal('<?= htmlspecialchars($setting['location']) ?>', '<?= htmlspecialchars($setting['email_addresses']) ?>', <?= $setting['is_active'] ? 'true' : 'false' ?>)" 
                                         class="px-3 py-1 text-xs font-medium text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
                                     Edit
                                 </button>
@@ -351,7 +351,7 @@ function generateShiftReportEmailHTML($data) {
                         <div class="text-sm text-gray-600">
                             <strong>Email Addresses:</strong>
                             <?php 
-                            $emails = json_decode($setting['email_recipients'], true) ?: [];
+                            $emails = json_decode($setting['email_addresses'], true) ?: [];
                             echo htmlspecialchars(implode(', ', $emails));
                             ?>
                         </div>
@@ -385,9 +385,9 @@ function generateShiftReportEmailHTML($data) {
                         </div>
                         
                         <div class="flex items-center">
-                            <input type="checkbox" name="is_enabled" id="editIsEnabled" 
+                            <input type="checkbox" name="is_enabled" id="editIsActive" 
                                    class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded">
-                            <label for="editIsEnabled" class="ml-2 text-sm text-gray-700">Enable email notifications</label>
+                            <label for="editIsActive" class="ml-2 text-sm text-gray-700">Enable email notifications</label>
                         </div>
                     </div>
                     
@@ -447,7 +447,7 @@ function generateShiftReportEmailHTML($data) {
 </div>
 
 <script>
-function openEditModal(location, emails, isEnabled) {
+function openEditModal(location, emails, isActive) {
     document.getElementById('editLocation').value = location;
     // Parse JSON emails and convert back to comma-separated string
     try {
@@ -456,7 +456,7 @@ function openEditModal(location, emails, isEnabled) {
     } catch (e) {
         document.getElementById('editEmails').value = emails;
     }
-    document.getElementById('editIsEnabled').checked = isEnabled;
+    document.getElementById('editIsActive').checked = isActive;
     document.getElementById('editModal').classList.remove('hidden');
 }
 
