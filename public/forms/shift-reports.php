@@ -264,9 +264,23 @@ function shiftForm() {
       
       // Store complete checklist with status instead of just checked items
       payload.checklist = this.checklist;
-      payload.refunds = (this.refunds || []).filter(r =>
-        r.amount || r.reason || r.customer || r.service || r.notes
-      );
+      
+      // Fix refunds - combine all refund fields into proper objects
+      const refunds = [];
+      if (this.refunds && this.refunds.length > 0) {
+        this.refunds.forEach(refund => {
+          if (refund.amount || refund.reason || refund.customer || refund.service || refund.notes) {
+            refunds.push({
+              amount: refund.amount || '',
+              reason: refund.reason || '',
+              customer: refund.customer || '',
+              service: refund.service || '',
+              notes: refund.notes || ''
+            });
+          }
+        });
+      }
+      payload.refunds = refunds;
       
       // Submit the form with the modified data
       const submitForm = document.createElement('form');
