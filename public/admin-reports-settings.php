@@ -167,36 +167,35 @@ try {
     $error_message = "Error loading settings: " . $e->getMessage();
 }
 
-// Get locations that already have settings
-$existing_locations = [];
-try {
-    $stmt = $pdo->query("SELECT location FROM shift_report_email_settings ORDER BY location");
-    $existing_locations = $stmt->fetchAll(PDO::FETCH_COLUMN);
-} catch (Exception $e) {
-    // Ignore error, will use empty array
+// Canonical list of salon locations (match Shift Report form)
+$canonical_locations = [
+    "Lutz",
+    "Land O’ Lakes",
+    "Citrus Park",
+    "Odessa",
+    "Wesley Chapel",
+];
+
+// Build quick lookup of existing settings by location
+$locationToSetting = [];
+foreach ($settings as $s) {
+    $locationToSetting[$s['location']] = $s;
 }
 
-// Get distinct locations from actual shift reports
-$reported_locations = [];
-try {
-    $stmt = $pdo->query("SELECT DISTINCT location FROM shift_reports WHERE location IS NOT NULL AND location <> '' ORDER BY location");
-    $reported_locations = $stmt->fetchAll(PDO::FETCH_COLUMN);
-} catch (Exception $e) {
-    // Ignore error
-}
-
-// Build list of all known locations (from data), unique and sorted
-$all_locations = array_unique(array_filter(array_map('trim', array_merge($reported_locations, $existing_locations))));
-sort($all_locations, SORT_NATURAL | SORT_FLAG_CASE);
-
-// Locations available to configure (exclude ones already configured)
-$available_locations = array_values(array_diff($all_locations, $existing_locations));
-
-// Debug: show what we have
-if (isset($_GET['debug'])) {
-    echo '<pre>Existing settings: '; print_r($existing_locations); echo '</pre>';
-    echo '<pre>Reported: '; print_r($reported_locations); echo '</pre>';
-    echo '<pre>Available: '; print_r($available_locations); echo '</pre>';
+// Create unified display list for exactly 5 locations
+$settings_display = [];
+foreach ($canonical_locations as $loc) {
+    if (isset($locationToSetting[$loc])) {
+        $settings_display[] = $locationToSetting[$loc];
+    } else {
+        // Prepare default placeholder (insert will occur on first save)
+        $settings_display[] = [
+            'location' => $loc,
+            'email_addresses' => json_encode([]),
+            'is_active' => 1,
+            'updated_at' => null,
+        ];
+    }
 }
 
 // Handle URL parameters for success/error messages
@@ -406,7 +405,7 @@ function generateShiftReportEmailHTML($data) {
     </div>
     
     <div class="p-6">
-        <?php if (empty($settings)): ?>
+        <?php if (empty($settings_display)): ?>
             <div class="text-center py-8 text-gray-500">
                 <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
@@ -415,7 +414,7 @@ function generateShiftReportEmailHTML($data) {
             </div>
         <?php else: ?>
             <div class="space-y-4">
-                <?php foreach ($settings as $setting): ?>
+                <?php foreach ($settings_display as $setting): ?>
                     <div class="border border-gray-200 rounded-lg p-4">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
                             <div class="flex items-center gap-3">
