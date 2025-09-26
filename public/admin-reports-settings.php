@@ -399,55 +399,6 @@ function generateShiftReportEmailHTML($data) {
     </div>
 <?php endif; ?>
 
-<!-- Add New Setting -->
-<div class="bg-white rounded-xl border shadow-sm p-6 mb-6">
-    <h2 class="text-lg font-semibold text-gray-900 mb-4">Add New Location Setting</h2>
-    <form method="POST" class="space-y-4">
-        <input type="hidden" name="action" value="update_settings">
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
-                <select name="location" id="addLocationSelect" required 
-                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
-                    <option value="">Select a location...</option>
-                    <?php foreach ($available_locations as $location): ?>
-                        <option value="<?= htmlspecialchars($location) ?>"><?= htmlspecialchars($location) ?></option>
-                    <?php endforeach; ?>
-                    <option value="__other__">Other...</option>
-                </select>
-                <input type="text" name="location_other" id="addLocationOther" value="" placeholder="Enter location name"
-                       class="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 hidden">
-            </div>
-            
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Email Addresses</label>
-                <input type="text" name="emails" required 
-                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
-                       placeholder="email1@example.com, email2@example.com">
-                <p class="text-xs text-gray-500 mt-1">Separate multiple emails with commas</p>
-            </div>
-        </div>
-        
-        <div class="flex items-center">
-            <input type="checkbox" name="is_active" id="is_active" checked 
-                   class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded">
-            <label for="is_active" class="ml-2 text-sm text-gray-700">Enable email notifications for this location</label>
-        </div>
-        
-        <div class="flex justify-end">
-            <button type="submit" 
-                    <?php if (empty($available_locations)): ?>disabled<?php endif; ?>
-                    class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 <?= empty($available_locations) ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-900 hover:bg-gray-800' ?> text-white rounded-lg transition-colors">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                </svg>
-                <?= empty($available_locations) ? 'All Locations Configured' : 'Add Setting' ?>
-            </button>
-        </div>
-    </form>
-</div>
-
 <!-- Existing Settings -->
 <div class="bg-white rounded-xl border shadow-sm">
     <div class="p-6 border-b border-gray-100">
@@ -475,29 +426,13 @@ function generateShiftReportEmailHTML($data) {
                             </div>
                             
                             <div class="flex flex-wrap items-center gap-2">
-                                <!-- Test Email Button -->
-                                <button class="test-email-btn px-3 py-1 text-xs font-medium text-blue-600 hover:text-blue-800 border border-blue-300 rounded hover:bg-blue-50 transition-colors"
-                                        data-location="<?= htmlspecialchars($setting['location']) ?>">
-                                    Test Email
-                                </button>
-                                
-                                <!-- Edit Button -->
+                                <!-- Edit Button only -->
                                 <button class="edit-btn px-3 py-1 text-xs font-medium text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
                                         data-location="<?= htmlspecialchars($setting['location']) ?>"
                                         data-emails="<?= htmlspecialchars($setting['email_addresses']) ?>"
                                         data-active="<?= $setting['is_active'] ? '1' : '0' ?>">
                                     Edit
                                 </button>
-                                
-                                <!-- Delete Button -->
-                                <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete email settings for <?= htmlspecialchars($setting['location']) ?>?')">
-                                    <input type="hidden" name="action" value="delete_setting">
-                                    <input type="hidden" name="location" value="<?= htmlspecialchars($setting['location']) ?>">
-                                    <button type="submit" 
-                                            class="px-3 py-1 text-xs font-medium text-red-600 hover:text-red-800 border border-red-300 rounded hover:bg-red-50 transition-colors">
-                                        Delete
-                                    </button>
-                                </form>
                             </div>
                         </div>
                         
@@ -642,14 +577,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    // Test email buttons
-    document.querySelectorAll('.test-email-btn').forEach(button => {
-        button.addEventListener('click', function() {
-            const location = this.getAttribute('data-location');
-            openTestModal(location);
-        });
-    });
-    
     // Edit buttons
     document.querySelectorAll('.edit-btn').forEach(button => {
         button.addEventListener('click', function() {
