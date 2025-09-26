@@ -12,7 +12,9 @@ require_once __DIR__ . '/includes/db.php';
 
 // Debug: Log all POST requests
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    file_put_contents('/tmp/portal_debug.log', date('Y-m-d H:i:s') . " POST: " . print_r($_POST, true) . "\n", FILE_APPEND);
+    $debug_content = date('Y-m-d H:i:s') . " POST: " . print_r($_POST, true) . "\n";
+    file_put_contents(__DIR__ . '/debug.log', $debug_content, FILE_APPEND);
+    file_put_contents('/tmp/portal_debug.log', $debug_content, FILE_APPEND);
 }
 
 // Handle form submission
@@ -118,15 +120,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         
         // Redirect to prevent form resubmission
         if (isset($success_message)) {
-            file_put_contents('/tmp/portal_debug.log', date('Y-m-d H:i:s') . " SUCCESS: $success_message\n", FILE_APPEND);
+            $debug_msg = date('Y-m-d H:i:s') . " SUCCESS: $success_message\n";
+            file_put_contents(__DIR__ . '/debug.log', $debug_msg, FILE_APPEND);
+            file_put_contents('/tmp/portal_debug.log', $debug_msg, FILE_APPEND);
             header('Location: admin-reports-settings.php?success=' . urlencode($success_message));
             exit;
         } elseif (isset($error_message)) {
-            file_put_contents('/tmp/portal_debug.log', date('Y-m-d H:i:s') . " ERROR: $error_message\n", FILE_APPEND);
+            $debug_msg = date('Y-m-d H:i:s') . " ERROR: $error_message\n";
+            file_put_contents(__DIR__ . '/debug.log', $debug_msg, FILE_APPEND);
+            file_put_contents('/tmp/portal_debug.log', $debug_msg, FILE_APPEND);
             header('Location: admin-reports-settings.php?error=' . urlencode($error_message));
             exit;
         } else {
-            file_put_contents('/tmp/portal_debug.log', date('Y-m-d H:i:s') . " NO MESSAGE SET - this should not happen\n", FILE_APPEND);
+            $debug_msg = date('Y-m-d H:i:s') . " NO MESSAGE SET - this should not happen\n";
+            file_put_contents(__DIR__ . '/debug.log', $debug_msg, FILE_APPEND);
+            file_put_contents('/tmp/portal_debug.log', $debug_msg, FILE_APPEND);
         }
     }
 }
@@ -429,7 +437,7 @@ function generateShiftReportEmailHTML($data) {
         <div class="bg-white rounded-xl shadow-xl max-w-md w-full">
             <div class="p-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Edit Email Settings</h3>
-                <form method="POST" id="editForm">
+                <form method="POST" action="admin-reports-settings.php" id="editForm">
                     <input type="hidden" name="action" value="update_settings">
                     <input type="hidden" name="location" id="editLocation">
                     
@@ -470,7 +478,7 @@ function generateShiftReportEmailHTML($data) {
         <div class="bg-white rounded-xl shadow-xl max-w-md w-full">
             <div class="p-6">
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Send Test Email</h3>
-                <form method="POST" id="testForm">
+                <form method="POST" action="admin-reports-settings.php" id="testForm">
                     <input type="hidden" name="action" value="test_email">
                     <input type="hidden" name="location" id="testLocation">
                     
