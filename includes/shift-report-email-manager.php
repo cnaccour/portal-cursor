@@ -41,22 +41,31 @@ class ShiftReportEmailManager {
             
             // Generate email content
             $subject = "Shift Report - " . $shiftData['location'] . " (" . $shiftData['shift_date'] . ")";
-            $html_body = $this->generateShiftReportEmailHTML($shiftData);
             
-            // Send emails
-            require_once __DIR__ . '/../lib/Email.php';
-            $email = new Email();
+            // Include the comprehensive email template function
+            require_once __DIR__ . '/../public/admin-reports-settings.php';
+            $html_body = generateShiftReportEmailHTML($shiftData);
+            
+            // Send emails - use same pattern as working forgot-password.php
+            if (file_exists(__DIR__ . '/../public/lib/Email.php')) {
+                require_once __DIR__ . '/../public/lib/Email.php';
+            } elseif (file_exists(__DIR__ . '/../lib/Email.php')) {
+                require_once __DIR__ . '/../lib/Email.php';
+            } else {
+                error_log("ShiftReportEmailManager: Email library not found");
+                return false;
+            }
             
             $success_count = 0;
             $total_count = count($email_addresses);
             
             foreach ($email_addresses as $email_address) {
-                $result = $email->send_smtp_email($email_address, $subject, $html_body);
-                if ($result) {
+                $result = send_smtp_email($email_address, $subject, $html_body);
+                if ($result['success']) {
                     $success_count++;
                     error_log("Shift report email sent successfully to: $email_address");
                 } else {
-                    error_log("Failed to send shift report email to: $email_address");
+                    error_log("Failed to send shift report email to: $email_address - " . ($result['error'] ?? 'Unknown error'));
                 }
             }
             

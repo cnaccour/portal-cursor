@@ -110,11 +110,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 'location' => $location,
                 'shift_date' => date('Y-m-d'),
                 'shift_type' => 'Test Shift',
+                'reviews_count' => 5,
+                'shipments' => ['vendor' => 'Test Vendor', 'notes' => 'Test shipment notes'],
                 'refunds_count' => 2,
                 'refunds_amount' => 45.50,
+                'refunds' => [
+                    ['amount' => 25.00, 'reason' => 'Product defect', 'customer' => 'Jane Smith', 'service' => 'Hair color', 'notes' => 'Color did not match expectations'],
+                    ['amount' => 20.50, 'reason' => 'Service issue', 'customer' => 'John Doe', 'service' => 'Haircut', 'notes' => 'Customer not satisfied with length']
+                ],
                 'checklist_completed' => 8,
                 'checklist_total' => 10,
-                'notes' => 'This is a test email to verify the shift report email settings are working correctly.'
+                'checklist' => [
+                    ['label' => 'Count your drawer', 'done' => true],
+                    ['label' => 'Prepare daily cleaning sheet', 'done' => true],
+                    ['label' => 'Clean lobby', 'done' => false],
+                    ['label' => 'Check appointment book', 'done' => true]
+                ],
+                'notes' => 'This is a test email to verify the shift report email settings are working correctly. All systems functioning normally.'
             ]);
             
             file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " Email content generated, attempting to send\n", FILE_APPEND);
@@ -185,6 +197,30 @@ if (isset($_GET['error'])) {
 }
 
 function generateShiftReportEmailHTML($data) {
+    // Build checklist HTML
+    $checklistHTML = '';
+    if (!empty($data['checklist'])) {
+        foreach ($data['checklist'] as $item) {
+            $status = $item['done'] ? '✓' : '✗';
+            $statusClass = $item['done'] ? 'done' : 'pending';
+            $checklistHTML .= '<div class="checklist-item ' . $statusClass . '">' . $status . ' ' . htmlspecialchars($item['label']) . '</div>';
+        }
+    }
+    
+    // Build refunds HTML
+    $refundsHTML = '';
+    if (!empty($data['refunds'])) {
+        foreach ($data['refunds'] as $refund) {
+            $refundsHTML .= '<div class="refund-item">
+                <div class="refund-header">$' . number_format($refund['amount'], 2) . ' - ' . htmlspecialchars($refund['reason']) . '</div>
+                <div class="refund-details">Customer: ' . htmlspecialchars($refund['customer']) . ' | Service: ' . htmlspecialchars($refund['service']) . '</div>';
+            if (!empty($refund['notes'])) {
+                $refundsHTML .= '<div class="refund-notes">Notes: ' . htmlspecialchars($refund['notes']) . '</div>';
+            }
+            $refundsHTML .= '</div>';
+        }
+    }
+    
     return '
     <!DOCTYPE html>
     <html lang="en">
@@ -194,23 +230,33 @@ function generateShiftReportEmailHTML($data) {
         <title>Shift Report - ' . htmlspecialchars($data['location']) . '</title>
         <style>
             body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.5; color: #374151; margin: 0; padding: 20px; background-color: #f9fafb; }
-            .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+            .container { max-width: 700px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
             .header { background: #111827; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
             .header h1 { margin: 0; font-size: 20px; font-weight: 600; }
             .header p { margin: 5px 0 0 0; opacity: 0.8; font-size: 14px; }
             .content { padding: 20px; }
-            .section { margin-bottom: 20px; }
-            .section-title { font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
-            .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-            .info-item { padding: 12px; background: #f9fafb; border-radius: 6px; border-left: 3px solid #111827; }
+            .section { margin-bottom: 25px; }
+            .section-title { font-size: 16px; font-weight: 600; color: #111827; margin-bottom: 12px; border-bottom: 2px solid #e5e7eb; padding-bottom: 5px; }
+            .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px; }
+            .info-item { padding: 12px; background: #f9fafb; border-radius: 6px; border: 1px solid #e5e7eb; }
             .info-label { font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 2px; }
             .info-value { font-size: 14px; font-weight: 500; color: #111827; }
-            .stats-row { display: flex; gap: 15px; margin-bottom: 20px; }
-            .stat-item { flex: 1; text-align: center; padding: 15px; background: #f9fafb; border-radius: 6px; }
+            .stats-row { display: flex; gap: 15px; margin-bottom: 15px; }
+            .stat-item { flex: 1; text-align: center; padding: 15px; background: #f9fafb; border-radius: 6px; border: 1px solid #e5e7eb; }
             .stat-number { font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 2px; }
             .stat-label { font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: 500; }
-            .notes-section { padding: 15px; background: #f9fafb; border-radius: 6px; border-left: 3px solid #111827; }
-            .notes-content { color: #6b7280; line-height: 1.4; margin-top: 5px; }
+            .checklist-item { padding: 8px 0; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
+            .checklist-item.done { color: #059669; }
+            .checklist-item.pending { color: #dc2626; }
+            .refund-item { padding: 12px; background: #fef3c7; border-radius: 6px; margin-bottom: 10px; border: 1px solid #f59e0b; }
+            .refund-header { font-weight: 600; color: #92400e; margin-bottom: 4px; }
+            .refund-details { font-size: 13px; color: #78350f; margin-bottom: 4px; }
+            .refund-notes { font-size: 12px; color: #78350f; font-style: italic; }
+            .shipment-item { padding: 12px; background: #e0f2fe; border-radius: 6px; border: 1px solid #0284c7; }
+            .shipment-label { font-weight: 600; color: #0c4a6e; margin-bottom: 4px; }
+            .shipment-content { font-size: 14px; color: #0c4a6e; }
+            .notes-section { padding: 15px; background: #f9fafb; border-radius: 6px; border: 1px solid #e5e7eb; }
+            .notes-content { color: #374151; line-height: 1.4; }
             .footer { padding: 15px 20px; text-align: center; border-top: 1px solid #e5e7eb; background: #f9fafb; border-radius: 0 0 8px 8px; }
             .footer p { margin: 0; font-size: 12px; color: #6b7280; }
             @media (max-width: 600px) {
@@ -245,24 +291,52 @@ function generateShiftReportEmailHTML($data) {
                     <div class="section-title">Summary</div>
                     <div class="stats-row">
                         <div class="stat-item">
-                            <div class="stat-number">' . $data['checklist_completed'] . '/' . $data['checklist_total'] . '</div>
+                            <div class="stat-number">' . ($data['checklist_completed'] ?? 0) . '/' . ($data['checklist_total'] ?? 0) . '</div>
                             <div class="stat-label">Tasks Completed</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-number">' . $data['refunds_count'] . '</div>
+                            <div class="stat-number">' . ($data['reviews_count'] ?? 0) . '</div>
+                            <div class="stat-label">Customer Reviews</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">' . ($data['refunds_count'] ?? 0) . '</div>
                             <div class="stat-label">Refunds</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-number">$' . number_format($data['refunds_amount'], 2) . '</div>
+                            <div class="stat-number">$' . number_format($data['refunds_amount'] ?? 0, 2) . '</div>
                             <div class="stat-label">Refund Amount</div>
                         </div>
                     </div>
                 </div>
                 
                 <div class="section">
+                    <div class="section-title">Checklist</div>
+                    <div class="checklist-section">
+                        ' . ($checklistHTML ?: '<div class="info-value">No checklist items</div>') . '
+                    </div>
+                </div>
+                
+                ' . (!empty($data['shipments']['vendor']) || !empty($data['shipments']['notes']) ? '
+                <div class="section">
+                    <div class="section-title">Shipments & Deliveries</div>
+                    <div class="shipment-item">
+                        ' . (!empty($data['shipments']['vendor']) ? '<div class="shipment-label">Vendor: <span class="shipment-content">' . htmlspecialchars($data['shipments']['vendor']) . '</span></div>' : '') . '
+                        ' . (!empty($data['shipments']['notes']) ? '<div class="shipment-label">Notes: <span class="shipment-content">' . htmlspecialchars($data['shipments']['notes']) . '</span></div>' : '') . '
+                    </div>
+                </div>
+                ' : '') . '
+                
+                ' . (!empty($refundsHTML) ? '
+                <div class="section">
+                    <div class="section-title">Refunds & Returns</div>
+                    ' . $refundsHTML . '
+                </div>
+                ' : '') . '
+                
+                <div class="section">
                     <div class="section-title">Shift Notes</div>
                     <div class="notes-section">
-                        <div class="notes-content">' . htmlspecialchars($data['notes']) . '</div>
+                        <div class="notes-content">' . htmlspecialchars($data['notes'] ?? 'No additional notes') . '</div>
                     </div>
                 </div>
             </div>
