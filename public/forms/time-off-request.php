@@ -1,5 +1,6 @@
 <?php
 require __DIR__.'/../includes/auth.php';
+require __DIR__.'/../includes/notification-manager.php';
 // Forms are accessible to all users - no login required
 
 // Handle form submission
@@ -124,6 +125,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 // Log email error but don't fail the submission
                 error_log('Email notification error: ' . $email_error->getMessage());
             }
+            
+            // Send notification to managers and admins
+            $user_name = $_SESSION['user_name'] ?? ($first_name . ' ' . $last_name);
+            NotificationManager::notify_roles(['admin', 'manager'], [
+                'type' => 'time_off_request',
+                'title' => 'Time Off Request Submitted',
+                'message' => "$user_name has submitted a time off request for $date_range @ $work_location",
+                'link_url' => '/portal/reports.php',
+                'icon' => 'calendar'
+            ]);
             
             $success = "Your time off request has been submitted successfully! You will be notified when it's reviewed.";
         }

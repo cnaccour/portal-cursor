@@ -1,6 +1,7 @@
 <?php
 require __DIR__.'/../includes/auth.php';
 require __DIR__.'/../includes/shift-report-manager.php';
+require __DIR__.'/../includes/notification-manager.php';
 require_login();
 
 try {
@@ -36,6 +37,19 @@ try {
     $reportId = $shiftManager->saveShiftReport($data);
 
     if ($reportId) {
+        // Get user info for notification
+        $user_name = $_SESSION['user_name'] ?? 'Unknown User';
+        $location = $data['location'] ?? 'Unknown Location';
+        
+        // Send notification to managers and admins
+        NotificationManager::notify_roles(['admin', 'manager'], [
+            'type' => 'shift_report',
+            'title' => 'Shift Report Submitted',
+            'message' => "$user_name has submitted their shift report @ $location",
+            'link_url' => '/portal/reports.php',
+            'icon' => 'clipboard-check'
+        ]);
+        
         // Redirect back to forms page with success flag
         header('Location: /portal/forms.php?ok=1');
         exit;

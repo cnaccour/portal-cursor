@@ -1,5 +1,6 @@
 <?php
 require __DIR__.'/../includes/auth.php';
+require __DIR__.'/../includes/notification-manager.php';
 // Forms are accessible to all users - no login required
 
 // Handle form submission
@@ -196,6 +197,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 			} catch (Exception $email_error) {
 				error_log('Email notification error: ' . $email_error->getMessage());
 			}
+
+			// Send notification to managers and admins
+			$user_name = $_SESSION['user_name'] ?? ($first_name . ' ' . $last_name);
+			NotificationManager::notify_roles(['admin', 'manager'], [
+				'type' => 'bi_weekly_report',
+				'title' => 'Bi-Weekly Report Submitted',
+				'message' => "$user_name has submitted their bi-weekly report for $apprentice_name @ $work_location",
+				'link_url' => '/portal/reports.php',
+				'icon' => 'clipboard-list'
+			]);
 
 			$success = "Your bi-weekly report has been submitted successfully. Thank you!";
 		}
