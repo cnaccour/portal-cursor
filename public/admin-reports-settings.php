@@ -48,12 +48,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             }
             
             $success_message = "Email settings updated successfully for $location";
-            header('Location: admin-reports-settings.php?success=' . urlencode($success_message));
-            exit;
+            // Don't redirect - show success message on same page like test_email
         } catch (Exception $e) {
             $error_message = $e->getMessage();
-            header('Location: admin-reports-settings.php?error=' . urlencode($error_message));
-            exit;
+            // Don't redirect - show error message on same page like test_email
         }
     } elseif ($_POST['action'] === 'delete_setting') {
         try {
@@ -61,12 +59,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $stmt = $pdo->prepare("DELETE FROM shift_report_email_settings WHERE location = ?");
             $stmt->execute([$location]);
             $success_message = "Email settings deleted for $location";
-            header('Location: admin-reports-settings.php?success=' . urlencode($success_message));
-            exit;
+            // Don't redirect - show success message on same page like test_email
         } catch (Exception $e) {
             $error_message = $e->getMessage();
-            header('Location: admin-reports-settings.php?error=' . urlencode($error_message));
-            exit;
+            // Don't redirect - show error message on same page like test_email
         }
     } elseif ($_POST['action'] === 'test_email') {
         file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " ENTERING test_email processing\n", FILE_APPEND);
