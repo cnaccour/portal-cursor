@@ -12,6 +12,11 @@ if (file_exists(__DIR__ . '/../vendor/autoload.php')) {
 function send_smtp_email(string $to, string $subject, string $body, string $altBody = ''): array {
     // Debug: log entry when function is called
     file_put_contents(__DIR__ . '/../smtp_debug.log', date('Y-m-d H:i:s') . " send_smtp_email called with TO=$to\n", FILE_APPEND);
+    try {
+        file_put_contents(__DIR__ . '/../smtp_debug.log', date('Y-m-d H:i:s') . " initializing PHPMailer\n", FILE_APPEND);
+    } catch (Exception $e) {
+        file_put_contents(__DIR__ . '/../smtp_debug.log', date('Y-m-d H:i:s') . " exception before send: " . $e->getMessage() . "\n", FILE_APPEND);
+    }
     if (class_exists('PHPMailer\\PHPMailer\\PHPMailer')) {
         $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
     try {
