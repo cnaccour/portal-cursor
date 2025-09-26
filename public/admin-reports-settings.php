@@ -61,12 +61,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $error_message = $e->getMessage();
         }
     } elseif ($_POST['action'] === 'test_email') {
+        file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " ENTERING test_email processing\n", FILE_APPEND);
+        
         try {
             $location = $_POST['location'] ?? '';
             $test_email = $_POST['test_email'] ?? '';
             
-            // Debug logging
-            error_log("Test email request: location=$location, email=$test_email");
+            file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " Extracted data: location='$location', email='$test_email'\n", FILE_APPEND);
             
             if (empty($location)) {
                 throw new Exception("Location is required");
@@ -80,15 +81,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 throw new Exception("Invalid test email address: $test_email");
             }
             
+            file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " Validation passed, loading Email class\n", FILE_APPEND);
+            
             // Send test email - use same pattern as forgot-password.php
             if (file_exists(__DIR__ . '/lib/Email.php')) {
                 require_once __DIR__ . '/lib/Email.php';
+                file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " Email class loaded from /lib/Email.php\n", FILE_APPEND);
             } elseif (file_exists(__DIR__ . '/../lib/Email.php')) {
                 require_once __DIR__ . '/../lib/Email.php';
+                file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " Email class loaded from /../lib/Email.php\n", FILE_APPEND);
             } else {
                 throw new Exception('Email library not found');
             }
+            
             $email = new Email();
+            file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " Email object created\n", FILE_APPEND);
             
             $subject = "Test Email - Shift Report Settings for $location";
             $html_body = generateShiftReportEmailHTML([
@@ -103,7 +110,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 'notes' => 'This is a test email to verify the shift report email settings are working correctly.'
             ]);
             
+            file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " Email content generated, attempting to send\n", FILE_APPEND);
             $result = $email->send_smtp_email($test_email, $subject, $html_body);
+            file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " Email send result: " . ($result ? 'SUCCESS' : 'FAILED') . "\n", FILE_APPEND);
             
             if ($result) {
                 $success_message = "Test email sent successfully to $test_email";
