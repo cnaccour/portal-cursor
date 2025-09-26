@@ -118,11 +118,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         
         // Redirect to prevent form resubmission
         if (isset($success_message)) {
+            file_put_contents('/tmp/portal_debug.log', date('Y-m-d H:i:s') . " SUCCESS: $success_message\n", FILE_APPEND);
             header('Location: admin-reports-settings.php?success=' . urlencode($success_message));
             exit;
         } elseif (isset($error_message)) {
+            file_put_contents('/tmp/portal_debug.log', date('Y-m-d H:i:s') . " ERROR: $error_message\n", FILE_APPEND);
             header('Location: admin-reports-settings.php?error=' . urlencode($error_message));
             exit;
+        } else {
+            file_put_contents('/tmp/portal_debug.log', date('Y-m-d H:i:s') . " NO MESSAGE SET - this should not happen\n", FILE_APPEND);
         }
     }
 }

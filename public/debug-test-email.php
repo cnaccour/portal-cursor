@@ -54,6 +54,52 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     echo "<pre>";
     print_r($_POST);
     echo "</pre>";
+    
+    // Test the actual email sending process
+    if (isset($_POST['action']) && $_POST['action'] === 'test_email') {
+        echo "<h2>Testing Email Send Process</h2>";
+        try {
+            $location = $_POST['location'] ?? '';
+            $test_email = $_POST['test_email'] ?? '';
+            
+            echo "<p>Location: " . htmlspecialchars($location) . "</p>";
+            echo "<p>Email: " . htmlspecialchars($test_email) . "</p>";
+            
+            if (empty($test_email)) {
+                throw new Exception("Email is required");
+            }
+            
+            if (!filter_var($test_email, FILTER_VALIDATE_EMAIL)) {
+                throw new Exception("Invalid email format");
+            }
+            
+            // Load Email class
+            if (file_exists(__DIR__ . '/lib/Email.php')) {
+                require_once __DIR__ . '/lib/Email.php';
+                echo "<p>✅ Email class loaded</p>";
+            } else {
+                throw new Exception("Email class not found");
+            }
+            
+            $email = new Email();
+            echo "<p>✅ Email object created</p>";
+            
+            $subject = "Test Email - Portal Settings";
+            $body = "<h1>Test Email</h1><p>This is a test email from the portal settings page.</p><p>Location: $location</p>";
+            
+            echo "<p>Attempting to send email...</p>";
+            $result = $email->send_smtp_email($test_email, $subject, $body);
+            
+            if ($result) {
+                echo "<p style='color: green;'>✅ EMAIL SENT SUCCESSFULLY!</p>";
+            } else {
+                echo "<p style='color: red;'>❌ EMAIL FAILED TO SEND</p>";
+            }
+            
+        } catch (Exception $e) {
+            echo "<p style='color: red;'>❌ ERROR: " . htmlspecialchars($e->getMessage()) . "</p>";
+        }
+    }
 }
 
 // Simple test form
