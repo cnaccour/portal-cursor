@@ -293,31 +293,44 @@ function shiftForm() {
       }
       payload.refunds = refunds;
       
-      // Submit the form with the modified data
-      const submitForm = document.createElement('form');
-      submitForm.method = 'POST';
-      submitForm.action = '../api/save-shift-report.php';
-      
-      // Add all form fields
+      // Submit the form with AJAX to prevent redirect
+      const formData = new FormData();
       Object.keys(payload).forEach(key => {
         if (key === 'checklist' || key === 'refunds') {
-          // Add JSON data for complex fields
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = key;
-          input.value = JSON.stringify(payload[key]);
-          submitForm.appendChild(input);
+          formData.append(key, JSON.stringify(payload[key]));
         } else {
-          const input = document.createElement('input');
-          input.type = 'hidden';
-          input.name = key;
-          input.value = payload[key];
-          submitForm.appendChild(input);
+          formData.append(key, payload[key]);
         }
       });
       
-      document.body.appendChild(submitForm);
-      submitForm.submit();
+      // Show loading state
+      const submitBtn = e.target.querySelector('button[type="submit"]');
+      const originalText = submitBtn ? submitBtn.textContent : 'Submit';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Submitting...';
+      }
+      
+      fetch('../api/save-shift-report.php', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => {
+        if (response.ok) {
+          // Redirect to success page
+          window.location.href = '../forms.php?ok=1';
+        } else {
+          throw new Error('Failed to submit shift report');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('Error submitting shift report: ' + error.message);
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = originalText;
+        }
+      });
     }
   }
 }
