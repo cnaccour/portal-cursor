@@ -15,6 +15,8 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
   <style>
     [x-cloak] { display: none !important; }
+    .accent-gold { accent-color: #AF831A; }
+    .accent-gold:focus { outline-color: #AF831A; }
   </style>
   
   <?php if (!empty($_SESSION['user_id'])): ?>

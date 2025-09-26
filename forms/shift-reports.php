@@ -56,7 +56,7 @@ require __DIR__.'/../includes/header.php';
     <ul class="space-y-3">
       <template x-for="(item, idx) in checklist" :key="idx">
         <li class="flex items-start gap-3 p-3 rounded-lg border border-gray-200 hover:bg-gray-50">
-          <input type="checkbox" class="h-5 w-5 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
+          <input type="checkbox" class="h-5 w-5 rounded border-gray-300 text-gray-900 focus:ring-0 accent-gold"
                  :id="'c'+idx" x-model="item.done" @change="calcProgress">
           <label :for="'c'+idx" class="text-sm text-gray-800" x-text="item.label"></label>
           <input type="hidden" :name="'checklist['+idx+']'" :value="item.done ? item.label : ''">
@@ -79,12 +79,12 @@ require __DIR__.'/../includes/header.php';
     <h2 class="text-lg font-semibold mb-4">Shipments &amp; Deliveries</h2>
     <fieldset class="space-y-2">
       <label class="flex items-center gap-2">
-        <input type="radio" class="h-4 w-4 border-gray-300 text-gray-900 focus:ring-gray-900"
+        <input type="radio" class="h-4 w-4 border-gray-300 text-gray-900 focus:ring-0 accent-gold"
                name="shipments" value="yes" @change="v='yes'">
         Yes, shipments were received
       </label>
       <label class="flex items-center gap-2">
-        <input type="radio" class="h-4 w-4 border-gray-300 text-gray-900 focus:ring-gray-900"
+        <input type="radio" class="h-4 w-4 border-gray-300 text-gray-900 focus:ring-0 accent-gold"
                name="shipments" value="no" @change="v='no'">
         No shipments received
       </label>
@@ -111,12 +111,12 @@ require __DIR__.'/../includes/header.php';
 
     <fieldset class="space-y-2 mb-4">
       <label class="flex items-center gap-2">
-        <input type="radio" class="h-4 w-4 border-gray-300 text-gray-900 focus:ring-gray-900"
+        <input type="radio" class="h-4 w-4 border-gray-300 text-gray-900 focus:ring-0 accent-gold"
                name="refunds_toggle" value="yes" @change="active=true">
         Yes, refunds were processed
       </label>
       <label class="flex items-center gap-2">
-        <input type="radio" class="h-4 w-4 border-gray-300 text-gray-900 focus:ring-gray-900"
+        <input type="radio" class="h-4 w-4 border-gray-300 text-gray-900 focus:ring-0 accent-gold"
                name="refunds_toggle" value="no" @change="active=false; refunds=[]; totalCount=0; totalAmount=0">
         No refunds processed
       </label>

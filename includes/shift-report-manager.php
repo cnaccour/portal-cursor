@@ -69,7 +69,7 @@ class ShiftReportManager {
                 user_id, shift_date, shift_type, location, 
                 checklist_data, reviews_count, shipments_data, 
                 refunds_data, notes
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id";
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             
             $stmt = $pdo->prepare($sql);
             $result = $stmt->execute([
@@ -85,7 +85,7 @@ class ShiftReportManager {
             ]);
             
             if ($result) {
-                return $stmt->fetchColumn();
+                return $pdo->lastInsertId();
             }
             
             throw new Exception('Failed to save shift report');
