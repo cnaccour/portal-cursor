@@ -2,6 +2,7 @@
 require __DIR__.'/../includes/auth.php';
 require __DIR__.'/../includes/shift-report-manager.php';
 require __DIR__.'/../includes/notification-manager.php';
+require __DIR__.'/../includes/shift-report-email-manager.php';
 require_login();
 
 try {
@@ -65,6 +66,16 @@ try {
         ]);
         
         error_log("Notification result: " . ($notificationResult ? 'SUCCESS' : 'FAILED'));
+        
+        // Send email notifications based on location
+        $emailManager = ShiftReportEmailManager::getInstance();
+        $emailData = array_merge($data, [
+            'user_name' => $user_name,
+            'report_id' => $reportId
+        ]);
+        
+        $emailResult = $emailManager->sendShiftReportNotifications($emailData);
+        error_log("Email notification result: " . ($emailResult ? 'SUCCESS' : 'FAILED'));
         
         // Redirect back to forms page with success flag
         header('Location: /portal/forms.php?ok=1');

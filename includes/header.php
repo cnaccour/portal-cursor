@@ -337,6 +337,12 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
                   </svg>
                   Reports
                 </a>
+                <a href="<?= file_exists('admin-shift-report-settings.php') ? 'admin-shift-report-settings.php' : '../admin-shift-report-settings.php' ?>" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                  <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                  </svg>
+                  Shift Report Email Settings
+                </a>
                 <a href="<?= file_exists('admin.php') ? 'admin.php' : '../admin.php' ?>" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                   <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
@@ -473,6 +479,14 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
               </svg>
               Reports
+            </a>
+            <a href="<?= file_exists('admin-shift-report-settings.php') ? 'admin-shift-report-settings.php' : '../admin-shift-report-settings.php' ?>" 
+               @click="mobileMenuOpen = false"
+               class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+              </svg>
+              Shift Report Email Settings
             </a>
             <a href="<?= file_exists('admin.php') ? 'admin.php' : '../admin.php' ?>" 
                @click="mobileMenuOpen = false"
