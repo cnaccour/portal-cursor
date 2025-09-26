@@ -94,8 +94,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 throw new Exception('Email library not found');
             }
             
-            $email = new Email();
-            file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " Email object created\n", FILE_APPEND);
+            file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " Email functions loaded, preparing email\n", FILE_APPEND);
             
             $subject = "Test Email - Shift Report Settings for $location";
             $html_body = generateShiftReportEmailHTML([
@@ -111,16 +110,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             ]);
             
             file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " Email content generated, attempting to send\n", FILE_APPEND);
-            $result = $email->send_smtp_email($test_email, $subject, $html_body);
-            file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " Email send result: " . ($result ? 'SUCCESS' : 'FAILED') . "\n", FILE_APPEND);
+            $result = send_smtp_email($test_email, $subject, $html_body);
+            file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " Email send result: " . print_r($result, true) . "\n", FILE_APPEND);
             
-            if ($result) {
+            if ($result['success']) {
                 $success_message = "Test email sent successfully to $test_email";
                 // Log success for debugging
                 error_log("Test email sent successfully to $test_email for location $location");
             } else {
-                $error_message = "Failed to send test email - SMTP error occurred";
-                error_log("Failed to send test email to $test_email for location $location");
+                $error_message = "Failed to send test email: " . ($result['error'] ?? 'Unknown error');
+                error_log("Failed to send test email to $test_email for location $location: " . ($result['error'] ?? 'Unknown error'));
             }
         } catch (Exception $e) {
             $error_message = "Error sending test email: " . $e->getMessage();
