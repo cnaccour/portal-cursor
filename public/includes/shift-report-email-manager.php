@@ -50,10 +50,26 @@ class ShiftReportEmailManager {
             file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Generated subject: $subject\n", FILE_APPEND);
             
             // Include the comprehensive email template function
-            require_once __DIR__ . '/../public/admin-reports-settings.php';
-            $html_body = generateShiftReportEmailHTML($shiftData);
-            error_log("ShiftReportEmailManager: Generated email body length: " . strlen($html_body));
-            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Generated email body length: " . strlen($html_body) . "\n", FILE_APPEND);
+            try {
+                require_once __DIR__ . '/../public/admin-reports-settings.php';
+                error_log("ShiftReportEmailManager: About to generate email template");
+                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: About to generate email template\n", FILE_APPEND);
+                
+                $html_body = generateShiftReportEmailHTML($shiftData);
+                error_log("ShiftReportEmailManager: Generated email body length: " . strlen($html_body));
+                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Generated email body length: " . strlen($html_body) . "\n", FILE_APPEND);
+            } catch (Exception $e) {
+                error_log("ShiftReportEmailManager: Error generating email template: " . $e->getMessage());
+                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Error generating email template: " . $e->getMessage() . "\n", FILE_APPEND);
+                
+                // Fallback to simple email template
+                error_log("ShiftReportEmailManager: Using fallback email template");
+                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Using fallback email template\n", FILE_APPEND);
+                
+                $html_body = $this->generateSimpleEmailTemplate($shiftData);
+                error_log("ShiftReportEmailManager: Generated fallback email body length: " . strlen($html_body));
+                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Generated fallback email body length: " . strlen($html_body) . "\n", FILE_APPEND);
+            }
             
             // Send emails - use same pattern as working forgot-password.php
             if (file_exists(__DIR__ . '/../public/lib/Email.php')) {
@@ -111,6 +127,48 @@ class ShiftReportEmailManager {
         }
     }
     
+    /**
+     * Generate simple fallback email template
+     */
+    private function generateSimpleEmailTemplate($data) {
+        $location = htmlspecialchars($data['location'] ?? 'Unknown Location');
+        $user_name = htmlspecialchars($data['user_name'] ?? 'Unknown User');
+        $shift_date = htmlspecialchars($data['shift_date'] ?? 'Unknown Date');
+        $shift_type = htmlspecialchars($data['shift_type'] ?? 'Unknown Type');
+        $notes = htmlspecialchars($data['notes'] ?? 'No additional notes');
+        
+        return "
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset='UTF-8'>
+            <title>Shift Report - $location</title>
+        </head>
+        <body style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+            <div style='max-width: 600px; margin: 0 auto; padding: 20px;'>
+                <h1 style='color: #111827; border-bottom: 2px solid #e5e7eb; padding-bottom: 10px;'>Shift Report Submitted</h1>
+                
+                <div style='background: #f9fafb; padding: 15px; border-radius: 6px; margin: 20px 0;'>
+                    <h2 style='margin-top: 0; color: #111827;'>Shift Information</h2>
+                    <p><strong>Employee:</strong> $user_name</p>
+                    <p><strong>Location:</strong> $location</p>
+                    <p><strong>Date:</strong> $shift_date</p>
+                    <p><strong>Type:</strong> $shift_type</p>
+                </div>
+                
+                <div style='background: #f9fafb; padding: 15px; border-radius: 6px; margin: 20px 0;'>
+                    <h2 style='margin-top: 0; color: #111827;'>Shift Notes</h2>
+                    <p>$notes</p>
+                </div>
+                
+                <div style='text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 12px;'>
+                    J. Joseph Salon Portal - Automated Notification
+                </div>
+            </div>
+        </body>
+        </html>";
+    }
+
     /**
      * Generate HTML email template for shift report
      */
