@@ -650,6 +650,50 @@ function closeTestModal() {
     document.getElementById('testModal').classList.add('hidden');
 }
 
+// Show success message
+function showSuccessMessage(message) {
+    const banner = document.createElement('div');
+    banner.className = 'fixed top-4 right-4 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg shadow-lg z-50';
+    banner.innerHTML = `
+        <div class="flex items-center">
+            <svg class="w-5 h-5 text-green-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="font-medium">${message}</span>
+        </div>
+    `;
+    document.body.appendChild(banner);
+    
+    // Auto-remove after 3 seconds
+    setTimeout(() => {
+        if (banner.parentNode) {
+            banner.parentNode.removeChild(banner);
+        }
+    }, 3000);
+}
+
+// Show error message
+function showErrorMessage(message) {
+    const banner = document.createElement('div');
+    banner.className = 'fixed top-4 right-4 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg shadow-lg z-50';
+    banner.innerHTML = `
+        <div class="flex items-center">
+            <svg class="w-5 h-5 text-red-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
+            </svg>
+            <span class="font-medium">${message}</span>
+        </div>
+    `;
+    document.body.appendChild(banner);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (banner.parentNode) {
+            banner.parentNode.removeChild(banner);
+        }
+    }, 5000);
+}
+
 // Add event listeners when page loads
 document.addEventListener('DOMContentLoaded', function() {
     // Test email buttons
@@ -698,16 +742,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     try {
                         const result = JSON.parse(responseText);
                         if (result.success) {
+                            // Show success message
+                            showSuccessMessage(result.message);
                             // Close modal and reload page to show updated data
                             closeEditModal();
-                            window.location.reload();
+                            setTimeout(() => {
+                                window.location.reload();
+                            }, 1500); // Give time to see the success message
                         } else {
-                            alert('Error: ' + result.message);
+                            showErrorMessage(result.message);
                         }
                     } catch (parseError) {
                         console.error('JSON parse error:', parseError);
                         console.error('Response was:', responseText);
-                        alert('Server returned invalid response. Check console for details.');
+                        showErrorMessage('Server returned invalid response. Check console for details.');
                     }
                 } else {
                     throw new Error('Failed to save changes');
