@@ -333,14 +333,16 @@ function generateShiftReportEmailHTML($data) {
                             
                             <div class="flex flex-wrap items-center gap-2">
                                 <!-- Test Email Button -->
-                                <button onclick="openTestModal(<?= json_encode($setting['location']) ?>)" 
-                                        class="px-3 py-1 text-xs font-medium text-blue-600 hover:text-blue-800 border border-blue-300 rounded hover:bg-blue-50 transition-colors">
+                                <button class="test-email-btn px-3 py-1 text-xs font-medium text-blue-600 hover:text-blue-800 border border-blue-300 rounded hover:bg-blue-50 transition-colors"
+                                        data-location="<?= htmlspecialchars($setting['location']) ?>">
                                     Test Email
                                 </button>
                                 
                                 <!-- Edit Button -->
-                                <button onclick="openEditModal(<?= json_encode($setting['location']) ?>, <?= json_encode($setting['email_addresses']) ?>, <?= $setting['is_active'] ? 'true' : 'false' ?>)" 
-                                        class="px-3 py-1 text-xs font-medium text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
+                                <button class="edit-btn px-3 py-1 text-xs font-medium text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                                        data-location="<?= htmlspecialchars($setting['location']) ?>"
+                                        data-emails="<?= htmlspecialchars($setting['email_addresses']) ?>"
+                                        data-active="<?= $setting['is_active'] ? '1' : '0' ?>">
                                     Edit
                                 </button>
                                 
@@ -464,7 +466,7 @@ function openEditModal(location, emails, isActive) {
     } catch (e) {
         document.getElementById('editEmails').value = emails;
     }
-    document.getElementById('editIsActive').checked = isActive;
+    document.getElementById('editIsActive').checked = (isActive === true || isActive === '1' || isActive === 1);
     document.getElementById('editModal').classList.remove('hidden');
 }
 
@@ -481,13 +483,34 @@ function closeTestModal() {
     document.getElementById('testModal').classList.add('hidden');
 }
 
-// Close modals when clicking outside
-document.getElementById('editModal').addEventListener('click', function(e) {
-    if (e.target === this) closeEditModal();
-});
+// Add event listeners when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Test email buttons
+    document.querySelectorAll('.test-email-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const location = this.getAttribute('data-location');
+            openTestModal(location);
+        });
+    });
+    
+    // Edit buttons
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const location = this.getAttribute('data-location');
+            const emails = this.getAttribute('data-emails');
+            const isActive = this.getAttribute('data-active') === '1';
+            openEditModal(location, emails, isActive);
+        });
+    });
+    
+    // Close modals when clicking outside
+    document.getElementById('editModal').addEventListener('click', function(e) {
+        if (e.target === this) closeEditModal();
+    });
 
-document.getElementById('testModal').addEventListener('click', function(e) {
-    if (e.target === this) closeTestModal();
+    document.getElementById('testModal').addEventListener('click', function(e) {
+        if (e.target === this) closeTestModal();
+    });
 });
 </script>
 
