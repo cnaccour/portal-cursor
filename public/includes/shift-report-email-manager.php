@@ -143,14 +143,118 @@ class ShiftReportEmailManager {
     }
     
     /**
-     * Generate simple working email template
+     * Generate complete email template with all fields
      */
     private function generateSimpleEmailTemplate($data) {
+        // Basic data
         $location = htmlspecialchars($data['location'] ?? 'Unknown Location');
         $user_name = htmlspecialchars($data['user_name'] ?? 'Unknown User');
         $shift_date = htmlspecialchars($data['shift_date'] ?? 'Unknown Date');
         $shift_type = htmlspecialchars($data['shift_type'] ?? 'Unknown Type');
         $notes = htmlspecialchars($data['notes'] ?? 'No additional notes');
+        
+        // Process checklist data safely
+        $checklist = [];
+        if (isset($data['checklist'])) {
+            if (is_string($data['checklist'])) {
+                $checklist = json_decode($data['checklist'], true) ?? [];
+            } else {
+                $checklist = $data['checklist'] ?? [];
+            }
+        }
+        
+        // Process refunds data safely
+        $refunds = [];
+        if (isset($data['refunds'])) {
+            if (is_string($data['refunds'])) {
+                $refunds = json_decode($data['refunds'], true) ?? [];
+            } else {
+                $refunds = $data['refunds'] ?? [];
+            }
+        }
+        
+        // Process shipments data safely
+        $shipments = [];
+        if (isset($data['shipments'])) {
+            if (is_string($data['shipments'])) {
+                $shipments = json_decode($data['shipments'], true) ?? [];
+            } else {
+                $shipments = $data['shipments'] ?? [];
+            }
+        }
+        
+        // Process reviews data safely
+        $reviews = [];
+        if (isset($data['reviews'])) {
+            if (is_string($data['reviews'])) {
+                $reviews = json_decode($data['reviews'], true) ?? [];
+            } else {
+                $reviews = $data['reviews'] ?? [];
+            }
+        }
+        
+        // Build sections
+        $checklist_html = '';
+        if (!empty($checklist)) {
+            $checklist_html = '<div class="section">
+                <div class="section-title">Checklist Items</div>';
+            foreach ($checklist as $item) {
+                $task = htmlspecialchars($item['task'] ?? $item['label'] ?? 'Unknown Task');
+                $completed = $item['completed'] ?? $item['done'] ?? false;
+                $status = $completed ? 'Completed' : 'Not Completed';
+                $status_class = $completed ? 'completed' : 'pending';
+                $checklist_html .= '<div class="checklist-item ' . $status_class . '">' . $task . ' - ' . $status . '</div>';
+            }
+            $checklist_html .= '</div>';
+        }
+        
+        $refunds_html = '';
+        if (!empty($refunds)) {
+            $refunds_html = '<div class="section">
+                <div class="section-title">Refunds</div>';
+            foreach ($refunds as $refund) {
+                $amount = htmlspecialchars($refund['amount'] ?? '0');
+                $customer = htmlspecialchars($refund['customer'] ?? 'Unknown');
+                $service = htmlspecialchars($refund['service'] ?? 'Unknown');
+                $reason = htmlspecialchars($refund['reason'] ?? 'Unknown');
+                $refunds_html .= '<div class="refund-item">
+                    <strong>$' . $amount . '</strong> - ' . $reason . '<br>
+                    Customer: ' . $customer . ' | Service: ' . $service . '
+                </div>';
+            }
+            $refunds_html .= '</div>';
+        }
+        
+        $shipments_html = '';
+        if (!empty($shipments)) {
+            $shipments_html = '<div class="section">
+                <div class="section-title">Shipments</div>';
+            foreach ($shipments as $shipment) {
+                $tracking = htmlspecialchars($shipment['tracking'] ?? 'N/A');
+                $carrier = htmlspecialchars($shipment['carrier'] ?? 'N/A');
+                $status = htmlspecialchars($shipment['status'] ?? 'N/A');
+                $shipments_html .= '<div class="shipment-item">
+                    Tracking: ' . $tracking . ' | Carrier: ' . $carrier . ' | Status: ' . $status . '
+                </div>';
+            }
+            $shipments_html .= '</div>';
+        }
+        
+        $reviews_html = '';
+        if (!empty($reviews)) {
+            $reviews_html = '<div class="section">
+                <div class="section-title">Reviews</div>';
+            foreach ($reviews as $review) {
+                $platform = htmlspecialchars($review['platform'] ?? 'Unknown');
+                $rating = htmlspecialchars($review['rating'] ?? 'Unknown');
+                $comment = htmlspecialchars($review['comment'] ?? 'No comment');
+                $reviews_html .= '<div class="review-item">
+                    <strong>' . $platform . '</strong> - ' . $rating . '<br>
+                    ' . $comment . '
+                </div>';
+            }
+            $reviews_html .= '</div>';
+        }
         
         return '<!DOCTYPE html>
         <html>
@@ -169,6 +273,12 @@ class ShiftReportEmailManager {
                 .info-item { padding: 10px; background: #f9fafb; border-radius: 6px; margin-bottom: 10px; }
                 .info-label { font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 2px; }
                 .info-value { font-size: 14px; font-weight: 500; color: #111827; }
+                .checklist-item { padding: 8px 0; border-bottom: 1px solid #f3f4f6; }
+                .checklist-item.completed { color: #059669; }
+                .checklist-item.pending { color: #dc2626; }
+                .refund-item { padding: 10px; background: #fef3c7; border-radius: 6px; margin-bottom: 10px; border: 1px solid #f59e0b; }
+                .shipment-item { padding: 10px; background: #e0f2fe; border-radius: 6px; margin-bottom: 10px; border: 1px solid #0284c7; }
+                .review-item { padding: 10px; background: #f0fdf4; border-radius: 6px; margin-bottom: 10px; border: 1px solid #16a34a; }
                 .notes-section { padding: 15px; background: #f9fafb; border-radius: 6px; }
                 .footer { padding: 15px 20px; text-align: center; border-top: 1px solid #e5e7eb; background: #f9fafb; border-radius: 0 0 8px 8px; }
                 .footer p { margin: 0; font-size: 12px; color: #6b7280; }
@@ -202,8 +312,13 @@ class ShiftReportEmailManager {
                         </div>
                     </div>
                     
+                    ' . $checklist_html . '
+                    ' . $refunds_html . '
+                    ' . $shipments_html . '
+                    ' . $reviews_html . '
+                    
                     <div class="section">
-                        <div class="section-title">Notes</div>
+                        <div class="section-title">Additional Notes</div>
                         <div class="notes-section">
                             <p>' . $notes . '</p>
                         </div>
