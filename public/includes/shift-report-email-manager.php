@@ -56,9 +56,19 @@ class ShiftReportEmailManager {
             error_log("ShiftReportEmailManager: About to generate email template");
             file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: About to generate email template\n", FILE_APPEND);
             
-            $html_body = $this->generateSimpleEmailTemplate($shiftData);
-            error_log("ShiftReportEmailManager: Generated email body length: " . strlen($html_body));
-            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Generated email body length: " . strlen($html_body) . "\n", FILE_APPEND);
+            try {
+                $html_body = $this->generateSimpleEmailTemplate($shiftData);
+                error_log("ShiftReportEmailManager: Generated email body length: " . strlen($html_body));
+                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Generated email body length: " . strlen($html_body) . "\n", FILE_APPEND);
+            } catch (Exception $e) {
+                error_log("ShiftReportEmailManager: Error generating email template: " . $e->getMessage());
+                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Error generating email template: " . $e->getMessage() . "\n", FILE_APPEND);
+                
+                // Use a very simple fallback template
+                $html_body = '<html><body><h1>Shift Report - ' . htmlspecialchars($shiftData['location'] ?? 'Unknown') . '</h1><p>Employee: ' . htmlspecialchars($shiftData['user_name'] ?? 'Unknown') . '</p><p>Date: ' . htmlspecialchars($shiftData['shift_date'] ?? 'Unknown') . '</p><p>Notes: ' . htmlspecialchars($shiftData['notes'] ?? 'No notes') . '</p></body></html>';
+                error_log("ShiftReportEmailManager: Using fallback template, length: " . strlen($html_body));
+                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Using fallback template, length: " . strlen($html_body) . "\n", FILE_APPEND);
+            }
             
             // Send emails - use same pattern as working forgot-password.php
             if (file_exists(__DIR__ . '/../public/lib/Email.php')) {
