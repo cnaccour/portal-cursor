@@ -9,8 +9,8 @@ class NotificationManager {
     private $use_mock = true; // Switch to false when real database is available
     
     private function __construct() {
-        // Force use of database since we know it's working
-        $this->use_mock = false;
+        // Check if we should use real database or mock
+        $this->use_mock = !$this->isDatabaseAvailable();
     }
     
     public static function getInstance() {
@@ -30,6 +30,7 @@ class NotificationManager {
             global $pdo;
             
             if (!$pdo) {
+                error_log('NotificationManager: PDO not available');
                 return false;
             }
             
@@ -42,9 +43,10 @@ class NotificationManager {
             $stmt->execute();
             $userNotificationsExists = true;
             
+            error_log('NotificationManager: Database available, using real database');
             return $notificationsExists && $userNotificationsExists;
         } catch (Exception $e) {
-            error_log('Database availability check failed: ' . $e->getMessage());
+            error_log('NotificationManager: Database availability check failed: ' . $e->getMessage());
             return false;
         }
     }
