@@ -292,15 +292,15 @@ function generateShiftReportEmailHTML($data) {
             <label for="is_active" class="ml-2 text-sm text-gray-700">Enable email notifications for this location</label>
         </div>
         
-        <?php if (!empty($available_locations)): ?>
-            <button type="submit" 
-                    class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                </svg>
-                Add Setting
-            </button>
-        <?php endif; ?>
+        <button type="submit" 
+                <?php if (empty($available_locations)): ?>disabled<?php endif; ?>
+                class="inline-flex items-center px-4 py-2 <?= empty($available_locations) ? 'bg-gray-400 cursor-not-allowed' : 'bg-yellow-600 hover:bg-yellow-700' ?> text-white rounded-lg transition-colors"
+                style="background: green !important; color: white !important; border: 2px solid black;">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+            </svg>
+            <?= empty($available_locations) ? 'All Locations Configured' : 'Add Setting' ?>
+        </button>
     </form>
 </div>
 
@@ -398,13 +398,15 @@ function generateShiftReportEmailHTML($data) {
                         </div>
                     </div>
                     
-                    <div class="flex justify-end gap-3 mt-6">
+                    <div class="flex justify-end gap-3 mt-6" style="border: 1px solid red; padding: 10px;">
                         <button type="button" onclick="closeEditModal()" 
-                                class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                                style="background: blue; color: white;">
                             Cancel
                         </button>
                         <button type="submit" 
-                                class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors">
+                                class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors"
+                                style="background: red; color: white;">
                             Update
                         </button>
                     </div>
