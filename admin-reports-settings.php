@@ -197,7 +197,18 @@ function generateShiftReportEmailHTML($data) {
 ?>
 
 <div class="mb-6">
-    <h1 class="text-2xl font-semibold">Shift Report Email Settings</h1>
+    <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
+        <a href="admin.php" class="hover:text-gray-700">Admin Tools</a>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+        <a href="reports.php" class="hover:text-gray-700">Reports</a>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+        <span class="text-gray-900">Settings</span>
+    </div>
+    <h1 class="text-2xl font-semibold">Reports Settings</h1>
     <p class="text-gray-600 mt-2">Configure automatic email notifications for shift reports by location.</p>
 </div>
 
