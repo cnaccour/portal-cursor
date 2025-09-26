@@ -25,8 +25,11 @@ class ShiftReportEmailManager {
      */
     public function sendShiftReportNotifications($shiftData) {
         try {
+            error_log("ShiftReportEmailManager: Processing shift report for location: " . $shiftData['location']);
+            
             // Get email settings for the location
             $settings = $this->getEmailSettingsForLocation($shiftData['location']);
+            error_log("ShiftReportEmailManager: Settings found: " . print_r($settings, true));
             
             if (empty($settings) || !$settings['is_active']) {
                 error_log("No active email settings found for location: " . $shiftData['location']);
@@ -41,8 +44,10 @@ class ShiftReportEmailManager {
             
             // Generate email content
             $subject = "Shift Report - " . $shiftData['location'] . " (" . $shiftData['shift_date'] . ")";
-            require_once __DIR__ . '/email-templates.php';
-            $html_body = buildShiftReportEmailHTML($shiftData);
+            
+            // Include the comprehensive email template function
+            require_once __DIR__ . '/../public/admin-reports-settings.php';
+            $html_body = generateShiftReportEmailHTML($shiftData);
             
             // Send emails - use same pattern as working forgot-password.php
             if (file_exists(__DIR__ . '/../public/lib/Email.php')) {
@@ -58,7 +63,9 @@ class ShiftReportEmailManager {
             $total_count = count($email_addresses);
             
             foreach ($email_addresses as $email_address) {
+                error_log("ShiftReportEmailManager: Attempting to send email to: $email_address");
                 $result = send_smtp_email($email_address, $subject, $html_body);
+                error_log("ShiftReportEmailManager: Email send result: " . print_r($result, true));
                 if ($result['success']) {
                     $success_count++;
                     error_log("Shift report email sent successfully to: $email_address");

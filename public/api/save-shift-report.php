@@ -68,12 +68,14 @@ try {
         error_log("Notification result: " . ($notificationResult ? 'SUCCESS' : 'FAILED'));
         
         // Send email notifications based on location
+        error_log("Attempting to send email notifications for location: $location");
         $emailManager = ShiftReportEmailManager::getInstance();
         $emailData = array_merge($data, [
             'user_name' => $user_name,
             'report_id' => $reportId
         ]);
         
+        error_log("Email data being sent: " . print_r($emailData, true));
         $emailResult = $emailManager->sendShiftReportNotifications($emailData);
         error_log("Email notification result: " . ($emailResult ? 'SUCCESS' : 'FAILED'));
         
