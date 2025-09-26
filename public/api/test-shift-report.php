@@ -3,9 +3,10 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-echo "Test 1: Basic PHP working\n";
+// Don't output anything before including files that start sessions
 
 try {
+    echo "Test 1: Basic PHP working\n";
     echo "Test 2: Including auth.php\n";
     require __DIR__.'/../includes/auth.php';
     echo "Test 3: Auth included successfully\n";

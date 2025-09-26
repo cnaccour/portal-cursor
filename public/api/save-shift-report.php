@@ -2,7 +2,7 @@
 require __DIR__.'/../includes/auth.php';
 require __DIR__.'/../includes/shift-report-manager.php';
 require __DIR__.'/../includes/notification-manager.php';
-require __DIR__.'/../includes/shift-report-email-manager.php';
+require __DIR__.'/../../includes/shift-report-email-manager.php';
 require_login();
 
 try {
