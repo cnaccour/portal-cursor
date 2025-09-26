@@ -77,8 +77,8 @@ exit;
         <?php
         require_once __DIR__ . '/includes/shift-report-manager.php';
         $shiftManager = ShiftReportManager::getInstance();
-        // Get the latest 5 reports
-        $recentReports = $shiftManager->getShiftReports(['limit' => 5]);
+        // Get the latest 3 reports
+        $recentReports = $shiftManager->getShiftReports(['limit' => 3]);
         
         if (empty($recentReports)) {
           echo "<div class='text-center py-8 text-gray-500'>";
