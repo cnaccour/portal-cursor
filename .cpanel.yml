@@ -5,6 +5,6 @@ deployment:
     - /bin/rsync -av --delete ./public/ $DEPLOYPATH/
     - /bin/rsync -av --delete ./attached_assets/ $DEPLOYPATH/attached_assets/
     - /bin/rsync -av --delete ./assets/ $DEPLOYPATH/assets/
-    - /bin/rsync -av --delete ./public/lib/ $DEPLOYPATH/lib/
+    - /bin/rsync -av --delete ./lib/ $DEPLOYPATH/lib/
     - /bin/rsync -av --delete ./vendor/ $DEPLOYPATH/vendor/
     - /bin/rsync -av --delete ./.htaccess $DEPLOYPATH/.htaccess
