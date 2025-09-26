@@ -47,6 +47,25 @@ require __DIR__.'/includes/header.php';
     </div>
   </a>
 
+  <!-- Bi-Weekly Report -->
+  <a href="forms/bi-weekly-report.php" class="group block bg-white rounded-lg border border-gray-200 hover:border-gray-300 hover:shadow-md transition-all duration-200 p-6">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-lg font-semibold text-gray-900 group-hover:text-gray-700">Bi-Weekly Report</h3>
+      <svg class="w-5 h-5" fill="none" stroke="#AF831A" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M5 11h14M5 19h14M7 11v8m10-8v8"/>
+      </svg>
+    </div>
+    <p class="text-gray-600 text-sm">Submit the manager’s bi-weekly report for apprentices, including ratings and feedback.</p>
+    <div class="mt-4">
+      <div class="inline-flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg text-sm font-medium group-hover:bg-gray-800 transition-colors">
+        <span>Open form</span>
+        <svg class="w-4 h-4 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </div>
+    </div>
+  </a>
+
 </div>
 
 <?php require __DIR__.'/includes/footer.php'; ?>
