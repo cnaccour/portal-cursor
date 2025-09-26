@@ -58,5 +58,6 @@ function send_smtp_email(string $to, string $subject, string $body, string $altB
         }
     }
     // No PHPMailer available
+    file_put_contents('/home/portaljjosephsal/public_html/portal/smtp_debug.log', date('Y-m-d H:i:s') . " PHPMailer not available on server\n", FILE_APPEND);
     return ['success' => false, 'error' => 'PHPMailer not available'];
 }
