@@ -49,6 +49,10 @@ bash scripts/db_migrate.sh
 ```
 If framework migrations exist, run `scripts/db_framework_migrate.sh`.
 
+Note:
+- `database/migrations/099_dev_mock_users.sql` is development-only seed data. Do not run it on cPanel/production.
+- For cPanel deploys we rely on `db/schema.sql` (idempotent). The numbered files are for reference or local dev.
+
 ## Permissions
 ```bash
 find ~/public_html -type d -exec chmod 755 {} \;
