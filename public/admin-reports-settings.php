@@ -184,6 +184,15 @@ try {
 // Available locations for dropdown (not yet configured)
 $available_locations = array_diff($predefined_locations, $existing_locations);
 
+// Always show debug info for now to troubleshoot
+echo '<div class="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">';
+echo '<h3 class="font-semibold text-yellow-800 mb-2">Debug Info:</h3>';
+echo '<p><strong>Predefined locations:</strong> ' . implode(', ', $predefined_locations) . '</p>';
+echo '<p><strong>Existing locations:</strong> ' . implode(', ', $existing_locations) . '</p>';
+echo '<p><strong>Available locations:</strong> ' . implode(', ', $available_locations) . '</p>';
+echo '<p><strong>Count:</strong> ' . count($available_locations) . ' available</p>';
+echo '</div>';
+
 // Handle URL parameters for success/error messages
 if (isset($_GET['success'])) {
     $success_message = $_GET['success'];
