@@ -41,10 +41,8 @@ class ShiftReportEmailManager {
             
             // Generate email content
             $subject = "Shift Report - " . $shiftData['location'] . " (" . $shiftData['shift_date'] . ")";
-            
-            // Include the comprehensive email template function
-            require_once __DIR__ . '/../public/admin-reports-settings.php';
-            $html_body = generateShiftReportEmailHTML($shiftData);
+            require_once __DIR__ . '/email-templates.php';
+            $html_body = buildShiftReportEmailHTML($shiftData);
             
             // Send emails - use same pattern as working forgot-password.php
             if (file_exists(__DIR__ . '/../public/lib/Email.php')) {

@@ -217,6 +217,8 @@ if (isset($_GET['error'])) {
     $error_message = $_GET['error'];
 }
 
+require_once __DIR__ . '/../includes/email-templates.php';
+
 function generateShiftReportEmailHTML($data) {
     // Build checklist HTML
     $checklistHTML = '';
