@@ -198,11 +198,11 @@ class ShiftReportEmailManager {
             }
         }
         
-        // If reviews is not an array, it might be a single review object or just a count
+        // If reviews is not an array, it might be just a count
         if (!is_array($reviews) && !empty($reviews)) {
-            // If it's just a number, create a placeholder review
+            // If it's just a number, create a simple count entry
             if (is_numeric($reviews)) {
-                $reviews = [['platform' => 'Multiple Platforms', 'rating' => 'Various', 'comment' => 'Total reviews: ' . $reviews]];
+                $reviews = [['platform' => 'Reviews', 'rating' => $reviews, 'comment' => 'Total reviews received']];
             } else {
                 $reviews = [$reviews];
             }
@@ -255,6 +255,10 @@ class ShiftReportEmailManager {
             $shipments_html = '<div class="section">
                 <div class="section-title">Shipments</div>';
             foreach ($shipments as $shipment) {
+                // Debug each shipment
+                error_log("ShiftReportEmailManager: Processing shipment: " . print_r($shipment, true));
+                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Processing shipment: " . print_r($shipment, true) . "\n", FILE_APPEND);
+                
                 $status = htmlspecialchars($shipment['status'] ?? 'N/A');
                 $vendor = htmlspecialchars($shipment['vendor'] ?? 'N/A');
                 $notes = htmlspecialchars($shipment['notes'] ?? 'N/A');
