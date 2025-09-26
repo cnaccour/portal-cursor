@@ -1,6 +1,6 @@
 <?php
 require __DIR__.'/includes/auth.php';
-require __DIR__.'/includes/header.php';
+// Defer header include until after POST handling to allow clean JSON responses for AJAX
 
 // Ensure user is admin
 if ($_SESSION['role'] !== 'admin') {
@@ -158,7 +158,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         // Don't redirect for test email - show message on same page
         // Only redirect for other actions to prevent form resubmission
     }
+    // If this was an AJAX request but somehow no exit happened above, ensure no header is printed later
+    if (!empty($_POST['ajax'])) {
+        header('Content-Type: application/json');
+        echo json_encode(['success' => false, 'message' => 'Unhandled request']);
+        exit;
+    }
 }
+
+// Now safe to include header for normal page render
+require __DIR__.'/includes/header.php';
 
 // Get all settings
 $settings = [];
