@@ -55,12 +55,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             }
             
             $success_message = "Email settings updated successfully for $location";
-            header('Location: admin-reports-settings.php?success=' . urlencode($success_message));
-            exit;
+            if (!empty($_POST['ajax'])) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => true, 'message' => $success_message]);
+                exit;
+            }
         } catch (Exception $e) {
             $error_message = $e->getMessage();
-            header('Location: admin-reports-settings.php?error=' . urlencode($error_message));
-            exit;
+            if (!empty($_POST['ajax'])) {
+                header('Content-Type: application/json');
+                echo json_encode(['success' => false, 'message' => $error_message]);
+                exit;
+            }
         }
     } elseif ($_POST['action'] === 'delete_setting') {
         try {
@@ -68,12 +74,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $stmt = $pdo->prepare("DELETE FROM shift_report_email_settings WHERE location = ?");
             $stmt->execute([$location]);
             $success_message = "Email settings deleted for $location";
-            header('Location: admin-reports-settings.php?success=' . urlencode($success_message));
-            exit;
         } catch (Exception $e) {
             $error_message = $e->getMessage();
-            header('Location: admin-reports-settings.php?error=' . urlencode($error_message));
-            exit;
         }
     } elseif ($_POST['action'] === 'test_email') {
         file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " ENTERING test_email processing\n", FILE_APPEND);
@@ -461,6 +463,7 @@ function generateShiftReportEmailHTML($data) {
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Edit Email Settings</h3>
                 <form method="POST" action="admin-reports-settings.php" id="editForm">
                     <input type="hidden" name="action" value="update_settings">
+                    <input type="hidden" name="ajax" value="1">
                     <input type="hidden" name="location" id="editLocation">
                     
                     <div class="space-y-4">
@@ -483,7 +486,7 @@ function generateShiftReportEmailHTML($data) {
                                 class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                             Cancel
                         </button>
-                        <button type="submit" 
+                        <button type="submit" id="editSubmit"
                                 class="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">
                             Save Changes
                         </button>
@@ -534,6 +537,14 @@ function generateShiftReportEmailHTML($data) {
 </div>
 
 <script>
+// Inline success/error banner
+function showBanner(ok, msg) {
+    const box = document.createElement('div');
+    box.className = `mb-6 p-4 ${ok ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'} rounded-lg`;
+    box.innerHTML = `<div class="flex items-center"><span class="text-sm ${ok ? 'text-green-800' : 'text-red-800'} font-medium">${msg}</span></div>`;
+    const header = document.querySelector('h1.text-2xl');
+    if (header) header.parentNode.insertBefore(box, header.nextSibling);
+}
 function openEditModal(location, emails, isActive) {
     document.getElementById('editLocation').value = location;
     // Parse JSON emails and convert back to comma-separated string
@@ -562,6 +573,42 @@ function closeTestModal() {
 
 // Add event listeners when page loads
 document.addEventListener('DOMContentLoaded', function() {
+    // AJAX submit for edit form to avoid redirects
+    const editForm = document.getElementById('editForm');
+    if (editForm) {
+        editForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('editSubmit');
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving...'; }
+            try {
+                const resp = await fetch('admin-reports-settings.php', { method: 'POST', body: new FormData(editForm) });
+                const data = await resp.json().catch(() => ({}));
+                if (data && data.success) {
+                    closeEditModal();
+                    showBanner(true, data.message || 'Updated successfully');
+                    // Update visible emails inline
+                    const loc = document.getElementById('editLocation').value;
+                    const emails = document.getElementById('editEmails').value;
+                    document.querySelectorAll('[data-location]')
+                        .forEach(btn => {
+                            if (btn.getAttribute('data-location') === loc) {
+                                const card = btn.closest('.border');
+                                if (card) {
+                                    const target = card.querySelector('strong + *');
+                                    if (target) target.textContent = emails;
+                                }
+                            }
+                        });
+                } else {
+                    showBanner(false, (data && data.message) || 'Failed to update');
+                }
+            } catch (err) {
+                showBanner(false, 'Network error while saving');
+            } finally {
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Save Changes'; }
+            }
+        });
+    }
     // Toggle Other location input in Add form
     const sel = document.getElementById('addLocationSelect');
     const other = document.getElementById('addLocationOther');
