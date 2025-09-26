@@ -8,13 +8,15 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>JJS Team Portal</title>
-  <link rel="icon" href="favicon.ico">
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" href="/portal/favicon.ico">
+  <link rel="stylesheet" href="/portal/assets/css/tailwind.css">
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
   <style>
     [x-cloak] { display: none !important; }
+    .accent-gold { accent-color: #AF831A; }
+    .accent-gold:focus { outline-color: #AF831A; }
   </style>
   
   <?php if (!empty($_SESSION['user_id'])): ?>
@@ -29,7 +31,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
   <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
     <!-- Logo - icon only on mobile, with text on desktop -->
     <a href="<?= file_exists('dashboard.php') ? './' : '../' ?>" class="flex items-center gap-3">
-      <img src="../assets/images/logo.png" alt="J. Joseph Salon Logo" class="h-10 w-auto" onerror="this.src='/assets/images/logo.png'">
+      <img src="/portal/assets/images/logo.png" alt="J. Joseph Salon Logo" class="h-10 w-auto">
       <div class="hidden md:block">
         <div class="leading-tight">
           <span class="font-semibold text-gray-900">JJS</span>
@@ -89,7 +91,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
           async loadNotifications() {
             this.loading = true;
             try {
-              const response = await fetch('/api/notifications.php');
+              const response = await fetch('/portal/api/notifications.php');
               if (response.ok) {
                 const data = await response.json();
                 if (data.success) {
@@ -124,7 +126,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             try {
               // Mark as read if not already read
               if (!notification.is_read) {
-                const response = await fetch('/api/notifications/mark-read.php', {
+                const response = await fetch('/portal/api/notifications/mark-read.php', {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
@@ -159,7 +161,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
           
           async clearAllNotifications() {
             try {
-              const response = await fetch('/api/notifications/clear-all.php', {
+              const response = await fetch('/portal/api/notifications/clear-all.php', {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
