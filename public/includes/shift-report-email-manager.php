@@ -54,7 +54,17 @@ class ShiftReportEmailManager {
                 error_log("ShiftReportEmailManager: About to include admin-reports-settings.php");
                 file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: About to include admin-reports-settings.php\n", FILE_APPEND);
                 
-                require_once __DIR__ . '/../admin-reports-settings.php';
+                $admin_reports_file = __DIR__ . '/../admin-reports-settings.php';
+                error_log("ShiftReportEmailManager: Checking if file exists: $admin_reports_file");
+                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Checking if file exists: $admin_reports_file\n", FILE_APPEND);
+                
+                if (!file_exists($admin_reports_file)) {
+                    error_log("ShiftReportEmailManager: File does not exist: $admin_reports_file");
+                    file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: File does not exist: $admin_reports_file\n", FILE_APPEND);
+                    throw new Exception("admin-reports-settings.php file not found at: $admin_reports_file");
+                }
+                
+                require_once $admin_reports_file;
                 error_log("ShiftReportEmailManager: admin-reports-settings.php included successfully");
                 file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: admin-reports-settings.php included successfully\n", FILE_APPEND);
                 
