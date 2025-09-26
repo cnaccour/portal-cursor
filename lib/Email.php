@@ -42,13 +42,15 @@ function send_smtp_email(string $to, string $subject, string $body, string $altB
             $mail->isHTML(true);
             $mail->Body = $body;
             if ($altBody !== '') { $mail->AltBody = $altBody; }
-            if (!$mail->send()) {
+            file_put_contents('/home/portaljjosephsal/public_html/portal/smtp_debug.log', date('Y-m-d H:i:s') . " about to call ->send()\n", FILE_APPEND);
+            $ok = $mail->send();
+            file_put_contents('/home/portaljjosephsal/public_html/portal/smtp_debug.log', date('Y-m-d H:i:s') . " finished ->send()\n", FILE_APPEND);
+            if (!$ok) {
                 file_put_contents('/home/portaljjosephsal/public_html/portal/smtp_debug.log', date('Y-m-d H:i:s') . " send failed: " . $mail->ErrorInfo . "\n", FILE_APPEND);
                 return ['success' => false, 'error' => $mail->ErrorInfo];
-            } else {
-                file_put_contents('/home/portaljjosephsal/public_html/portal/smtp_debug.log', date('Y-m-d H:i:s') . " send succeeded\n", FILE_APPEND);
-                return ['success' => true];
             }
+            file_put_contents('/home/portaljjosephsal/public_html/portal/smtp_debug.log', date('Y-m-d H:i:s') . " send succeeded\n", FILE_APPEND);
+            return ['success' => true];
         } catch (\Throwable $e) {
             $err = method_exists($mail ?? null, 'ErrorInfo') ? ($mail->ErrorInfo ?: $e->getMessage()) : $e->getMessage();
             file_put_contents('/home/portaljjosephsal/public_html/portal/smtp_debug.log', date('Y-m-d H:i:s') . " exception: $err\n", FILE_APPEND);
