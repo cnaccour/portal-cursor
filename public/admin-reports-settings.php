@@ -10,6 +10,11 @@ if ($_SESSION['role'] !== 'admin') {
 
 require_once __DIR__ . '/includes/db.php';
 
+// Debug: Log all POST requests
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    file_put_contents('/tmp/portal_debug.log', date('Y-m-d H:i:s') . " POST: " . print_r($_POST, true) . "\n", FILE_APPEND);
+}
+
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'update_settings') {
