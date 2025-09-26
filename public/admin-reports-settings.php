@@ -1,6 +1,6 @@
 <?php
 require __DIR__.'/includes/auth.php';
-// Defer header include until after POST handling to allow clean JSON responses for AJAX
+require __DIR__.'/includes/header.php';
 
 // Ensure user is admin
 if ($_SESSION['role'] !== 'admin') {
@@ -22,13 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     if ($_POST['action'] === 'update_settings') {
         try {
             $location = $_POST['location'];
-            if ($location === '__other__') {
-                $location_other = trim($_POST['location_other'] ?? '');
-                if ($location_other === '') {
-                    throw new Exception('Please enter a location name');
-                }
-                $location = $location_other;
-            }
             $emails = $_POST['emails'];
             $is_active = isset($_POST['is_active']) ? 1 : 0;
             
@@ -55,18 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             }
             
             $success_message = "Email settings updated successfully for $location";
-            if (!empty($_POST['ajax'])) {
-                header('Content-Type: application/json');
-                echo json_encode(['success' => true, 'message' => $success_message, 'location' => $location, 'emails' => implode(', ', $email_array), 'active' => (bool)$is_active]);
-                exit;
-            }
+            header('Location: admin-reports-settings.php?success=' . urlencode($success_message));
+            exit;
         } catch (Exception $e) {
             $error_message = $e->getMessage();
-            if (!empty($_POST['ajax'])) {
-                header('Content-Type: application/json');
-                echo json_encode(['success' => false, 'message' => $error_message]);
-                exit;
-            }
+            header('Location: admin-reports-settings.php?error=' . urlencode($error_message));
+            exit;
         }
     } elseif ($_POST['action'] === 'delete_setting') {
         try {
@@ -74,8 +61,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $stmt = $pdo->prepare("DELETE FROM shift_report_email_settings WHERE location = ?");
             $stmt->execute([$location]);
             $success_message = "Email settings deleted for $location";
+            header('Location: admin-reports-settings.php?success=' . urlencode($success_message));
+            exit;
         } catch (Exception $e) {
             $error_message = $e->getMessage();
+            header('Location: admin-reports-settings.php?error=' . urlencode($error_message));
+            exit;
         }
     } elseif ($_POST['action'] === 'test_email') {
         file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " ENTERING test_email processing\n", FILE_APPEND);
@@ -158,16 +149,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         // Don't redirect for test email - show message on same page
         // Only redirect for other actions to prevent form resubmission
     }
-    // If this was an AJAX request but somehow no exit happened above, ensure no header is printed later
-    if (!empty($_POST['ajax'])) {
-        header('Content-Type: application/json');
-        echo json_encode(['success' => false, 'message' => 'Unhandled request']);
-        exit;
-    }
 }
-
-// Now safe to include header for normal page render
-require __DIR__.'/includes/header.php';
 
 // Get all settings
 $settings = [];
@@ -178,36 +160,33 @@ try {
     $error_message = "Error loading settings: " . $e->getMessage();
 }
 
-// Canonical list of salon locations (match Shift Report form)
-$canonical_locations = [
-    "Lutz",
-    "Land O’ Lakes",
-    "Citrus Park",
-    "Odessa",
-    "Wesley Chapel",
+// Predefined locations - match exactly what's in shift reports
+$predefined_locations = [
+    'Land O\' Lakes',
+    'Odessa', 
+    'Citrus Park',
+    'Tampa Bay',
+    'Corporate Office'
 ];
 
-// Build quick lookup of existing settings by location
-$locationToSetting = [];
-foreach ($settings as $s) {
-    $locationToSetting[$s['location']] = $s;
+// Debug: show what we have
+if (isset($_GET['debug'])) {
+    echo '<pre>Predefined: '; print_r($predefined_locations); echo '</pre>';
+    echo '<pre>Existing: '; print_r($existing_locations); echo '</pre>';
+    echo '<pre>Available: '; print_r($available_locations); echo '</pre>';
 }
 
-// Create unified display list for exactly 5 locations
-$settings_display = [];
-foreach ($canonical_locations as $loc) {
-    if (isset($locationToSetting[$loc])) {
-        $settings_display[] = $locationToSetting[$loc];
-    } else {
-        // Prepare default placeholder (insert will occur on first save)
-        $settings_display[] = [
-            'location' => $loc,
-            'email_addresses' => json_encode([]),
-            'is_active' => 1,
-            'updated_at' => null,
-        ];
-    }
+// Get locations that already have settings
+$existing_locations = [];
+try {
+    $stmt = $pdo->query("SELECT location FROM shift_report_email_settings ORDER BY location");
+    $existing_locations = $stmt->fetchAll(PDO::FETCH_COLUMN);
+} catch (Exception $e) {
+    // Ignore error, will use empty array
 }
+
+// Available locations for dropdown (not yet configured)
+$available_locations = array_diff($predefined_locations, $existing_locations);
 
 // Handle URL parameters for success/error messages
 if (isset($_GET['success'])) {
@@ -216,8 +195,6 @@ if (isset($_GET['success'])) {
 if (isset($_GET['error'])) {
     $error_message = $_GET['error'];
 }
-
-require_once __DIR__ . '/../includes/email-templates.php';
 
 function generateShiftReportEmailHTML($data) {
     // Build checklist HTML
@@ -411,6 +388,58 @@ function generateShiftReportEmailHTML($data) {
     </div>
 <?php endif; ?>
 
+<!-- Add New Setting -->
+<div class="bg-white rounded-xl border shadow-sm p-6 mb-6">
+    <h2 class="text-lg font-semibold text-gray-900 mb-4">Add New Location Setting</h2>
+    <form method="POST" class="space-y-4">
+        <input type="hidden" name="action" value="update_settings">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
+                <?php if (!empty($available_locations)): ?>
+                    <select name="location" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500">
+                        <option value="">Select a location...</option>
+                        <?php foreach ($available_locations as $location): ?>
+                            <option value="<?= htmlspecialchars($location) ?>"><?= htmlspecialchars($location) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                <?php else: ?>
+                    <div class="w-full px-3 py-2 border border-gray-200 rounded-lg bg-gray-50 text-gray-500">
+                        All locations have been configured
+                    </div>
+                <?php endif; ?>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Email Addresses</label>
+                <input type="text" name="emails" required 
+                       class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500"
+                       placeholder="email1@example.com, email2@example.com">
+                <p class="text-xs text-gray-500 mt-1">Separate multiple emails with commas</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center">
+            <input type="checkbox" name="is_active" id="is_active" checked 
+                   class="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded">
+            <label for="is_active" class="ml-2 text-sm text-gray-700">Enable email notifications for this location</label>
+        </div>
+        
+        <div class="flex justify-end">
+            <button type="submit" 
+                    <?php if (empty($available_locations)): ?>disabled<?php endif; ?>
+                    class="w-full sm:w-auto inline-flex items-center justify-center px-4 py-2 <?= empty($available_locations) ? 'bg-gray-400 cursor-not-allowed' : 'bg-gray-900 hover:bg-gray-800' ?> text-white rounded-lg transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                <?= empty($available_locations) ? 'All Locations Configured' : 'Add Setting' ?>
+            </button>
+        </div>
+    </form>
+</div>
+
 <!-- Existing Settings -->
 <div class="bg-white rounded-xl border shadow-sm">
     <div class="p-6 border-b border-gray-100">
@@ -418,7 +447,7 @@ function generateShiftReportEmailHTML($data) {
     </div>
     
     <div class="p-6">
-        <?php if (empty($settings_display)): ?>
+        <?php if (empty($settings)): ?>
             <div class="text-center py-8 text-gray-500">
                 <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
@@ -427,7 +456,7 @@ function generateShiftReportEmailHTML($data) {
             </div>
         <?php else: ?>
             <div class="space-y-4">
-                <?php foreach ($settings_display as $setting): ?>
+                <?php foreach ($settings as $setting): ?>
                     <div class="border border-gray-200 rounded-lg p-4">
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
                             <div class="flex items-center gap-3">
@@ -438,24 +467,38 @@ function generateShiftReportEmailHTML($data) {
                             </div>
                             
                             <div class="flex flex-wrap items-center gap-2">
-                                <!-- Edit Button only -->
+                                <!-- Test Email Button -->
+                                <button class="test-email-btn px-3 py-1 text-xs font-medium text-blue-600 hover:text-blue-800 border border-blue-300 rounded hover:bg-blue-50 transition-colors"
+                                        data-location="<?= htmlspecialchars($setting['location']) ?>">
+                                    Test Email
+                                </button>
+                                
+                                <!-- Edit Button -->
                                 <button class="edit-btn px-3 py-1 text-xs font-medium text-gray-600 hover:text-gray-800 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
                                         data-location="<?= htmlspecialchars($setting['location']) ?>"
                                         data-emails="<?= htmlspecialchars($setting['email_addresses']) ?>"
                                         data-active="<?= $setting['is_active'] ? '1' : '0' ?>">
                                     Edit
                                 </button>
+                                
+                                <!-- Delete Button -->
+                                <form method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete email settings for <?= htmlspecialchars($setting['location']) ?>?')">
+                                    <input type="hidden" name="action" value="delete_setting">
+                                    <input type="hidden" name="location" value="<?= htmlspecialchars($setting['location']) ?>">
+                                    <button type="submit" 
+                                            class="px-3 py-1 text-xs font-medium text-red-600 hover:text-red-800 border border-red-300 rounded hover:bg-red-50 transition-colors">
+                                        Delete
+                                    </button>
+                                </form>
                             </div>
                         </div>
                         
                         <div class="text-sm text-gray-600">
                             <strong>Email Addresses:</strong>
-                            <span class="emails-text">
                             <?php 
                             $emails = json_decode($setting['email_addresses'], true) ?: [];
                             echo htmlspecialchars(implode(', ', $emails));
                             ?>
-                            </span>
                         </div>
                         
                         <div class="text-xs text-gray-500 mt-2">
@@ -476,7 +519,6 @@ function generateShiftReportEmailHTML($data) {
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Edit Email Settings</h3>
                 <form method="POST" action="admin-reports-settings.php" id="editForm">
                     <input type="hidden" name="action" value="update_settings">
-                    <input type="hidden" name="ajax" value="1">
                     <input type="hidden" name="location" id="editLocation">
                     
                     <div class="space-y-4">
@@ -499,7 +541,7 @@ function generateShiftReportEmailHTML($data) {
                                 class="px-4 py-2 text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                             Cancel
                         </button>
-                        <button type="submit" id="editSubmit"
+                        <button type="submit" 
                                 class="px-4 py-2 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors">
                             Save Changes
                         </button>
@@ -550,14 +592,6 @@ function generateShiftReportEmailHTML($data) {
 </div>
 
 <script>
-// Inline success/error banner
-function showBanner(ok, msg) {
-    const box = document.createElement('div');
-    box.className = `mb-6 p-4 ${ok ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'} rounded-lg`;
-    box.innerHTML = `<div class="flex items-center"><span class="text-sm ${ok ? 'text-green-800' : 'text-red-800'} font-medium">${msg}</span></div>`;
-    const header = document.querySelector('h1.text-2xl');
-    if (header) header.parentNode.insertBefore(box, header.nextSibling);
-}
 function openEditModal(location, emails, isActive) {
     document.getElementById('editLocation').value = location;
     // Parse JSON emails and convert back to comma-separated string
@@ -586,56 +620,14 @@ function closeTestModal() {
 
 // Add event listeners when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    // AJAX submit for edit form to avoid redirects
-    const editForm = document.getElementById('editForm');
-    if (editForm) {
-        editForm.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const submitBtn = document.getElementById('editSubmit');
-            if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Saving...'; }
-            try {
-                const resp = await fetch('admin-reports-settings.php', { method: 'POST', body: new FormData(editForm) });
-                const data = await resp.json().catch(() => ({}));
-                if (data && data.success) {
-                    closeEditModal();
-                    showBanner(true, data.message || 'Updated successfully');
-                    // Update visible emails inline
-                    const loc = document.getElementById('editLocation').value;
-                    const emails = document.getElementById('editEmails').value;
-                    document.querySelectorAll('[data-location]')
-                        .forEach(btn => {
-                            if (btn.getAttribute('data-location') === loc) {
-                                const card = btn.closest('.border');
-                                if (card) {
-                                    const target = card.querySelector('.emails-text');
-                                    if (target) target.textContent = emails;
-                                }
-                            }
-                        });
-                } else {
-                    showBanner(false, (data && data.message) || 'Failed to update');
-                }
-            } catch (err) {
-                showBanner(false, 'Network error while saving');
-            } finally {
-                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Save Changes'; }
-            }
+    // Test email buttons
+    document.querySelectorAll('.test-email-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const location = this.getAttribute('data-location');
+            openTestModal(location);
         });
-    }
-    // Toggle Other location input in Add form
-    const sel = document.getElementById('addLocationSelect');
-    const other = document.getElementById('addLocationOther');
-    if (sel && other) {
-        sel.addEventListener('change', function() {
-            if (this.value === '__other__') {
-                other.classList.remove('hidden');
-                other.required = true;
-            } else {
-                other.classList.add('hidden');
-                other.required = false;
-            }
-        });
-    }
+    });
+    
     // Edit buttons
     document.querySelectorAll('.edit-btn').forEach(button => {
         button.addEventListener('click', function() {
