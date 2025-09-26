@@ -9,8 +9,9 @@ class NotificationManager {
     private $use_mock = true; // Switch to false when real database is available
     
     private function __construct() {
-        // Check if we should use real database or mock
-        $this->use_mock = !$this->isDatabaseAvailable();
+        // Force database mode since we know it's working
+        $this->use_mock = false;
+        error_log('NotificationManager: Forced to use database mode');
     }
     
     public static function getInstance() {
