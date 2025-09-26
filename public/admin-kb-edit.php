@@ -5,6 +5,7 @@ require_role('admin');
 
 $article = null;
 $isEdit = false;
+$isTemplateArticle = false;
 
 // Check if editing existing article
 if (isset($_GET['id'])) {
@@ -16,6 +17,7 @@ if (isset($_GET['id'])) {
         
         if ($article) {
             $isEdit = true;
+            $isTemplateArticle = ($article['slug'] ?? '') === 'email-setup-instructions';
             // Parse tags if they exist
             if (!empty($article['tags'])) {
                 $tags = json_decode($article['tags'], true);
@@ -302,13 +304,21 @@ require __DIR__.'/includes/header.php';
                 </button>
             </div>
         </div>
+        <?php if ($isTemplateArticle): ?>
+        <div class="mb-4 p-4 rounded-lg border border-amber-200 bg-amber-50 text-amber-900 text-sm">
+            This article uses a fixed template: <code class="px-1 py-0.5 bg-white border rounded">public/templates/email-setup-article.php</code>.
+            Edit that file to change what appears on the site. You can still update settings (status, category, print/sections) here.
+        </div>
+        <?php endif; ?>
         
         <div class="editor-container" id="editor-container">
             <div id="editor-toolbar">
                 <!-- Quill toolbar will be inserted here -->
             </div>
             <div id="editor" style="min-height: 400px;">
-                <?= $article['content'] ?? '' ?>
+                <?= $isTemplateArticle 
+                    ? '<p class="text-gray-500">Template-backed article. Edit <code>public/templates/email-setup-article.php</code> to change site content. Editor content here is optional and not displayed.</p>' 
+                    : ($article['content'] ?? '') ?>
             </div>
             <textarea id="html-editor"
                       class="w-full p-4 border border-gray-300 rounded-lg font-mono text-sm"
