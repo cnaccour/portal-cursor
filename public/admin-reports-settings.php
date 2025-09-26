@@ -48,8 +48,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             }
             
             $success_message = "Email settings updated successfully for $location";
+            header('Location: admin-reports-settings.php?success=' . urlencode($success_message));
+            exit;
         } catch (Exception $e) {
             $error_message = $e->getMessage();
+            header('Location: admin-reports-settings.php?error=' . urlencode($error_message));
+            exit;
         }
     } elseif ($_POST['action'] === 'delete_setting') {
         try {
@@ -57,8 +61,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             $stmt = $pdo->prepare("DELETE FROM shift_report_email_settings WHERE location = ?");
             $stmt->execute([$location]);
             $success_message = "Email settings deleted for $location";
+            header('Location: admin-reports-settings.php?success=' . urlencode($success_message));
+            exit;
         } catch (Exception $e) {
             $error_message = $e->getMessage();
+            header('Location: admin-reports-settings.php?error=' . urlencode($error_message));
+            exit;
         }
     } elseif ($_POST['action'] === 'test_email') {
         file_put_contents(__DIR__ . '/debug.log', date('Y-m-d H:i:s') . " ENTERING test_email processing\n", FILE_APPEND);
@@ -126,24 +134,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             error_log("Test email error: " . $e->getMessage());
         }
         
-        // Redirect to prevent form resubmission
-        if (isset($success_message)) {
-            $debug_msg = date('Y-m-d H:i:s') . " SUCCESS: $success_message\n";
-            file_put_contents(__DIR__ . '/debug.log', $debug_msg, FILE_APPEND);
-            file_put_contents('/tmp/portal_debug.log', $debug_msg, FILE_APPEND);
-            header('Location: admin-reports-settings.php?success=' . urlencode($success_message));
-            exit;
-        } elseif (isset($error_message)) {
-            $debug_msg = date('Y-m-d H:i:s') . " ERROR: $error_message\n";
-            file_put_contents(__DIR__ . '/debug.log', $debug_msg, FILE_APPEND);
-            file_put_contents('/tmp/portal_debug.log', $debug_msg, FILE_APPEND);
-            header('Location: admin-reports-settings.php?error=' . urlencode($error_message));
-            exit;
-        } else {
-            $debug_msg = date('Y-m-d H:i:s') . " NO MESSAGE SET - this should not happen\n";
-            file_put_contents(__DIR__ . '/debug.log', $debug_msg, FILE_APPEND);
-            file_put_contents('/tmp/portal_debug.log', $debug_msg, FILE_APPEND);
-        }
+        // Don't redirect for test email - show message on same page
+        // Only redirect for other actions to prevent form resubmission
     }
 }
 
@@ -201,76 +193,82 @@ function generateShiftReportEmailHTML($data) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Shift Report - ' . htmlspecialchars($data['location']) . '</title>
         <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.6; color: #333; margin: 0; padding: 0; background-color: #f8f9fa; }
-            .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; }
-            .header { background: linear-gradient(135deg, #AF831A 0%, #8B6914 100%); color: white; padding: 30px; text-align: center; }
-            .header h1 { margin: 0; font-size: 24px; font-weight: 600; }
-            .header p { margin: 8px 0 0 0; opacity: 0.9; font-size: 16px; }
-            .content { padding: 30px; }
-            .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 25px; }
-            .info-item { background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #AF831A; }
-            .info-label { font-size: 12px; text-transform: uppercase; font-weight: 600; color: #6b7280; margin-bottom: 4px; }
-            .info-value { font-size: 16px; font-weight: 500; color: #111827; }
-            .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-bottom: 25px; }
-            .stat-item { text-align: center; padding: 20px; background: #f8f9fa; border-radius: 8px; }
-            .stat-number { font-size: 24px; font-weight: 700; color: #AF831A; margin-bottom: 4px; }
-            .stat-label { font-size: 12px; text-transform: uppercase; color: #6b7280; font-weight: 500; }
-            .notes-section { background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 25px; }
-            .notes-label { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px; }
-            .notes-content { color: #6b7280; line-height: 1.5; }
-            .footer { background: #f8f9fa; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb; }
-            .footer p { margin: 0; font-size: 14px; color: #6b7280; }
-            .badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; }
-            .badge-success { background: #d1fae5; color: #065f46; }
-            .badge-warning { background: #fef3c7; color: #92400e; }
+            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height: 1.5; color: #374151; margin: 0; padding: 20px; background-color: #f9fafb; }
+            .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+            .header { background: #111827; color: white; padding: 20px; border-radius: 8px 8px 0 0; }
+            .header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+            .header p { margin: 5px 0 0 0; opacity: 0.8; font-size: 14px; }
+            .content { padding: 20px; }
+            .section { margin-bottom: 20px; }
+            .section-title { font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+            .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+            .info-item { padding: 12px; background: #f9fafb; border-radius: 6px; border-left: 3px solid #111827; }
+            .info-label { font-size: 12px; font-weight: 500; color: #6b7280; margin-bottom: 2px; }
+            .info-value { font-size: 14px; font-weight: 500; color: #111827; }
+            .stats-row { display: flex; gap: 15px; margin-bottom: 20px; }
+            .stat-item { flex: 1; text-align: center; padding: 15px; background: #f9fafb; border-radius: 6px; }
+            .stat-number { font-size: 18px; font-weight: 600; color: #111827; margin-bottom: 2px; }
+            .stat-label { font-size: 11px; text-transform: uppercase; color: #6b7280; font-weight: 500; }
+            .notes-section { padding: 15px; background: #f9fafb; border-radius: 6px; border-left: 3px solid #111827; }
+            .notes-content { color: #6b7280; line-height: 1.4; margin-top: 5px; }
+            .footer { padding: 15px 20px; text-align: center; border-top: 1px solid #e5e7eb; background: #f9fafb; border-radius: 0 0 8px 8px; }
+            .footer p { margin: 0; font-size: 12px; color: #6b7280; }
             @media (max-width: 600px) {
                 .info-grid { grid-template-columns: 1fr; }
-                .stats-grid { grid-template-columns: repeat(2, 1fr); }
+                .stats-row { flex-direction: column; }
             }
         </style>
     </head>
     <body>
         <div class="container">
             <div class="header">
-                <h1>📋 Shift Report Submitted</h1>
-                <p>' . htmlspecialchars($data['location']) . ' • ' . htmlspecialchars($data['shift_date']) . '</p>
+                <h1>Shift Report Submitted</h1>
+                <p>' . htmlspecialchars($data['location']) . ' - ' . htmlspecialchars($data['shift_date']) . '</p>
             </div>
             
             <div class="content">
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="info-label">Employee</div>
-                        <div class="info-value">' . htmlspecialchars($data['user_name']) . '</div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-label">Shift Type</div>
-                        <div class="info-value">' . htmlspecialchars($data['shift_type']) . '</div>
-                    </div>
-                </div>
-                
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-number">' . $data['checklist_completed'] . '/' . $data['checklist_total'] . '</div>
-                        <div class="stat-label">Tasks Completed</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">' . $data['refunds_count'] . '</div>
-                        <div class="stat-label">Refunds</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">$' . number_format($data['refunds_amount'], 2) . '</div>
-                        <div class="stat-label">Refund Amount</div>
+                <div class="section">
+                    <div class="section-title">Shift Information</div>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-label">Employee</div>
+                            <div class="info-value">' . htmlspecialchars($data['user_name']) . '</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Shift Type</div>
+                            <div class="info-value">' . htmlspecialchars($data['shift_type']) . '</div>
+                        </div>
                     </div>
                 </div>
                 
-                <div class="notes-section">
-                    <div class="notes-label">📝 Shift Notes</div>
-                    <div class="notes-content">' . htmlspecialchars($data['notes']) . '</div>
+                <div class="section">
+                    <div class="section-title">Summary</div>
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <div class="stat-number">' . $data['checklist_completed'] . '/' . $data['checklist_total'] . '</div>
+                            <div class="stat-label">Tasks Completed</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">' . $data['refunds_count'] . '</div>
+                            <div class="stat-label">Refunds</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">$' . number_format($data['refunds_amount'], 2) . '</div>
+                            <div class="stat-label">Refund Amount</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">Shift Notes</div>
+                    <div class="notes-section">
+                        <div class="notes-content">' . htmlspecialchars($data['notes']) . '</div>
+                    </div>
                 </div>
             </div>
             
             <div class="footer">
-                <p>This is an automated notification from the J. Joseph Salon Portal</p>
+                <p>J. Joseph Salon Portal - Automated Notification</p>
             </div>
         </div>
     </body>
