@@ -59,7 +59,6 @@ require __DIR__.'/../includes/header.php';
           <input type="checkbox" class="h-5 w-5 rounded border-gray-300 text-gray-900 focus:ring-gray-900"
                  :id="'c'+idx" x-model="item.done" @change="calcProgress">
           <label :for="'c'+idx" class="text-sm text-gray-800" x-text="item.label"></label>
-          <input type="hidden" :name="'checklist['+idx+']'" :value="item.done ? item.label : ''">
         </li>
       </template>
     </ul>
@@ -258,14 +257,42 @@ function shiftForm() {
       this.progress = total > 0 ? Math.round((done/total)*100) : 0;
     },
     preparePayload(e) {
+      e.preventDefault();
+      
       const form = new FormData(e.target);
       const payload = Object.fromEntries(form.entries());
+      
       // Store complete checklist with status instead of just checked items
       payload.checklist = this.checklist;
       payload.refunds = (this.refunds || []).filter(r =>
         r.amount || r.reason || r.customer || r.service || r.notes
       );
-      this.jsonPayload = JSON.stringify(payload);
+      
+      // Submit the form with the modified data
+      const submitForm = document.createElement('form');
+      submitForm.method = 'POST';
+      submitForm.action = '../api/save-shift-report.php';
+      
+      // Add all form fields
+      Object.keys(payload).forEach(key => {
+        if (key === 'checklist' || key === 'refunds') {
+          // Add JSON data for complex fields
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = JSON.stringify(payload[key]);
+          submitForm.appendChild(input);
+        } else {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = payload[key];
+          submitForm.appendChild(input);
+        }
+      });
+      
+      document.body.appendChild(submitForm);
+      submitForm.submit();
     }
   }
 }

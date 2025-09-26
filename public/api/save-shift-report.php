@@ -5,8 +5,18 @@ require __DIR__.'/../includes/notification-manager.php';
 require_login();
 
 try {
-    // Filter refunds to remove empty entries
+    // Handle JSON data for checklist and refunds
+    $checklist = $_POST['checklist'] ?? [];
+    if (is_string($checklist)) {
+        $checklist = json_decode($checklist, true) ?? [];
+    }
+    
     $refunds = $_POST['refunds'] ?? [];
+    if (is_string($refunds)) {
+        $refunds = json_decode($refunds, true) ?? [];
+    }
+    
+    // Filter refunds to remove empty entries
     $refunds = array_filter($refunds, function($r) {
         return !empty($r['amount']) || !empty($r['reason']) || !empty($r['customer']) || !empty($r['service']) || !empty($r['notes']);
     });
@@ -16,7 +26,7 @@ try {
         'shift_date' => $_POST['shift_date'] ?? date('Y-m-d'),
         'shift_type' => $_POST['shift_type'] ?? 'morning',
         'location'   => $_POST['location'] ?? '',
-        'checklist'  => $_POST['checklist'] ?? [],
+        'checklist'  => $checklist,
         'reviews'    => $_POST['reviews_count'] ?? 0,
         'shipments'  => [
             'status' => $_POST['shipments'] ?? 'no',
