@@ -123,7 +123,7 @@ class ShiftReportEmailManager {
     }
     
     /**
-     * Generate simple fallback email template
+     * Generate detailed email template
      */
     private function generateSimpleEmailTemplate($data) {
         $location = htmlspecialchars($data['location'] ?? 'Unknown Location');
@@ -131,6 +131,82 @@ class ShiftReportEmailManager {
         $shift_date = htmlspecialchars($data['shift_date'] ?? 'Unknown Date');
         $shift_type = htmlspecialchars($data['shift_type'] ?? 'Unknown Type');
         $notes = htmlspecialchars($data['notes'] ?? 'No additional notes');
+        
+        // Process checklist data
+        $checklist = $data['checklist'] ?? [];
+        if (is_string($checklist)) {
+            $checklist = json_decode($checklist, true) ?? [];
+        }
+        
+        // Process refunds data
+        $refunds = $data['refunds'] ?? [];
+        if (is_string($refunds)) {
+            $refunds = json_decode($refunds, true) ?? [];
+        }
+        
+        // Process shipments data
+        $shipments = $data['shipments'] ?? [];
+        if (is_string($shipments)) {
+            $shipments = json_decode($shipments, true) ?? [];
+        }
+        
+        // Process reviews data
+        $reviews = $data['reviews'] ?? [];
+        if (is_string($reviews)) {
+            $reviews = json_decode($reviews, true) ?? [];
+        }
+        
+        // Build checklist HTML
+        $checklist_html = '';
+        if (!empty($checklist)) {
+            $checklist_html = '<div style="background: #f9fafb; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                <h2 style="margin-top: 0; color: #111827;">Checklist Items</h2>';
+            foreach ($checklist as $item) {
+                $status = $item['completed'] ? '✅ Completed' : '❌ Not Completed';
+                $checklist_html .= '<p><strong>' . htmlspecialchars($item['task'] ?? 'Unknown Task') . ':</strong> ' . $status . '</p>';
+            }
+            $checklist_html .= '</div>';
+        }
+        
+        // Build refunds HTML
+        $refunds_html = '';
+        if (!empty($refunds)) {
+            $refunds_html = '<div style="background: #f9fafb; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                <h2 style="margin-top: 0; color: #111827;">Refunds</h2>';
+            foreach ($refunds as $refund) {
+                $refunds_html .= '<p><strong>Amount:</strong> $' . htmlspecialchars($refund['amount'] ?? '0') . 
+                                ' | <strong>Customer:</strong> ' . htmlspecialchars($refund['customer'] ?? 'Unknown') . 
+                                ' | <strong>Service:</strong> ' . htmlspecialchars($refund['service'] ?? 'Unknown') . 
+                                ' | <strong>Reason:</strong> ' . htmlspecialchars($refund['reason'] ?? 'Unknown') . '</p>';
+            }
+            $refunds_html .= '</div>';
+        }
+        
+        // Build shipments HTML
+        $shipments_html = '';
+        if (!empty($shipments)) {
+            $shipments_html = '<div style="background: #f9fafb; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                <h2 style="margin-top: 0; color: #111827;">Shipments</h2>';
+            foreach ($shipments as $shipment) {
+                $shipments_html .= '<p><strong>Tracking:</strong> ' . htmlspecialchars($shipment['tracking'] ?? 'Unknown') . 
+                                  ' | <strong>Carrier:</strong> ' . htmlspecialchars($shipment['carrier'] ?? 'Unknown') . 
+                                  ' | <strong>Status:</strong> ' . htmlspecialchars($shipment['status'] ?? 'Unknown') . '</p>';
+            }
+            $shipments_html .= '</div>';
+        }
+        
+        // Build reviews HTML
+        $reviews_html = '';
+        if (!empty($reviews)) {
+            $reviews_html = '<div style="background: #f9fafb; padding: 15px; border-radius: 6px; margin: 20px 0;">
+                <h2 style="margin-top: 0; color: #111827;">Reviews</h2>';
+            foreach ($reviews as $review) {
+                $reviews_html .= '<p><strong>Platform:</strong> ' . htmlspecialchars($review['platform'] ?? 'Unknown') . 
+                                ' | <strong>Rating:</strong> ' . htmlspecialchars($review['rating'] ?? 'Unknown') . 
+                                ' | <strong>Comment:</strong> ' . htmlspecialchars($review['comment'] ?? 'No comment') . '</p>';
+            }
+            $reviews_html .= '</div>';
+        }
         
         return "
         <!DOCTYPE html>
@@ -151,8 +227,13 @@ class ShiftReportEmailManager {
                     <p><strong>Type:</strong> $shift_type</p>
                 </div>
                 
+                $checklist_html
+                $refunds_html
+                $shipments_html
+                $reviews_html
+                
                 <div style='background: #f9fafb; padding: 15px; border-radius: 6px; margin: 20px 0;'>
-                    <h2 style='margin-top: 0; color: #111827;'>Shift Notes</h2>
+                    <h2 style='margin-top: 0; color: #111827;'>Additional Notes</h2>
                     <p>$notes</p>
                 </div>
                 
