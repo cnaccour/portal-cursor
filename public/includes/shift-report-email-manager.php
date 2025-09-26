@@ -118,11 +118,20 @@ class ShiftReportEmailManager {
      */
     private function getEmailSettingsForLocation($location) {
         try {
+            error_log("ShiftReportEmailManager: Looking for email settings for location: '$location'");
+            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Looking for email settings for location: '$location'\n", FILE_APPEND);
+            
             $stmt = $this->pdo->prepare("SELECT * FROM shift_report_email_settings WHERE location = ? AND is_active = 1");
             $stmt->execute([$location]);
-            return $stmt->fetch(PDO::FETCH_ASSOC);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            error_log("ShiftReportEmailManager: Database query result: " . print_r($result, true));
+            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Database query result: " . print_r($result, true) . "\n", FILE_APPEND);
+            
+            return $result;
         } catch (Exception $e) {
             error_log("Error getting email settings for location $location: " . $e->getMessage());
+            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " Error getting email settings for location $location: " . $e->getMessage() . "\n", FILE_APPEND);
             return null;
         }
     }
