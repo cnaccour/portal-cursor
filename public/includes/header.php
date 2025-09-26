@@ -18,6 +18,8 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
     [x-cloak] { display: none !important; }
     .accent-gold { accent-color: #AF831A; }
     .accent-gold:focus { outline-color: #AF831A; }
+    /* Force gold accent for all native controls */
+    input[type="checkbox"], input[type="radio"] { accent-color: #AF831A; }
   </style>
   
   <?php if (!empty($_SESSION['user_id'])): ?>
