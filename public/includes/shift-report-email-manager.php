@@ -26,10 +26,12 @@ class ShiftReportEmailManager {
     public function sendShiftReportNotifications($shiftData) {
         try {
             error_log("ShiftReportEmailManager: Processing shift report for location: " . $shiftData['location']);
+            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Processing shift report for location: " . $shiftData['location'] . "\n", FILE_APPEND);
             
             // Get email settings for the location
             $settings = $this->getEmailSettingsForLocation($shiftData['location']);
             error_log("ShiftReportEmailManager: Settings found: " . print_r($settings, true));
+            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Settings found: " . print_r($settings, true) . "\n", FILE_APPEND);
             
             if (empty($settings) || !$settings['is_active']) {
                 error_log("No active email settings found for location: " . $shiftData['location']);

@@ -85,7 +85,9 @@ try {
         error_log("Notification result: " . ($notificationResult ? 'SUCCESS' : 'FAILED'));
         
         // Send email notifications based on location
-        error_log("Attempting to send email notifications for location: $location");
+        error_log("Attempting to send email notifications for location: '$location'");
+        file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " Attempting to send email notifications for location: '$location'\n", FILE_APPEND);
+        
         $emailManager = ShiftReportEmailManager::getInstance();
         $emailData = array_merge($data, [
             'user_name' => $user_name,
@@ -93,8 +95,11 @@ try {
         ]);
         
         error_log("Email data being sent: " . print_r($emailData, true));
+        file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " Email data being sent: " . print_r($emailData, true) . "\n", FILE_APPEND);
+        
         $emailResult = $emailManager->sendShiftReportNotifications($emailData);
         error_log("Email notification result: " . ($emailResult ? 'SUCCESS' : 'FAILED'));
+        file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " Email notification result: " . ($emailResult ? 'SUCCESS' : 'FAILED') . "\n", FILE_APPEND);
         
         // Redirect back to forms page with success flag
         header('Location: /portal/forms.php?ok=1');
