@@ -55,15 +55,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     } elseif ($_POST['action'] === 'test_email') {
         try {
-            $location = $_POST['location'];
-            $test_email = $_POST['test_email'];
+            $location = $_POST['location'] ?? '';
+            $test_email = $_POST['test_email'] ?? '';
+            
+            // Debug logging
+            error_log("Test email request: location=$location, email=$test_email");
+            
+            if (empty($location)) {
+                throw new Exception("Location is required");
+            }
+            
+            if (empty($test_email)) {
+                throw new Exception("Test email address is required");
+            }
             
             if (!filter_var($test_email, FILTER_VALIDATE_EMAIL)) {
-                throw new Exception("Invalid test email address");
+                throw new Exception("Invalid test email address: $test_email");
             }
             
             // Send test email
-            require_once __DIR__ . '/lib/Email.php';
+            require_once __DIR__ . '/../lib/Email.php';
             $email = new Email();
             
             $subject = "Test Email - Shift Report Settings for $location";
@@ -83,11 +94,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             
             if ($result) {
                 $success_message = "Test email sent successfully to $test_email";
+                // Log success for debugging
+                error_log("Test email sent successfully to $test_email for location $location");
             } else {
-                $error_message = "Failed to send test email";
+                $error_message = "Failed to send test email - SMTP error occurred";
+                error_log("Failed to send test email to $test_email for location $location");
             }
         } catch (Exception $e) {
-            $error_message = $e->getMessage();
+            $error_message = "Error sending test email: " . $e->getMessage();
+            error_log("Test email error: " . $e->getMessage());
+        }
+        
+        // Redirect to prevent form resubmission
+        if (isset($success_message)) {
+            header('Location: admin-reports-settings.php?success=' . urlencode($success_message));
+            exit;
+        } elseif (isset($error_message)) {
+            header('Location: admin-reports-settings.php?error=' . urlencode($error_message));
+            exit;
         }
     }
 }
@@ -128,6 +152,14 @@ try {
 
 // Available locations for dropdown (not yet configured)
 $available_locations = array_diff($predefined_locations, $existing_locations);
+
+// Handle URL parameters for success/error messages
+if (isset($_GET['success'])) {
+    $success_message = $_GET['success'];
+}
+if (isset($_GET['error'])) {
+    $error_message = $_GET['error'];
+}
 
 function generateShiftReportEmailHTML($data) {
     return '
