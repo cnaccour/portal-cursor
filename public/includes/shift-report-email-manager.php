@@ -188,6 +188,11 @@ class ShiftReportEmailManager {
             $shipments = [$shipments];
         }
         
+        // If shipments is an array but has string keys (not numeric), it's a single shipment object
+        if (is_array($shipments) && !empty($shipments) && !is_numeric(array_keys($shipments)[0])) {
+            $shipments = [$shipments]; // Wrap the single object in an array
+        }
+        
         // Process reviews data safely
         $reviews = [];
         if (isset($data['reviews'])) {
