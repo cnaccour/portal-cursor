@@ -14,18 +14,21 @@ if (!is_file($jsonPath)) {
 
 require_once __DIR__ . '/../includes/db.php';
 
-// Ensure kb_articles table exists (MySQL)
+// Ensure kb_articles table exists (align with db/schema.sql)
 $pdo->exec(<<<SQL
 CREATE TABLE IF NOT EXISTS kb_articles (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  title VARCHAR(255) NOT NULL,
   slug VARCHAR(255) UNIQUE,
-  content LONGTEXT,
+  title VARCHAR(255),
   category VARCHAR(100),
-  tags JSON NULL,
-  status VARCHAR(20) DEFAULT 'draft',
+  content MEDIUMTEXT,
+  status VARCHAR(50) DEFAULT 'published',
+  allow_print TINYINT(1) DEFAULT 1,
+  enable_sections TINYINT(1) DEFAULT 1,
+  created_by INT NULL,
+  updated_by INT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updated_at TIMESTAMP NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 SQL);
 
@@ -41,7 +44,8 @@ $sections = $data['sections'];
 
 $title = trim($doc['title'] ?? 'Untitled');
 $category = trim($doc['category'] ?? '');
-$isPublished = !empty($doc['is_published']);
+// Default to draft unless explicit flag provided
+$isPublished = isset($doc['is_published']) ? (bool)$doc['is_published'] : false;
 $status = $isPublished ? 'published' : 'draft';
 
 // Build HTML content by concatenating sections in order

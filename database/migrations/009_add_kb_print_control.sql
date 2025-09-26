@@ -2,9 +2,9 @@
 -- This allows administrators to control which articles can be printed
 
 ALTER TABLE kb_articles 
-ADD COLUMN allow_print BOOLEAN DEFAULT TRUE COMMENT 'Whether this article can be printed';
+ADD COLUMN allow_print TINYINT(1) DEFAULT 1 COMMENT 'Whether this article can be printed';
 
 -- Update existing Email Setup article to not allow printing
 UPDATE kb_articles 
-SET allow_print = FALSE 
+SET allow_print = 0 
 WHERE slug = 'email-setup-instructions';
