@@ -379,8 +379,12 @@ class NotificationManager {
     
     private function databaseNotifyRoles(array $roles, array $notification_data) {
         try {
-            require_once __DIR__ . '/db.php';
-            global $pdo;
+            // Use existing PDO connection from global scope
+            if (!isset($GLOBALS['pdo']) || !$GLOBALS['pdo']) {
+                error_log('NotificationManager: No PDO connection available');
+                return false;
+            }
+            $pdo = $GLOBALS['pdo'];
             
             // Insert notification
             $stmt = $pdo->prepare("
@@ -496,8 +500,12 @@ class NotificationManager {
     
     private function databaseGetUserNotifications(int $user_id, int $limit) {
         try {
-            require_once __DIR__ . '/db.php';
-            global $pdo;
+            // Use existing PDO connection from global scope
+            if (!isset($GLOBALS['pdo']) || !$GLOBALS['pdo']) {
+                error_log('NotificationManager: No PDO connection available');
+                return [];
+            }
+            $pdo = $GLOBALS['pdo'];
             
             $stmt = $pdo->prepare("
                 SELECT n.*, un.is_read, un.read_at
@@ -519,8 +527,12 @@ class NotificationManager {
     
     private function databaseGetUnreadCount(int $user_id) {
         try {
-            require_once __DIR__ . '/db.php';
-            global $pdo;
+            // Use existing PDO connection from global scope
+            if (!isset($GLOBALS['pdo']) || !$GLOBALS['pdo']) {
+                error_log('NotificationManager: No PDO connection available');
+                return 0;
+            }
+            $pdo = $GLOBALS['pdo'];
             
             $stmt = $pdo->prepare("
                 SELECT COUNT(*)
