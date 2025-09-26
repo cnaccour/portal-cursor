@@ -3,27 +3,20 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Don't output anything before including files that start sessions
-
 try {
-    echo "Test 1: Basic PHP working\n";
-    echo "Test 2: Including auth.php\n";
+    // Include files that start sessions FIRST, before any output
     require __DIR__.'/../includes/auth.php';
-    echo "Test 3: Auth included successfully\n";
-    
-    echo "Test 4: Including shift-report-manager.php\n";
     require __DIR__.'/../includes/shift-report-manager.php';
-    echo "Test 5: Shift report manager included successfully\n";
-    
-    echo "Test 6: Including notification-manager.php\n";
     require __DIR__.'/../includes/notification-manager.php';
-    echo "Test 7: Notification manager included successfully\n";
-    
-    echo "Test 8: Including shift-report-email-manager.php\n";
     require __DIR__.'/../includes/shift-report-email-manager.php';
-    echo "Test 9: Shift report email manager included successfully\n";
     
-    echo "Test 10: All includes successful\n";
+    // Now safe to output
+    echo "Test 1: Basic PHP working\n";
+    echo "Test 2: Auth included successfully\n";
+    echo "Test 3: Shift report manager included successfully\n";
+    echo "Test 4: Notification manager included successfully\n";
+    echo "Test 5: Shift report email manager included successfully\n";
+    echo "Test 6: All includes successful\n";
     
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage() . "\n";
