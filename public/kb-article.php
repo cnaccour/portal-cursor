@@ -220,6 +220,14 @@ require __DIR__.'/includes/header.php';
 .kb-section-body { padding: 1rem; display: block; }
 .kb-section.collapsed .kb-section-body { display: none; }
 
+/* Fallback layout to ensure sidebar on desktop even if Tailwind responsive classes are missing */
+.kb-layout { display: block; }
+@media (max-width: 767px) { .kb-toc { display: none; } }
+@media (min-width: 768px) {
+    .kb-layout { display: grid; grid-template-columns: 1fr 3fr; gap: 1.5rem; }
+    .kb-toc { display: block; }
+}
+
 @media print {
     .kb-toc, .breadcrumb, .article-actions, .tag-list, .kb-section-actions, .no-print { display: none !important; }
     .kb-section { border: none; page-break-inside: avoid; }
@@ -339,7 +347,7 @@ require __DIR__.'/includes/header.php';
     </div>
 
     <!-- Article Content with TOC and collapsible sections -->
-    <div class="grid grid-cols-1 <?= ($article['enable_sections'] ?? 1) ? 'md:grid-cols-4' : 'md:grid-cols-1' ?> gap-6">
+    <div class="kb-layout grid grid-cols-1 <?= ($article['enable_sections'] ?? 1) ? 'md:grid-cols-4' : 'md:grid-cols-1' ?> gap-6">
         <?php if ($article['enable_sections'] ?? 1): ?>
         <aside class="hidden md:block kb-toc md:col-span-1">
             <h3>Sections</h3>
