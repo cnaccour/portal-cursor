@@ -7,7 +7,7 @@ RewriteCond %{REQUEST_URI} !^/assets/
 RewriteCond %{REQUEST_URI} !^/attached_assets/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule . index.php [L]
+RewriteRule ^((?!forgot-password\.php).*)$ index.php [L]
 
 # Security headers
 <IfModule mod_headers.c>
