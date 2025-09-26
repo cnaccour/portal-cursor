@@ -4,6 +4,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start(); 
 }
 
+// Immediate debug logging
+$debugFile = __DIR__ . '/../db_debug.log';
+file_put_contents($debugFile, date('Y-m-d H:i:s') . " [DB START] File included, attempting connection\n", FILE_APPEND);
+
 // cPanel MySQL settings (no .env or socket)
 $host = '127.0.0.1';
 $dbname = 'portaljjosephsal_salon_portal';
