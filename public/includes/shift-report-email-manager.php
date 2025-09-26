@@ -107,6 +107,13 @@ class ShiftReportEmailManager {
             error_log("ShiftReportEmailManager: Looking for email settings for location: '$location'");
             file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Looking for email settings for location: '$location'\n", FILE_APPEND);
             
+            // First, let's see what locations are available
+            $all_stmt = $this->pdo->prepare("SELECT location, is_active FROM shift_report_email_settings");
+            $all_stmt->execute();
+            $all_settings = $all_stmt->fetchAll(PDO::FETCH_ASSOC);
+            error_log("ShiftReportEmailManager: All available settings: " . print_r($all_settings, true));
+            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: All available settings: " . print_r($all_settings, true) . "\n", FILE_APPEND);
+            
             $stmt = $this->pdo->prepare("SELECT * FROM shift_report_email_settings WHERE location = ? AND is_active = 1");
             $stmt->execute([$location]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
