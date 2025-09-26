@@ -3,6 +3,15 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start(); 
 }
 
+// Prefer public cPanel DB config when available (production)
+// This ensures scripts under /includes use the live DB on the server
+if (file_exists(__DIR__ . '/../public/includes/db.php')) {
+    require_once __DIR__ . '/../public/includes/db.php';
+    if (isset($pdo) && $pdo instanceof PDO) {
+        return; // Already configured via public/includes/db.php
+    }
+}
+
 // Load environment variables from .env file if it exists
 if (file_exists(__DIR__ . '/../.env')) {
     $lines = file(__DIR__ . '/../.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);

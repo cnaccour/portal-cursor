@@ -11,6 +11,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
   <link rel="icon" href="/portal/favicon.ico">
   <link rel="stylesheet" href="/portal/assets/css/tailwind.css">
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <!-- Quill is only needed on admin edit page; keep for now -->
   <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
   <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
   <style>
