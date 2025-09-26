@@ -78,8 +78,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 throw new Exception("Invalid test email address: $test_email");
             }
             
-            // Send test email
-            require_once __DIR__ . '/../lib/Email.php';
+            // Send test email - use same pattern as forgot-password.php
+            if (file_exists(__DIR__ . '/lib/Email.php')) {
+                require_once __DIR__ . '/lib/Email.php';
+            } elseif (file_exists(__DIR__ . '/../lib/Email.php')) {
+                require_once __DIR__ . '/../lib/Email.php';
+            } else {
+                throw new Exception('Email library not found');
+            }
             $email = new Email();
             
             $subject = "Test Email - Shift Report Settings for $location";

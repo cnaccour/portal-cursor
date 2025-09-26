@@ -5,13 +5,32 @@ echo "<h1>Debug Test Email</h1>";
 
 // Check if Email class exists
 echo "<h2>Email Class Check</h2>";
-$email_path = __DIR__ . '/../lib/Email.php';
-echo "<p>Email.php path: $email_path</p>";
-echo "<p>Email.php exists: " . (file_exists($email_path) ? 'Yes' : 'No') . "</p>";
+$email_path1 = __DIR__ . '/lib/Email.php';
+$email_path2 = __DIR__ . '/../lib/Email.php';
+echo "<p>Email.php path 1: $email_path1 - " . (file_exists($email_path1) ? 'EXISTS' : 'NOT FOUND') . "</p>";
+echo "<p>Email.php path 2: $email_path2 - " . (file_exists($email_path2) ? 'EXISTS' : 'NOT FOUND') . "</p>";
 
-if (file_exists($email_path)) {
+$email_loaded = false;
+if (file_exists($email_path1)) {
     try {
-        require_once $email_path;
+        require_once $email_path1;
+        echo "<p>✅ Loaded from: $email_path1</p>";
+        $email_loaded = true;
+    } catch (Exception $e) {
+        echo "<p>❌ Error loading from path 1: " . $e->getMessage() . "</p>";
+    }
+} elseif (file_exists($email_path2)) {
+    try {
+        require_once $email_path2;
+        echo "<p>✅ Loaded from: $email_path2</p>";
+        $email_loaded = true;
+    } catch (Exception $e) {
+        echo "<p>❌ Error loading from path 2: " . $e->getMessage() . "</p>";
+    }
+}
+
+if ($email_loaded) {
+    try {
         echo "<p>Email.php loaded successfully</p>";
         
         $email = new Email();
@@ -25,6 +44,8 @@ if (file_exists($email_path)) {
     } catch (Exception $e) {
         echo "<p>Error: " . $e->getMessage() . "</p>";
     }
+} else {
+    echo "<p>❌ Email.php could not be loaded from any path</p>";
 }
 
 // Check POST data if form was submitted
