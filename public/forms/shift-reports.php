@@ -102,34 +102,32 @@ require __DIR__.'/../includes/header.php';
   </section>
 
   <!-- Refunds & Returns -->
-  <section class="bg-white p-6 rounded-xl border" 
-           x-data="{active:false, refunds:[], totalCount:0, totalAmount:0, 
-                    calcTotals() { this.totalCount=this.refunds.length; this.totalAmount=this.refunds.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);} }">
+  <section class="bg-white p-6 rounded-xl border">
 
     <h2 class="text-lg font-semibold mb-4">Refunds &amp; Returns</h2>
 
     <fieldset class="space-y-2 mb-4">
       <label class="flex items-center gap-2">
         <input type="radio" class="h-4 w-4 border-gray-300 text-gray-900 focus:ring-gray-900"
-               name="refunds_toggle" value="yes" @change="active=true">
+               name="refunds_toggle" value="yes" @change="refundsActive=true">
         Yes, refunds were processed
       </label>
       <label class="flex items-center gap-2">
         <input type="radio" class="h-4 w-4 border-gray-300 text-gray-900 focus:ring-gray-900"
-               name="refunds_toggle" value="no" @change="active=false; refunds=[]; totalCount=0; totalAmount=0">
+               name="refunds_toggle" value="no" @change="refundsActive=false; clearRefunds()">
         No refunds processed
       </label>
     </fieldset>
 
     <!-- Summary + Add Button -->
-    <div x-show="active" class="mb-4">
+    <div x-show="refundsActive" class="mb-4">
       <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg border">
         <div class="text-sm">
           <strong>Refund Summary</strong><br>
-          Total Refunds: <span x-text="totalCount"></span> |
-          Total Amount: $<span x-text="totalAmount.toFixed(2)"></span>
+          Total Refunds: <span x-text="refundsTotalCount"></span> |
+          Total Amount: $<span x-text="refundsTotalAmount.toFixed(2)"></span>
         </div>
-        <button type="button" @click="refunds.push({amount:'',reason:'',customer:'',service:'',notes:''}); calcTotals()"
+        <button type="button" @click="addRefund()"
                 class="px-3 py-1.5 rounded-lg bg-gray-900 text-white text-sm">
           + Add Refund
         </button>
@@ -142,12 +140,11 @@ require __DIR__.'/../includes/header.php';
         <div>
           <label class="block text-sm mb-1">Refund Amount ($)</label>
           <input type="number" step="0.01" min="0" class="w-full border rounded-lg px-3 py-2"
-                 x-model.number="r.amount" name="refunds[][amount]" @input="calcTotals">
+                 x-model.number="r.amount" @input="calcRefundsTotals">
         </div>
         <div>
           <label class="block text-sm mb-1">Refund Reason</label>
-          <select class="w-full border rounded-lg px-3 py-2"
-                  x-model="r.reason" name="refunds[][reason]">
+          <select class="w-full border rounded-lg px-3 py-2" x-model="r.reason">
             <option value="">Select reason</option>
             <option>Service Issue</option>
             <option>Product Return</option>
@@ -157,21 +154,18 @@ require __DIR__.'/../includes/header.php';
         </div>
         <div>
           <label class="block text-sm mb-1">Customer Name</label>
-          <input type="text" class="w-full border rounded-lg px-3 py-2"
-                 x-model="r.customer" name="refunds[][customer]">
+          <input type="text" class="w-full border rounded-lg px-3 py-2" x-model="r.customer">
         </div>
         <div>
           <label class="block text-sm mb-1">Service / Product</label>
-          <input type="text" class="w-full border rounded-lg px-3 py-2"
-                 x-model="r.service" name="refunds[][service]">
+          <input type="text" class="w-full border rounded-lg px-3 py-2" x-model="r.service">
         </div>
         <div>
           <label class="block text-sm mb-1">Additional Notes</label>
-          <textarea class="w-full border rounded-lg px-3 py-2"
-                    x-model="r.notes" name="refunds[][notes]"></textarea>
+          <textarea class="w-full border rounded-lg px-3 py-2" x-model="r.notes"></textarea>
         </div>
         <div class="text-right">
-          <button type="button" @click="refunds.splice(i,1); calcTotals()"
+          <button type="button" @click="refunds.splice(i,1); calcRefundsTotals()"
                   class="text-sm text-red-600">Remove</button>
         </div>
       </div>
@@ -203,6 +197,10 @@ function shiftForm() {
     today: new Date().toISOString().slice(0,10),
     shiftType: '',
     checklist: [],
+    refundsActive: false,
+    refunds: [],
+    refundsTotalCount: 0,
+    refundsTotalAmount: 0,
     morningChecklist: [
       {label: 'Count your drawer – verify cash is correct and properly closed from previous night', done:false},
       {label: 'Prepare daily cleaning sheet – ensure all stylists are included', done:false},
@@ -255,6 +253,19 @@ function shiftForm() {
       const total = this.checklist.length;
       const done = this.checklist.filter(i => i.done).length;
       this.progress = total > 0 ? Math.round((done/total)*100) : 0;
+    },
+    calcRefundsTotals() {
+      this.refundsTotalCount = this.refunds.length;
+      this.refundsTotalAmount = this.refunds.reduce((s, r) => s + (parseFloat(r.amount) || 0), 0);
+    },
+    addRefund() {
+      this.refunds.push({amount: '', reason: '', customer: '', service: '', notes: ''});
+      this.calcRefundsTotals();
+    },
+    clearRefunds() {
+      this.refunds = [];
+      this.refundsTotalCount = 0;
+      this.refundsTotalAmount = 0;
     },
     preparePayload(e) {
       e.preventDefault();
