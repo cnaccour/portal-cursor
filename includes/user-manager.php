@@ -555,7 +555,7 @@ class UserManager {
             $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
             
             // Update password
-            $stmt = $pdo->prepare("UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?");
+            $stmt = $pdo->prepare("UPDATE users SET password_hash = ?, updated_at = NOW() WHERE id = ?");
             $success = $stmt->execute([$hashed_password, $user_id]);
             
             if ($success) {
