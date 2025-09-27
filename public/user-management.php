@@ -208,12 +208,12 @@ $all_users = UserManager::getAllUsers(false);
                         <option value="admin">Administrator</option>
                     </select>
                 </div>
-                <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                <div class="rounded-lg p-0">
                     <div class="flex">
                         <svg class="w-5 h-5 mt-0.5 mr-3" fill="none" stroke="#AF831A" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>
                         <div>
-                            <p class="text-sm font-medium" style="color:#92400E">Invitation Details</p>
-                            <p class="text-xs mt-1" style="color:#B45309">The user will receive an email with a secure link to complete registration. The invitation expires in 7 days.</p>
+                            <p class="text-sm font-medium" style="color:#AF831A">Invitation Details</p>
+                            <p class="text-xs mt-1 text-gray-600">The user will receive an email with a secure link to complete registration. The invitation expires in 7 days.</p>
                         </div>
                     </div>
                 </div>
