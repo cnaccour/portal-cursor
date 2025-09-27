@@ -181,8 +181,8 @@ $all_users = UserManager::getAllUsers(false);
 </div>
 
 <!-- Invite User Modal -->
-<div id="inviteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4">
+<div id="inviteModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl shadow-xl max-w-md w-full mx-4 border">
         <div class="p-6 border-b">
             <div class="flex items-center justify-between">
                 <h3 class="text-lg font-semibold text-gray-900">Invite New User</h3>
@@ -208,19 +208,19 @@ $all_users = UserManager::getAllUsers(false);
                         <option value="admin">Administrator</option>
                     </select>
                 </div>
-                <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
                     <div class="flex">
-                        <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+                        <svg class="w-5 h-5 mt-0.5 mr-3" fill="none" stroke="#AF831A" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"/></svg>
                         <div>
-                            <p class="text-sm text-blue-800 font-medium">Invitation Details</p>
-                            <p class="text-xs text-blue-700 mt-1">The user will receive an email with a secure link to complete registration. The invitation expires in 7 days.</p>
+                            <p class="text-sm font-medium" style="color:#92400E">Invitation Details</p>
+                            <p class="text-xs mt-1" style="color:#B45309">The user will receive an email with a secure link to complete registration. The invitation expires in 7 days.</p>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="flex justify-end gap-3 mt-6">
                 <button type="button" onclick="closeInviteModal()" class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
-                <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Send Invitation</button>
+                <button type="submit" class="px-4 py-2 text-white rounded-lg transition-colors" style="background-color:#000">Send Invitation</button>
             </div>
         </form>
     </div>
@@ -296,7 +296,7 @@ document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeResetP
 </script>
 
 <!-- Reset Password Modal -->
-<div id="resetPasswordModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50" onclick="closeResetPasswordModal()">
+<div id="resetPasswordModal" class="fixed inset-0 hidden z-50" onclick="closeResetPasswordModal()">
   <div class="flex items-center justify-center min-h-screen p-4">
     <div class="bg-white rounded-lg max-w-md w-full p-6" onclick="event.stopPropagation()">
       <h3 class="text-lg font-semibold text-gray-900 mb-4">Reset Password</h3>
