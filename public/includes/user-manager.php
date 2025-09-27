@@ -111,6 +111,14 @@ class UserManager {
         $instance = self::getInstance();
         return $instance->_resetUserPassword($user_id, $new_password, $performed_by);
     }
+
+    /**
+     * Create a new user (email, name, password, role)
+     */
+    public static function createUser($email, $name, $password, $role = 'viewer') {
+        $instance = self::getInstance();
+        return $instance->_createUser($email, $name, $password, $role);
+    }
     
     /**
      * Create audit log entry
@@ -573,6 +581,47 @@ class UserManager {
         } catch (Exception $e) {
             error_log('Database resetUserPassword error: ' . $e->getMessage());
             return false;
+        }
+    }
+
+    private function _createUser($email, $name, $password, $role) {
+        if ($this->use_mock) {
+            require_once __DIR__ . '/db.php';
+            global $mock_users;
+            if (!isset($mock_users)) { $mock_users = []; }
+            $id = (count($mock_users) ? max(array_column($mock_users, 'id')) : 0) + 1;
+            $mock_users[] = [
+                'id' => $id,
+                'name' => $name,
+                'email' => $email,
+                'password' => password_hash($password, PASSWORD_DEFAULT),
+                'role' => $role,
+                'status' => 'active',
+            ];
+            return $id;
+        }
+        return $this->databaseCreateUser($email, $name, $password, $role);
+    }
+
+    private function databaseCreateUser($email, $name, $password, $role) {
+        try {
+            require_once __DIR__ . '/db.php';
+            global $pdo;
+
+            // Ensure email unique
+            $stmt = $pdo->prepare('SELECT id FROM users WHERE email = ? LIMIT 1');
+            $stmt->execute([$email]);
+            if ($stmt->fetch()) {
+                throw new RuntimeException('A user with this email already exists');
+            }
+
+            $password_hash = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = $pdo->prepare('INSERT INTO users (name, email, password_hash, role, status) VALUES (?, ?, ?, ?, \"active\")');
+            $stmt->execute([$name, $email, $password_hash, $role]);
+            return (int)$pdo->lastInsertId();
+        } catch (Throwable $e) {
+            error_log('Database createUser error: ' . $e->getMessage());
+            throw new RuntimeException('Failed to create user');
         }
     }
 }
