@@ -188,11 +188,12 @@ rsync -av --delete ~/repos/portal/public/ ~/public_html/portal/
 ```
 - Nav fix (Sep 27, 2025): Converted header links to absolute `/portal/...` in `public/includes/header.php` and `includes/header.php` to prevent subdirectory routing issues (e.g., `/portal/forms/forms.php`).
 
-## 🔐 Admin Panel (Status)
-- URL: `/portal/admin.php` — requires login + `admin` role
+## 🔐 User Management (Status)
+- URL: `/portal/user-management.php` — requires login + `admin` role
 - Features:
-  - User list with role change, active/inactive toggle, delete/restore (CSRF‑protected)
+  - Users: role change, active/inactive toggle, delete (soft), reset password (CSRF‑protected)
   - Invitations: send (`api/invitations/send-invitation.php`), list, revoke, copy secure link
+- Temporary debug: `/portal/admin_debug.log` records admin actions (invite send/list/revoke; user status/delete/restore/reset). Remove before real invites.
 - Security: session auth + CSRF tokens; actions restricted to admin
 
 ## ✉️ Email Status
