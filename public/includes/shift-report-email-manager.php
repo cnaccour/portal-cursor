@@ -25,13 +25,8 @@ class ShiftReportEmailManager {
      */
     public function sendShiftReportNotifications($shiftData) {
         try {
-            error_log("ShiftReportEmailManager: Processing shift report for location: " . $shiftData['location']);
-            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Processing shift report for location: " . $shiftData['location'] . "\n", FILE_APPEND);
-            
             // Get email settings for the location
             $settings = $this->getEmailSettingsForLocation($shiftData['location']);
-            error_log("ShiftReportEmailManager: Settings found: " . print_r($settings, true));
-            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Settings found: " . print_r($settings, true) . "\n", FILE_APPEND);
             
             if (empty($settings) || !$settings['is_active']) {
                 error_log("No active email settings found for location: " . $shiftData['location']);
@@ -46,28 +41,14 @@ class ShiftReportEmailManager {
             
             // Generate email content
             $subject = "Shift Report - " . $shiftData['location'] . " (" . $shiftData['shift_date'] . ")";
-            error_log("ShiftReportEmailManager: Generated subject: $subject");
-            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Generated subject: $subject\n", FILE_APPEND);
-            
-            // Use simple email template directly - skip the complex one for now
-            error_log("ShiftReportEmailManager: Using simple email template");
-            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Using simple email template\n", FILE_APPEND);
-            
-            error_log("ShiftReportEmailManager: About to generate email template");
-            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: About to generate email template\n", FILE_APPEND);
             
             try {
                 $html_body = $this->generateSimpleEmailTemplate($shiftData);
-                error_log("ShiftReportEmailManager: Generated email body length: " . strlen($html_body));
-                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Generated email body length: " . strlen($html_body) . "\n", FILE_APPEND);
             } catch (Exception $e) {
                 error_log("ShiftReportEmailManager: Error generating email template: " . $e->getMessage());
-                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Error generating email template: " . $e->getMessage() . "\n", FILE_APPEND);
                 
                 // Use a very simple fallback template
                 $html_body = '<html><body><h1>Shift Report - ' . htmlspecialchars($shiftData['location'] ?? 'Unknown') . '</h1><p>Employee: ' . htmlspecialchars($shiftData['user_name'] ?? 'Unknown') . '</p><p>Date: ' . htmlspecialchars($shiftData['shift_date'] ?? 'Unknown') . '</p><p>Notes: ' . htmlspecialchars($shiftData['notes'] ?? 'No notes') . '</p></body></html>';
-                error_log("ShiftReportEmailManager: Using fallback template, length: " . strlen($html_body));
-                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Using fallback template, length: " . strlen($html_body) . "\n", FILE_APPEND);
             }
             
             // Send emails - use same pattern as working forgot-password.php
@@ -82,28 +63,18 @@ class ShiftReportEmailManager {
             
             $success_count = 0;
             $total_count = count($email_addresses);
-            error_log("ShiftReportEmailManager: About to send emails to $total_count recipients");
-            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: About to send emails to $total_count recipients\n", FILE_APPEND);
             
             foreach ($email_addresses as $email_address) {
-                error_log("ShiftReportEmailManager: Attempting to send email to: $email_address");
-                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Attempting to send email to: $email_address\n", FILE_APPEND);
-                
                 $result = send_smtp_email($email_address, $subject, $html_body);
-                error_log("ShiftReportEmailManager: Email send result: " . print_r($result, true));
-                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Email send result: " . print_r($result, true) . "\n", FILE_APPEND);
                 
                 if ($result['success']) {
                     $success_count++;
                     error_log("Shift report email sent successfully to: $email_address");
-                    file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " Shift report email sent successfully to: $email_address\n", FILE_APPEND);
                 } else {
                     error_log("Failed to send shift report email to: $email_address - " . ($result['error'] ?? 'Unknown error'));
-                    file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " Failed to send shift report email to: $email_address - " . ($result['error'] ?? 'Unknown error') . "\n", FILE_APPEND);
                 }
             }
             
-            error_log("Shift report email notifications: $success_count/$total_count sent successfully");
             return $success_count > 0;
             
         } catch (Exception $e) {
@@ -117,27 +88,13 @@ class ShiftReportEmailManager {
      */
     private function getEmailSettingsForLocation($location) {
         try {
-            error_log("ShiftReportEmailManager: Looking for email settings for location: '$location'");
-            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Looking for email settings for location: '$location'\n", FILE_APPEND);
-            
-            // First, let's see what locations are available
-            $all_stmt = $this->pdo->prepare("SELECT location, is_active FROM shift_report_email_settings");
-            $all_stmt->execute();
-            $all_settings = $all_stmt->fetchAll(PDO::FETCH_ASSOC);
-            error_log("ShiftReportEmailManager: All available settings: " . print_r($all_settings, true));
-            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: All available settings: " . print_r($all_settings, true) . "\n", FILE_APPEND);
-            
             $stmt = $this->pdo->prepare("SELECT * FROM shift_report_email_settings WHERE location = ? AND is_active = 1");
             $stmt->execute([$location]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
             
-            error_log("ShiftReportEmailManager: Database query result: " . print_r($result, true));
-            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Database query result: " . print_r($result, true) . "\n", FILE_APPEND);
-            
             return $result;
         } catch (Exception $e) {
             error_log("Error getting email settings for location $location: " . $e->getMessage());
-            file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " Error getting email settings for location $location: " . $e->getMessage() . "\n", FILE_APPEND);
             return null;
         }
     }
@@ -213,15 +170,6 @@ class ShiftReportEmailManager {
             }
         }
         
-        // Debug logging for all data
-        error_log("ShiftReportEmailManager: All data keys: " . print_r(array_keys($data), true));
-        file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: All data keys: " . print_r(array_keys($data), true) . "\n", FILE_APPEND);
-        
-        error_log("ShiftReportEmailManager: Reviews data: " . print_r($reviews, true));
-        file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Reviews data: " . print_r($reviews, true) . "\n", FILE_APPEND);
-        
-        error_log("ShiftReportEmailManager: Shipments data: " . print_r($shipments, true));
-        file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Shipments data: " . print_r($shipments, true) . "\n", FILE_APPEND);
         
         // Build sections
         $checklist_html = '';
@@ -260,10 +208,6 @@ class ShiftReportEmailManager {
             $shipments_html = '<div class="section">
                 <div class="section-title">Shipments</div>';
             foreach ($shipments as $shipment) {
-                // Debug each shipment
-                error_log("ShiftReportEmailManager: Processing shipment: " . print_r($shipment, true));
-                file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " ShiftReportEmailManager: Processing shipment: " . print_r($shipment, true) . "\n", FILE_APPEND);
-                
                 $status = htmlspecialchars($shipment['status'] ?? 'N/A');
                 $vendor = htmlspecialchars($shipment['vendor'] ?? 'N/A');
                 $shipment_notes = htmlspecialchars($shipment['notes'] ?? 'N/A');
