@@ -39,21 +39,24 @@ Please review this request in the admin portal:
 JJS Team Portal - Automated Notification
 ";
 
-        $headers = "From: noreply@jjosephsalon.com\r\n";
-        $headers .= "Reply-To: noreply@jjosephsalon.com\r\n";
-        $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+        // Use SMTP helper
+        if (file_exists(__DIR__ . '/../lib/Email.php')) {
+            require_once __DIR__ . '/../lib/Email.php';
+        } elseif (file_exists(__DIR__ . '/../../public/lib/Email.php')) {
+            require_once __DIR__ . '/../../public/lib/Email.php';
+        }
         
         $success = true;
         foreach ($notification_emails as $email) {
-            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                $sent = mail($email, $subject, $message, $headers);
-                if (!$sent) {
-                    error_log("Failed to send notification email to: $email");
-                    $success = false;
-                }
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { continue; }
+            $result = function_exists('send_smtp_email')
+                ? send_smtp_email($email, $subject, nl2br(htmlspecialchars($message)), $message)
+                : false;
+            if (!$result || (is_array($result) && empty($result['success']))) {
+                error_log("Failed to send notification email to: $email");
+                $success = false;
             }
         }
-        
         return $success;
     }
     
@@ -61,11 +64,7 @@ JJS Team Portal - Automated Notification
      * Get base URL for links in emails
      */
     private static function getBaseUrl() {
-        $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
-        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
-        $base_path = dirname($_SERVER['SCRIPT_NAME']);
-        if ($base_path === '/') $base_path = '';
-        
-        return $protocol . $host . $base_path;
+        require_once __DIR__ . '/config.php';
+        return rtrim(getPortalUrl(''), '/');
     }
 }
