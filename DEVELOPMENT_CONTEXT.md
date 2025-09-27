@@ -208,12 +208,12 @@ rsync -av --delete ~/repos/portal/public/ ~/public_html/portal/
 - Features:
   - Users: role change, active/inactive toggle, delete (soft), reset password (CSRF‑protected)
   - Invitations: send (`api/invitations/send-invitation.php`), list, revoke, copy secure link
-- Temporary debug: `/portal/admin_debug.log` records admin actions (invite send/list/revoke; user status/delete/restore/reset). Remove before real invites.
+- Temporary debug: `/portal/admin_debug.log` records admin actions (invite send/list/revoke; user status/delete/restore/reset). Remove before real invites. Success feedback uses a top-right banner (no alert) consistent with app UX.
 - Security: session auth + CSRF tokens; actions restricted to admin
 
 ## ✉️ Email Status
 - Shift report emails: confirmed working in production
-- Invitations: implemented via invitations API; uses existing mail/PHPMailer setup. Ensure SMTP or PHP mail is configured per `CPANEL_MIGRATION.md`.
+- Invitations: send via SMTP helper (`public/lib/Email.php`) using same working configuration as shift reports; logs capture failures for troubleshooting.
 
 ## 🛡 Ops: Verify DB in app matches phpMyAdmin
 Run on server to print the live DB/user/host/version the app uses:
