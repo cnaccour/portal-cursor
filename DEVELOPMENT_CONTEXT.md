@@ -4,6 +4,19 @@
 
 **Assistant**: Working with GPT-5 in Cursor
 
+## 👤 Owner Preferences (Design & Workflow)
+- Brand gold: `#AF831A` (use for titles/icons; keep body text neutral gray)
+- Buttons: primary actions in black; hover to darker gray
+- Modals: no dark/dimmed page backdrop; clean, bordered cards
+- Navigation: consistent absolute paths under `/portal/...`
+- SSH deploy flow: always include commands to pull and rsync
+
+### SSH Pull & Deploy (Reminder)
+```
+cd ~/repos/portal && git checkout cpanel-test-deploy && git pull
+rsync -av --delete ~/repos/portal/public/ ~/public_html/portal/
+```
+
 ## 🚀 Quick Start in Cursor
 - Open this file first: `DEVELOPMENT_CONTEXT.md` (project overview + status)
 - Then open, in order:
