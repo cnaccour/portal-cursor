@@ -193,6 +193,23 @@ Development-only demo data (do NOT run on prod):
 ## 🔄 Workflow
 Dev (MAMP) → Push to GitHub → SSH and `cd ~/repos/portal && git pull` → Run schema-only or full migrations → Real users create data via forms/announcements/KB.
 
+## ♻️ Refactor Plan (in progress)
+- Step 1 (URLs): Unify `getAppBaseUrl()`/`getPortalUrl()` and apply across headers, redirects, and emails.
+- Step 2 (Auth/CSRF): Centralize `require_login()`/`require_role()` and CSRF helpers; remove per-page variants.
+- Step 3 (Users/Invitations): Ensure `password_hash` used consistently; remove duplicate DB logic.
+- Step 4 (Email): One SMTP send path via `public/lib/Email.php`; standard templates (black/gold).
+- Step 5 (Notifications): Single manager interface and consistent DB checks.
+- Step 6 (UI Consistency): Standard banners/icons; remove emojis; absolute `/portal/...` links.
+- Step 7 (Cleanup/Debug): Remove temp debug writes; keep optional debug flag.
+- Step 8 (Docs): Update this file and `CPANEL_MIGRATION.md` once steps complete.
+
+Refactor Logging (temporary): Update this section with completed steps as we progress.
+
+- Step 1: URL helpers unified; added `getPortalUrl()`; updated redirects in login/logout/save-shift-report/auth.
+- Step 2: CSRF token generation centralized in `public/includes/auth.php`.
+- Step 3: Password handling standardized to `users.password_hash` for creation and resets.
+- Step 4: All notification emails routed through SMTP helper; email links use portal URL helper.
+
 ## ✅ Live Deployment Snapshot (cPanel)
 - Branch deployed: `cpanel-test-deploy`
 - Repo on server: `~/repos/portal` → web root served from `~/public_html/portal/`
