@@ -5,10 +5,7 @@
  */
 
 $app_config = [
-    'base_url' => getenv('APP_URL') 
-        ?: (file_exists('/Applications/MAMP/tmp/mysql/mysql.sock')
-            ? 'http://portaltest:8888'   // local dev
-            : 'https://portal.jjosephsalon.com'), // production
+    'base_url' => getenv('APP_URL') ?: '',
     'force_https' => getenv('FORCE_HTTPS') === 'true',
     'app_name'    => 'J. Joseph Salon Team Portal',
     'from_email'  => getenv('FROM_EMAIL') ?: 'noreply@jjosephsalon.com'
@@ -19,23 +16,34 @@ $app_config = [
  */
 function getAppBaseUrl() {
     global $app_config;
-    $base_url = $app_config['base_url'];
+    $env = trim($app_config['base_url'] ?? '');
 
-    if ($app_config['force_https'] && strpos($base_url, 'http://') === 0) {
-        $base_url = str_replace('http://', 'https://', $base_url);
+    // If APP_URL is an absolute URL, use it
+    if ($env && preg_match('#^https?://#i', $env)) {
+        return rtrim($env, '/');
     }
-    return rtrim($base_url, '/');
+
+    // Derive from server host if available
+    if (!empty($_SERVER['HTTP_HOST'])) {
+        $scheme = (!empty($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off') ? 'https' : 'http';
+        return $scheme . '://' . rtrim($_SERVER['HTTP_HOST'], '/');
+    }
+
+    // Fallbacks: local dev or production
+    if (file_exists('/Applications/MAMP/tmp/mysql/mysql.sock')) {
+        return 'http://portaltest:8888';
+    }
+    return 'https://portal.jjosephsalon.com';
 }
 
 /**
  * Generate a secure signup URL
  */
 function getSignupUrl($token) {
-    // Ensure full portal path
     $base = getAppBaseUrl();
-    // If base is domain root, append /portal
-    if (stripos($base, '/portal') === false) {
-        $base .= '/portal';
+    // Ensure /portal path
+    if (stripos(parse_url($base, PHP_URL_PATH) ?: '', '/portal') === false) {
+        $base = rtrim($base, '/') . '/portal';
     }
     return rtrim($base, '/') . '/signup.php?token=' . urlencode($token);
 }
