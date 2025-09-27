@@ -257,8 +257,16 @@ document.getElementById('inviteForm').addEventListener('submit', function(e) {
   const btn = this.querySelector('button[type="submit"]');
   const txt = btn.textContent; btn.disabled = true; btn.textContent = 'Sending...';
   fetch('api/invitations/send-invitation.php', { method: 'POST', body: formData })
-    .then(r => r.json()).then(data => { if (data.success) { alert(data.message); closeInviteModal(); if (!document.getElementById('invitationsSection').classList.contains('hidden')) { loadInvitations(); } } else { alert(data.message || 'Failed to send invitation'); }})
-    .catch(() => alert('An error occurred while sending the invitation.'))
+    .then(r => r.json()).then(data => {
+      if (data.success) {
+        showBanner('success', data.message);
+        closeInviteModal();
+        if (!document.getElementById('invitationsSection').classList.contains('hidden')) { loadInvitations(); }
+      } else {
+        showBanner('error', data.message || 'Failed to send invitation');
+      }
+    })
+    .catch(() => showBanner('error', 'An error occurred while sending the invitation.'))
     .finally(()=>{ btn.disabled = false; btn.textContent = txt; });
 });
 
@@ -278,6 +286,19 @@ function displayInvitations(invitations) {
     return `<div class="p-4 sm:p-6 hover:bg-gray-50 transition-colors"><div class="flex flex-col sm:flex-row sm:items-center gap-4"><div class="flex-grow"><div class="flex flex-wrap items-center gap-2"><h3 class="font-semibold text-gray-900">${escapeHtml(inv.email)}</h3><span class="px-2 py-1 text-xs font-medium rounded-full ${badge}">${inv.status.charAt(0).toUpperCase()+inv.status.slice(1)}</span></div><div class="mt-1 text-sm text-gray-500">Expires ${formatDate(inv.expires_at)}</div></div><div class="flex items-center gap-3">${(inv.status==='pending'&&!isExpired)?`<button onclick=\"copyInvitationLink('${inv.token}')\" class=\"px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200\">Copy Link</button><button onclick=\"revokeInvitation(${inv.id}, '${escapeHtml(inv.email)}')\" class=\"px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700\">Revoke</button>`:''}</div></div></div>`;
   }).join('');
   container.innerHTML = html;
+}
+
+// Lightweight notification banner (top-right)
+function showBanner(type, message) {
+  const banner = document.createElement('div');
+  const isSuccess = type === 'success';
+  banner.className = 'fixed top-4 right-4 z-50 px-4 py-3 rounded-lg shadow-lg border ' + (isSuccess ? 'bg-green-50 border-green-200 text-green-800' : 'bg-red-50 border-red-200 text-red-800');
+  banner.innerHTML = `<div class="flex items-start gap-2">
+      <svg class="w-5 h-5 mt-0.5" fill="currentColor" viewBox="0 0 20 20">${isSuccess?'<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>':'<path fill-rule="evenodd" d="M18 10A8 8 0 112 10a8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>'}</svg>
+      <div class="text-sm">${escapeHtml(message)}</div>
+    </div>`;
+  document.body.appendChild(banner);
+  setTimeout(() => { if (banner.parentNode) banner.parentNode.removeChild(banner); }, isSuccess ? 2500 : 3500);
 }
 
 function escapeHtml(t){const d=document.createElement('div');d.textContent=t;return d.innerHTML}

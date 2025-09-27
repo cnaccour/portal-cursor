@@ -319,37 +319,23 @@ This invitation will expire and cannot be used after the expiration date.";
         try {
             $html_content = self::getInvitationEmailHTML($invitation_data);
             $text_content = self::getInvitationEmailText($invitation_data);
-            
-            // Log email sending (development only, no sensitive data)
-            $dev_mode = getenv('DEV_MODE') === 'true' || file_exists(__DIR__ . '/../.dev_mode');
-            if ($dev_mode) {
-                error_log("=== INVITATION EMAIL SENT ===");
-                error_log("To: {$invitation_data['email']}");
-                error_log("Role: {$invitation_data['role']}");
-                error_log("Expires: {$invitation_data['expires_at']}");
-                error_log("Token: " . substr($invitation_data['token'], 0, 8) . "...[REDACTED]");
-                error_log("==========================");
+
+            // Use our SMTP helper (same as shift report emails)
+            $subject = "You've been invited to join J. Joseph Salon Team Portal";
+            if (file_exists(__DIR__ . '/../lib/Email.php')) {
+                require_once __DIR__ . '/../lib/Email.php';
+            } elseif (file_exists(__DIR__ . '/../../public/lib/Email.php')) {
+                require_once __DIR__ . '/../../public/lib/Email.php';
             }
             
-            // In production, you would replace this with actual email sending:
-            // Option 1: PHP's built-in mail() function
-            // Option 2: PHPMailer library  
-            // Option 3: Email service (SendGrid, Mailgun, etc.)
-            // Option 4: Your hosting provider's SMTP
+            $result = function_exists('send_smtp_email') 
+                ? send_smtp_email($invitation_data['email'], $subject, $html_content, $text_content)
+                : (function_exists('mail') ? ['success' => @mail($invitation_data['email'], $subject, $html_content, "MIME-Version: 1.0\r\nContent-type:text/html;charset=UTF-8\r\nFrom: noreply@" . ($_SERVER['HTTP_HOST'] ?? 'jjosephsalon.com'))] : ['success' => false]);
             
-            /*
-            // Production email sending example:
-            $to = $invitation_data['email'];
-            $subject = "You've been invited to join J. Joseph Salon Team Portal";
-            $headers = "MIME-Version: 1.0" . "\r\n";
-            $headers .= "Content-type:text/html;charset=UTF-8" . "\r\n";
-            $headers .= "From: noreply@{$_SERVER['HTTP_HOST']}" . "\r\n";
-            
-            return mail($to, $subject, $html_content, $headers);
-            */
-            
-            return true; // Mock success for development
-            
+            if (!$result['success']) {
+                error_log('Invitation email send failed: ' . ($result['error'] ?? 'unknown error'));
+            }
+            return (bool)$result['success'];
         } catch (Exception $e) {
             error_log("Error sending invitation email: " . $e->getMessage());
             return false;
