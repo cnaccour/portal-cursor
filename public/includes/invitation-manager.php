@@ -79,6 +79,9 @@ class InvitationManager {
             throw new InvalidArgumentException('A pending invitation already exists for this email');
         }
         
+        // If an invitation exists for this email (revoked/expired/accepted), we will "reinvite" by updating it in-place
+        $existing_any = $this->getAnyInvitationByEmail($email);
+        
         // Generate secure token
         $token = $this->generateSecureToken();
         $expires_at = date('Y-m-d H:i:s', strtotime("+{$expires_in_days} days"));
@@ -86,6 +89,9 @@ class InvitationManager {
         if ($this->use_mock) {
             return $this->mockCreateInvitation($email, $token, $role, $invited_by_id, $expires_at);
         } else {
+            if ($existing_any && $existing_any['status'] !== 'pending') {
+                return $this->databaseReinviteExisting($existing_any['id'], $email, $token, $role, $invited_by_id, $expires_at);
+            }
             return $this->databaseCreateInvitation($email, $token, $role, $invited_by_id, $expires_at);
         }
     }
@@ -109,6 +115,17 @@ class InvitationManager {
             return $this->mockGetInvitationByEmail($email);
         } else {
             return $this->databaseGetInvitationByEmail($email);
+        }
+    }
+
+    /**
+     * Get any invitation by email (any status)
+     */
+    public function getAnyInvitationByEmail($email) {
+        if ($this->use_mock) {
+            return $this->mockGetInvitationByEmail($email); // mock only tracks pending
+        } else {
+            return $this->databaseGetInvitationByEmailAnyStatus($email);
         }
     }
     
@@ -188,6 +205,43 @@ class InvitationManager {
         $this->logInvitationAction($invitation_id, 'revoked', $old_status, 'revoked', $revoked_by_id);
         
         return true;
+    }
+
+    /**
+     * Reinvite an existing invitation (regenerates token, resets expiry, sets status pending)
+     */
+    public function reinviteInvitation($invitation_id, $invited_by_id, $expires_in_days = 7) {
+        $expires_at = date('Y-m-d H:i:s', strtotime("+{$expires_in_days} days"));
+        $token = $this->generateSecureToken();
+        if ($this->use_mock) {
+            // For mock, update the existing record
+            $inv = $this->mockGetInvitationById($invitation_id);
+            if (!$inv) { throw new InvalidArgumentException('Invitation not found'); }
+            $this->mockUpdateInvitationStatus($invitation_id, 'pending');
+            return $this->mockGetInvitationById($invitation_id);
+        } else {
+            $updated = $this->databaseReinviteById($invitation_id, $token, $invited_by_id, $expires_at);
+            if (!$updated) { throw new RuntimeException('Failed to reinvite invitation'); }
+            return $this->databaseGetInvitationById($invitation_id);
+        }
+    }
+
+    /**
+     * Permanently delete an invitation
+     */
+    public function deleteInvitation($invitation_id, $performed_by) {
+        if ($this->use_mock) {
+            // Remove from mock array
+            require_once __DIR__ . '/db.php';
+            global $mock_invitations;
+            if (!isset($mock_invitations)) { return false; }
+            foreach ($mock_invitations as $idx => $inv) {
+                if ($inv['id'] == $invitation_id) { unset($mock_invitations[$idx]); return true; }
+            }
+            return false;
+        } else {
+            return $this->databaseDeleteInvitation($invitation_id, $performed_by);
+        }
     }
     
     /**
@@ -439,6 +493,19 @@ class InvitationManager {
             return null;
         }
     }
+
+    private function databaseGetInvitationByEmailAnyStatus($email) {
+        try {
+            require_once __DIR__ . '/db.php';
+            $pdo = $GLOBALS["pdo"];
+            $stmt = $pdo->prepare("SELECT * FROM invitations WHERE email = ? ORDER BY created_at DESC LIMIT 1");
+            $stmt->execute([$email]);
+            return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        } catch (PDOException $e) {
+            error_log("Database error getting invitation by email (any): " . $e->getMessage());
+            return null;
+        }
+    }
     
     private function databaseGetAllInvitations($status = null) {
         try {
@@ -499,6 +566,46 @@ class InvitationManager {
             return $stmt->rowCount() > 0;
         } catch (PDOException $e) {
             error_log("Database error updating invitation status: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    private function databaseReinviteExisting($invitation_id, $email, $token, $role, $invited_by_id, $expires_at) {
+        try {
+            require_once __DIR__ . '/db.php';
+            $pdo = $GLOBALS['pdo'];
+            $stmt = $pdo->prepare("UPDATE invitations SET token = ?, role = ?, invited_by = ?, status = 'pending', expires_at = ?, accepted_at = NULL, updated_at = NOW() WHERE id = ?");
+            $stmt->execute([$token, $role, $invited_by_id, $expires_at, $invitation_id]);
+            $this->databaseLogInvitationAction($invitation_id, 'reinvited', null, ['email' => $email, 'role' => $role, 'expires_at' => $expires_at], $invited_by_id);
+            return $this->databaseGetInvitationById($invitation_id);
+        } catch (PDOException $e) {
+            error_log("Database error reinviting existing: " . $e->getMessage());
+            throw new RuntimeException('Failed to reinvite existing invitation');
+        }
+    }
+
+    private function databaseReinviteById($invitation_id, $token, $invited_by_id, $expires_at) {
+        try {
+            require_once __DIR__ . '/db.php';
+            $pdo = $GLOBALS['pdo'];
+            $stmt = $pdo->prepare("UPDATE invitations SET token = ?, invited_by = ?, status = 'pending', expires_at = ?, accepted_at = NULL, updated_at = NOW() WHERE id = ?");
+            return $stmt->execute([$token, $invited_by_id, $expires_at, $invitation_id]);
+        } catch (PDOException $e) {
+            error_log("Database error reinviting by id: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    private function databaseDeleteInvitation($invitation_id, $performed_by) {
+        try {
+            require_once __DIR__ . '/db.php';
+            $pdo = $GLOBALS['pdo'];
+            // Log delete action first
+            $this->databaseLogInvitationAction($invitation_id, 'deleted', null, null, $performed_by);
+            $stmt = $pdo->prepare("DELETE FROM invitations WHERE id = ?");
+            return $stmt->execute([$invitation_id]);
+        } catch (PDOException $e) {
+            error_log("Database error deleting invitation: " . $e->getMessage());
             return false;
         }
     }
