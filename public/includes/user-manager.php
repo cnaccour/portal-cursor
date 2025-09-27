@@ -562,8 +562,8 @@ class UserManager {
             // Hash the new password securely
             $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
             
-            // Update password
-            $stmt = $pdo->prepare("UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?");
+            // Update password (store in password_hash column)
+            $stmt = $pdo->prepare("UPDATE users SET password_hash = ?, updated_at = NOW() WHERE id = ?");
             $success = $stmt->execute([$hashed_password, $user_id]);
             
             if ($success) {
@@ -616,11 +616,12 @@ class UserManager {
             }
 
             $password_hash = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare('INSERT INTO users (name, email, password_hash, role, status) VALUES (?, ?, ?, ?, \"active\")');
+            $stmt = $pdo->prepare('INSERT INTO users (name, email, password_hash, role, status) VALUES (?, ?, ?, ?, "active")');
             $stmt->execute([$name, $email, $password_hash, $role]);
             return (int)$pdo->lastInsertId();
         } catch (Throwable $e) {
             error_log('Database createUser error: ' . $e->getMessage());
+            @file_put_contents(__DIR__ . '/../admin_debug.log', date('Y-m-d H:i:s') . " [SIGNUP_ERROR] createUser: " . $e->getMessage() . "\n", FILE_APPEND);
             throw new RuntimeException('Failed to create user');
         }
     }
