@@ -2,6 +2,8 @@
 **Last Updated:** September 27, 2025  
 **AI Assistant Memory File** — Keep this updated as we work together
 
+**Assistant**: Working with GPT-5 in Cursor
+
 ## 🚀 Quick Start in Cursor
 - Open this file first: `DEVELOPMENT_CONTEXT.md` (project overview + status)
 - Then open, in order:
