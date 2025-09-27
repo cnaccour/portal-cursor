@@ -38,14 +38,15 @@ class InvitationManager {
      */
     private function isDatabaseAvailable() {
         try {
-            // First check if getPDO function exists
-            if (!function_exists('getPDO')) {
+            // Use global PDO connection configured by public/includes/db.php
+            require_once __DIR__ . '/db.php';
+            if (!isset($GLOBALS['pdo']) || !$GLOBALS['pdo']) {
                 return false;
             }
-            
-            $pdo = getPDO();
-            $stmt = $pdo->query("SHOW TABLES LIKE 'invitations'");
-            return $stmt->rowCount() > 0;
+            $pdo = $GLOBALS['pdo'];
+            // Probe the invitations table; SELECT rowCount is unreliable, just ensure query succeeds
+            $stmt = $pdo->query("SELECT 1 FROM invitations LIMIT 1");
+            return $stmt !== false;
         } catch (Throwable $e) {
             return false;
         }
@@ -387,7 +388,8 @@ class InvitationManager {
     // Database implementations (for production)
     private function databaseCreateInvitation($email, $token, $role, $invited_by_id, $expires_at) {
         try {
-            $pdo = getPDO();
+            require_once __DIR__ . '/db.php';
+            $pdo = $GLOBALS['pdo'];
             $stmt = $pdo->prepare("
                 INSERT INTO invitations (email, token, role, invited_by, expires_at) 
                 VALUES (?, ?, ?, ?, ?)
@@ -414,7 +416,8 @@ class InvitationManager {
     
     private function databaseGetInvitationByToken($token) {
         try {
-            $pdo = getPDO();
+            require_once __DIR__ . '/db.php';
+            $pdo = $GLOBALS['pdo'];
             $stmt = $pdo->prepare("SELECT * FROM invitations WHERE token = ?");
             $stmt->execute([$token]);
             return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
@@ -426,7 +429,8 @@ class InvitationManager {
     
     private function databaseGetInvitationByEmail($email) {
         try {
-            $pdo = getPDO();
+            require_once __DIR__ . '/db.php';
+            $pdo = $GLOBALS['pdo'];
             $stmt = $pdo->prepare("SELECT * FROM invitations WHERE email = ? AND status = 'pending' ORDER BY created_at DESC LIMIT 1");
             $stmt->execute([$email]);
             return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
@@ -438,7 +442,8 @@ class InvitationManager {
     
     private function databaseGetAllInvitations($status = null) {
         try {
-            $pdo = getPDO();
+            require_once __DIR__ . '/db.php';
+            $pdo = $GLOBALS['pdo'];
             
             if ($status) {
                 $stmt = $pdo->prepare("
@@ -468,7 +473,8 @@ class InvitationManager {
     
     private function databaseGetInvitationById($invitation_id) {
         try {
-            $pdo = getPDO();
+            require_once __DIR__ . '/db.php';
+            $pdo = $GLOBALS['pdo'];
             $stmt = $pdo->prepare("SELECT * FROM invitations WHERE id = ?");
             $stmt->execute([$invitation_id]);
             return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
@@ -480,7 +486,8 @@ class InvitationManager {
     
     private function databaseUpdateInvitationStatus($invitation_id, $new_status) {
         try {
-            $pdo = getPDO();
+            require_once __DIR__ . '/db.php';
+            $pdo = $GLOBALS['pdo'];
             
             if ($new_status === 'accepted') {
                 $stmt = $pdo->prepare("UPDATE invitations SET status = ?, accepted_at = NOW() WHERE id = ?");
@@ -498,7 +505,8 @@ class InvitationManager {
     
     private function databaseLogInvitationAction($invitation_id, $action, $old_value, $new_value, $performed_by) {
         try {
-            $pdo = getPDO();
+            require_once __DIR__ . '/db.php';
+            $pdo = $GLOBALS['pdo'];
             $stmt = $pdo->prepare("
                 INSERT INTO user_audit_log (user_id, action, old_value, new_value, performed_by, ip_address, user_agent, invitation_id) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
