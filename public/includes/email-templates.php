@@ -27,8 +27,8 @@ class EmailTemplates {
         $role_display = self::getRoleDisplayName($role);
         
         return self::getEmailTemplate([
-            'title' => 'You\'ve been invited to join J. Joseph Salon Team Portal',
-            'preheader' => "Complete your registration to access the team portal as {$role_display}",
+            'title' => 'J. Joseph Salon Team Portal Invitation',
+            'preheader' => "Invitation to join as {$role_display}",
             'content' => self::getInvitationContent($email, $role_display, $invited_by_name, $signup_url, $expires_formatted)
         ]);
     }
@@ -80,68 +80,62 @@ class EmailTemplates {
         }
         
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 40px 30px;
+            background: #111111;
+            padding: 32px 28px;
             text-align: center;
         }
         
         .header h1 {
             color: #ffffff;
-            font-size: 28px;
+            font-size: 22px;
             font-weight: 600;
             margin: 0;
             line-height: 1.2;
         }
         
         .content {
-            padding: 40px 30px;
+            padding: 32px 28px;
         }
         
         .content h2 {
-            color: #2d3748;
-            font-size: 24px;
+            color: #111827;
+            font-size: 18px;
             font-weight: 600;
-            margin: 0 0 20px 0;
+            margin: 0 0 16px 0;
             line-height: 1.3;
         }
         
         .content p {
-            color: #4a5568;
-            font-size: 16px;
+            color: #4b5563;
+            font-size: 14px;
             line-height: 1.6;
-            margin: 0 0 20px 0;
+            margin: 0 0 14px 0;
         }
         
         .cta-button {
             display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #111111;
             color: #ffffff !important;
             text-decoration: none;
-            padding: 16px 32px;
-            border-radius: 8px;
+            padding: 12px 24px;
+            border-radius: 6px;
             font-weight: 600;
-            font-size: 16px;
-            margin: 20px 0;
+            font-size: 14px;
+            margin: 16px 0;
             text-align: center;
         }
         
         .info-box {
-            background-color: #f7fafc;
-            border-left: 4px solid #667eea;
-            padding: 20px;
-            margin: 25px 0;
-            border-radius: 0 8px 8px 0;
-        }
-        
-        .info-box p {
-            margin: 0;
-            color: #2d3748;
-            font-size: 14px;
+            background-color: #f9fafb;
+            border-left: 4px solid #AF831A;
+            padding: 16px;
+            margin: 20px 0;
+            border-radius: 0 6px 6px 0;
         }
         
         .footer {
             background-color: #f8fafc;
-            padding: 30px;
+            padding: 26px;
             text-align: center;
             border-top: 1px solid #e2e8f0;
         }
@@ -151,43 +145,11 @@ class EmailTemplates {
             font-size: 14px;
             margin: 0 0 10px 0;
         }
-        
-        .footer a {
-            color: #667eea;
-            text-decoration: none;
-        }
-        
-        /* Mobile responsive */
-        @media only screen and (max-width: 600px) {
-            .email-container {
-                width: 100% !important;
-            }
-            
-            .header, .content, .footer {
-                padding: 25px 20px !important;
-            }
-            
-            .header h1 {
-                font-size: 24px !important;
-            }
-            
-            .content h2 {
-                font-size: 20px !important;
-            }
-            
-            .cta-button {
-                width: 100% !important;
-                padding: 18px !important;
-                box-sizing: border-box;
-            }
-        }
     </style>
 </head>
 <body>
     <!-- Preheader text -->
-    <div style=\"display: none; max-height: 0; overflow: hidden; font-size: 1px; line-height: 1px; color: #ffffff;\">
-        {$preheader}
-    </div>
+    <div style=\"display: none; max-height: 0; overflow: hidden; font-size: 1px; line-height: 1px; color: #ffffff;\">{$preheader}</div>
     
     <div class=\"email-container\">
         <div class=\"header\">
@@ -213,16 +175,16 @@ class EmailTemplates {
      */
     private static function getInvitationContent($email, $role_display, $invited_by_name, $signup_url, $expires_formatted) {
         return "
-            <h2>Welcome to the Team! 🎉</h2>
+            <h2>Welcome to the team</h2>
             
-            <p>Hi there!</p>
+            <p style=\"margin-top:6px;\">Hi there,</p>
             
             <p><strong>{$invited_by_name}</strong> has invited you to join the <strong>J. Joseph Salon Team Portal</strong> as a <strong>{$role_display}</strong>.</p>
             
-            <p>Our team portal helps you stay connected with the latest announcements, manage your shifts, submit reports, and collaborate with your colleagues.</p>
+            <p>Use the portal to access announcements, manage shifts, submit reports, and collaborate with the team.</p>
             
-            <div style=\"text-align: center; margin: 30px 0;\">
-                <a href=\"{$signup_url}\" class=\"cta-button\">Complete Your Registration</a>
+            <div style=\"text-align: center; margin: 24px 0;\">
+                <a href=\"{$signup_url}\" class=\"cta-button\">Complete your registration</a>
             </div>
             
             <div class=\"info-box\">
@@ -238,10 +200,8 @@ class EmailTemplates {
                 <li>Start using the team portal immediately</li>
             </ol>
             
-            <p>If the button doesn't work, you can copy and paste this link into your browser:</p>
-            <p style=\"word-break: break-all; color: #667eea; font-size: 14px;\">{$signup_url}</p>
-            
-            <p>We're excited to have you on the team!</p>
+            <p>If the button doesn't work, copy and paste this link into your browser:</p>
+            <p style=\"word-break: break-all; color: #111827; font-size: 12px;\">{$signup_url}</p>
             
             <p>Best regards,<br>
             <strong>The J. Joseph Salon Team</strong></p>
@@ -265,13 +225,13 @@ class EmailTemplates {
         
         return "J. Joseph Salon Team Portal - Invitation
 
-Welcome to the Team!
+Welcome to the team
 
-Hi there!
+Hi there,
 
 {$invited_by_name} has invited you to join the J. Joseph Salon Team Portal as a {$role_display}.
 
-Our team portal helps you stay connected with the latest announcements, manage your shifts, submit reports, and collaborate with your colleagues.
+Use the portal to access announcements, manage shifts, submit reports, and collaborate with the team.
 
 COMPLETE YOUR REGISTRATION
 {$signup_url}
@@ -285,8 +245,6 @@ What happens next?
 1. Visit the registration link above
 2. Set up your password and complete your profile
 3. Start using the team portal immediately
-
-We're excited to have you on the team!
 
 Best regards,
 The J. Joseph Salon Team

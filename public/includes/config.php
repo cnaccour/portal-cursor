@@ -31,5 +31,11 @@ function getAppBaseUrl() {
  * Generate a secure signup URL
  */
 function getSignupUrl($token) {
-    return getAppBaseUrl() . '/signup.php?token=' . urlencode($token);
+    // Ensure full portal path
+    $base = getAppBaseUrl();
+    // If base is domain root, append /portal
+    if (stripos($base, '/portal') === false) {
+        $base .= '/portal';
+    }
+    return rtrim($base, '/') . '/signup.php?token=' . urlencode($token);
 }
