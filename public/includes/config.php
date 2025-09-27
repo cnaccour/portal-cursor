@@ -47,3 +47,16 @@ function getSignupUrl($token) {
     }
     return rtrim($base, '/') . '/signup.php?token=' . urlencode($token);
 }
+
+/**
+ * Get full portal URL for a relative path under /portal
+ * Example: getPortalUrl('dashboard.php')
+ */
+function getPortalUrl($path = '') {
+    $base = getAppBaseUrl();
+    if (stripos(parse_url($base, PHP_URL_PATH) ?: '', '/portal') === false) {
+        $base = rtrim($base, '/') . '/portal';
+    }
+    $path = ltrim($path, '/');
+    return rtrim($base, '/') . ($path ? '/' . $path : '');
+}

@@ -2,5 +2,6 @@
 session_start();
 session_unset();
 session_destroy();
-header('Location: login.php');
+require_once __DIR__ . '/includes/config.php';
+header('Location: ' . getPortalUrl('login.php'));
 exit;

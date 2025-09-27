@@ -8,8 +8,8 @@ if (session_status() === PHP_SESSION_NONE) {
 
 function require_login() {
   if (empty($_SESSION['user_id'])) {
-    // Determine if we're in a subdirectory
-    $redirect_path = file_exists('login.php') ? 'login.php' : '../login.php';
+    require_once __DIR__ . '/config.php';
+    $redirect_path = getPortalUrl('login.php');
     header('Location: ' . $redirect_path);
     exit;
   }
@@ -41,7 +41,9 @@ function require_role($required_role) {
     echo '<div class="bg-red-50 border border-red-200 rounded-xl p-6 text-center">';
     echo '<h1 class="text-xl font-semibold text-red-800 mb-2">Access Denied</h1>';
     echo '<p class="text-red-600">You need ' . htmlspecialchars($required_role) . ' permissions to access this page.</p>';
-    echo '<a href="dashboard.php" class="inline-block mt-4 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">Back to Dashboard</a>';
+    require_once __DIR__ . '/config.php';
+    $dash = htmlspecialchars(getPortalUrl('dashboard.php'));
+    echo '<a href="' . $dash . '" class="inline-block mt-4 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700">Back to Dashboard</a>';
     echo '</div>';
     require __DIR__.'/footer.php';
     exit;

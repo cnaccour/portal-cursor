@@ -1,6 +1,7 @@
 <?php
 session_start(); // Start session at the beginning
 require __DIR__.'/includes/db.php';
+require_once __DIR__ . '/includes/config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $email = trim($_POST['email'] ?? '');
@@ -28,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     }
     
-    header('Location: dashboard.php');
+    header('Location: ' . getPortalUrl('dashboard.php'));
     exit;
   } else {
     $err = "Invalid email or password.";
