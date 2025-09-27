@@ -1,5 +1,5 @@
 # J. Joseph Salon Team Portal - Development Context
-**Last Updated:** September 26, 2025  
+**Last Updated:** September 27, 2025  
 **AI Assistant Memory File** — Keep this updated as we work together
 
 ## 🚀 Quick Start in Cursor
@@ -56,10 +56,11 @@ Development-only demo data (do NOT run on prod):
 - Demo Shift Reports: 4 realistic reports across locations/shift types
 
 ## 🔧 Key Files to Reference
-- `includes/db.php` — PDO setup; loads env; supports MAMP socket
+- `includes/db.php` — PDO setup; prefers `public/includes/db.php` in production
+- `public/includes/db.php` — cPanel DB credentials + DSN fallbacks; runtime guard for `password_resets`
 - `includes/shift-report-manager.php` — fixed to MySQL (no mock when DB present)
-- `migrate.php` — applies SQL migrations; loads `.env` if present
-- `includes/config.php` — base URL helpers; candidate for cPanel-safe redirects
+- `migrate.php` and `public/migrate.php` — apply numbered SQL migrations; load `.env` if present
+- `includes/config.php` and `public/includes/config.php` — base URL helpers (prefer `APP_URL` env, fallback to MAMP/prod detection)
 - `CPANEL_MIGRATION.md` — full production deployment guide
 - `api/upload-kb-image.php` — KB image upload endpoint (admin-only, CSRF-protected)
 - `knowledge-base.php` — KB listing; gold category badges
@@ -111,7 +112,7 @@ Development-only demo data (do NOT run on prod):
 /Applications/MAMP/bin/php/php8.2.26/bin/php -r "require_once 'includes/shift-report-manager.php'; $m=ShiftReportManager::getInstance(); echo 'Reports: '.count($m->getShiftReports());"
 ```
 
-## ✅ Recent Work (Sep 26, 2025)
+## ✅ Recent Work (Sep 26–27, 2025)
 ### Shift Report Email System - Complete Fix
 - **Problem**: Shift report emails weren't sending due to multiple issues
 - **Root Causes**:
@@ -175,7 +176,59 @@ Development-only demo data (do NOT run on prod):
 - Validate upload perms on `attached_assets/kb_images/` in prod
 
 ## 🔄 Workflow
-Dev (MAMP) → Push to GitHub → Pull via cPanel Git → Run only prod migrations (001–004) → Real users create data via forms/announcements/KB.
+Dev (MAMP) → Push to GitHub → SSH and `cd ~/repos/portal && git pull` → Run schema-only or full migrations → Real users create data via forms/announcements/KB.
+
+## ✅ Live Deployment Snapshot (cPanel)
+- Branch deployed: `cpanel-test-deploy`
+- Repo on server: `~/repos/portal` → web root served from `~/public_html/portal/`
+- Deployment: pull then rsync public files
+```
+cd ~/repos/portal && git checkout cpanel-test-deploy && git pull
+rsync -av --delete ~/repos/portal/public/ ~/public_html/portal/
+```
+- Nav fix (Sep 27, 2025): Converted header links to absolute `/portal/...` in `public/includes/header.php` and `includes/header.php` to prevent subdirectory routing issues (e.g., `/portal/forms/forms.php`).
+
+## 🔐 Admin Panel (Status)
+- URL: `/portal/admin.php` — requires login + `admin` role
+- Features:
+  - User list with role change, active/inactive toggle, delete/restore (CSRF‑protected)
+  - Invitations: send (`api/invitations/send-invitation.php`), list, revoke, copy secure link
+- Security: session auth + CSRF tokens; actions restricted to admin
+
+## ✉️ Email Status
+- Shift report emails: confirmed working in production
+- Invitations: implemented via invitations API; uses existing mail/PHPMailer setup. Ensure SMTP or PHP mail is configured per `CPANEL_MIGRATION.md`.
+
+## 🛡 Ops: Verify DB in app matches phpMyAdmin
+Run on server to print the live DB/user/host/version the app uses:
+```
+php -r "require '/home/portaljjosephsal/public_html/portal/includes/db.php'; \
+echo 'DB=' . $pdo->query('SELECT DATABASE()')->fetchColumn() . PHP_EOL; \
+echo 'USER=' . $pdo->query('SELECT CURRENT_USER()')->fetchColumn() . PHP_EOL; \
+echo 'HOST=' . $pdo->query('SELECT @@hostname')->fetchColumn() . PHP_EOL; \
+echo 'VER=' . $pdo->query('SELECT VERSION()')->fetchColumn() . PHP_EOL;"
+```
+Schema signature (compare with phpMyAdmin on the selected DB):
+```
+php -r "require '/home/portaljjosephsal/public_html/portal/includes/db.php'; \
+echo 'SIG=' . $pdo->query(\"SELECT MD5(GROUP_CONCAT(CONCAT(TABLE_NAME, ':', TABLE_ROWS) ORDER BY TABLE_NAME SEPARATOR '|')) FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE()\")->fetchColumn() . PHP_EOL;"
+```
+
+## 🔎 Security Sanity Checks (read‑only)
+```
+# Scan for suspicious PHP usage
+grep -R -nE "eval\(|base64_decode\(|gzinflate\(|assert\(|system\(|exec\(|shell_exec\(|popen\(" ~/public_html/portal | head -n 50
+
+# Ensure no PHP files are present in upload dirs
+find ~/public_html/portal/attached_assets -type f -iname '*.php' -ls
+find ~/public_html/portal/attached_assets/kb_images -type f -iname '*.php' -ls
+
+# Recent file changes (last 2 hours)
+find ~/public_html/portal -type f -mmin -120 -ls | head -n 50
+
+# World-writable files/dirs (should be none)
+find ~/public_html/portal -perm -o+w -ls | head -n 50
+```
 
 ## 🔔 Notification System Snapshot (from NOTIFICATION_SYSTEM_LOG.md)
 - Tables: `notifications`, `user_notifications` (indexes for performance)
