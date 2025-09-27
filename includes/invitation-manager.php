@@ -44,8 +44,9 @@ class InvitationManager {
                 return false;
             }
             $pdo = $GLOBALS['pdo'];
-            $stmt = $pdo->query("SHOW TABLES LIKE 'invitations'");
-            return $stmt->rowCount() > 0;
+            // MySQL PDO rowCount() on SELECT is unreliable; do a lightweight probe instead
+            $stmt = $pdo->query("SELECT 1 FROM invitations LIMIT 1");
+            return $stmt !== false;
         } catch (Throwable $e) {
             return false;
         }
