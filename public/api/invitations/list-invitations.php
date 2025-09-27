@@ -29,6 +29,10 @@ try {
     
     // Get all invitations
     $invitations = $invitationManager->getAllInvitations($status);
+    // Temporary debug log
+    @file_put_contents(__DIR__ . '/../../admin_debug.log',
+        date('Y-m-d H:i:s') . " [INVITE_LIST] count=" . count($invitations) . " by=" . ($_SESSION['user_id'] ?? 'unknown') . "\n",
+        FILE_APPEND);
     
     echo json_encode([
         'success' => true,

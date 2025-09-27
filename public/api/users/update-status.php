@@ -80,6 +80,10 @@ try {
         $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
         $old_status = $user['status'] ?? 'active';
         error_log("Admin {$_SESSION['user_id']} changed user {$user_id} ({$user['email']}) status from {$old_status} to {$new_status} from IP {$ip_address}");
+        // Temporary debug log
+        @file_put_contents(__DIR__ . '/../../admin_debug.log',
+            date('Y-m-d H:i:s') . " [USER_STATUS] user_id={$user_id} from={$old_status} to={$new_status} by=" . ($_SESSION['user_id'] ?? 'unknown') . "\n",
+            FILE_APPEND);
         
         http_response_code(200);
         echo json_encode([

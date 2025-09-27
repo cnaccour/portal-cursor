@@ -64,6 +64,10 @@ try {
         // Log the IP address for audit trail
         $ip_address = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
         error_log("Admin {$_SESSION['user_id']} restored user {$user_id} ({$user['email']}) from IP {$ip_address}");
+        // Temporary debug log
+        @file_put_contents(__DIR__ . '/../../admin_debug.log',
+            date('Y-m-d H:i:s') . " [USER_RESTORE] user_id={$user_id} by=" . ($_SESSION['user_id'] ?? 'unknown') . "\n",
+            FILE_APPEND);
         
         http_response_code(200);
         echo json_encode([

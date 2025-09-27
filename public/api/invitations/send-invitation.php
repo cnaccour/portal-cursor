@@ -68,6 +68,11 @@ try {
         error_log("Warning: Failed to send invitation email to {$email}");
     }
     
+    // Temporary debug log (to be removed before real invites)
+    @file_put_contents(__DIR__ . '/../../admin_debug.log',
+        date('Y-m-d H:i:s') . " [INVITE] to={$email} role={$role} sent=" . ($email_sent ? '1' : '0') . " by=" . ($_SESSION['user_id'] ?? 'unknown') . "\n",
+        FILE_APPEND);
+
     echo json_encode([
         'success' => true,
         'message' => "Invitation sent successfully to {$email}",

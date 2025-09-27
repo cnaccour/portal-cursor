@@ -40,6 +40,10 @@ try {
     $success = $invitationManager->revokeInvitation($invitation_id, $current_user_id);
     
     if ($success) {
+        // Temporary debug log
+        @file_put_contents(__DIR__ . '/../../admin_debug.log',
+            date('Y-m-d H:i:s') . " [INVITE_REVOKE] id={$invitation_id} by=" . ($_SESSION['user_id'] ?? 'unknown') . "\n",
+            FILE_APPEND);
         echo json_encode([
             'success' => true,
             'message' => 'Invitation revoked successfully'

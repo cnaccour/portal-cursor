@@ -72,6 +72,10 @@ try {
     if ($result) {
         // Log the password reset action
         error_log("Password reset by admin: User ID {$userId} password reset by admin ID {$_SESSION['user_id']} ({$_SESSION['name']})");
+        // Temporary debug log
+        @file_put_contents(__DIR__ . '/../../admin_debug.log',
+            date('Y-m-d H:i:s') . " [USER_RESET_PW] user_id={$userId} by=" . ($_SESSION['user_id'] ?? 'unknown') . "\n",
+            FILE_APPEND);
         
         echo json_encode([
             'success' => true,
