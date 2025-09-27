@@ -4,7 +4,6 @@ require __DIR__.'/includes/auth.php';
 require __DIR__.'/includes/header.php';
 ?>
 
-<h1 class="text-2xl font-semibold mb-6">Forms</h1>
 
 <?php if (isset($_GET['ok'])): ?>
 <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
@@ -28,7 +27,6 @@ require __DIR__.'/includes/header.php';
 </div>
 <?php endif; ?>
 
-<p class="text-gray-600 mb-8">Select a form to fill out below.</p>
 
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
   
@@ -75,7 +73,7 @@ require __DIR__.'/includes/header.php';
     <div class="flex items-center justify-between mb-3">
       <h3 class="text-lg font-semibold text-gray-900 group-hover:text-gray-700">Bi-Weekly Report</h3>
       <svg class="w-5 h-5" fill="none" stroke="#AF831A" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M5 11h14M5 19h14M7 11v8m10-8v8"/>
       </svg>
     </div>
     <p class="text-gray-600 text-sm">Submit the manager’s bi-weekly report for apprentices, including ratings and feedback.</p>

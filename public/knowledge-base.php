@@ -62,15 +62,7 @@ require __DIR__.'/includes/header.php';
 }
 </style>
 
-<div class="mb-8">
-    <div class="flex items-center justify-between mb-4">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-900">Knowledge Base</h1>
-            <p class="text-gray-600 mt-2">Find guides, instructions, and resources for the team.</p>
-        </div>
-        
-    </div>
-</div>
+<div class="mb-4"></div>
 
 <?php if (!empty($error)): ?>
     <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
