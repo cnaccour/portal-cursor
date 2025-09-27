@@ -70,7 +70,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error_message) {
 
         $full_name = trim($first_name . ' ' . $last_name);
         $user_id = InvitationManager::getInstance()->acceptInvitation($token, $full_name, $password);
-        @file_put_contents(__DIR__ . '/admin_debug.log', date('Y-m-d H:i:s') . " [SIGNUP_OK] user_id=$user_id email=" . $invitation['email'] . "\n", FILE_APPEND);
 
         // Login session
         $_SESSION['user_id'] = $user_id;
@@ -85,7 +84,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$error_message) {
         exit;
     } catch (Throwable $e) {
         $error_message = $e->getMessage();
-        @file_put_contents(__DIR__ . '/admin_debug.log', date('Y-m-d H:i:s') . " [SIGNUP_FAIL] " . $error_message . "\n", FILE_APPEND);
     }
 }
 

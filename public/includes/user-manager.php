@@ -621,7 +621,6 @@ class UserManager {
             return (int)$pdo->lastInsertId();
         } catch (Throwable $e) {
             error_log('Database createUser error: ' . $e->getMessage());
-            @file_put_contents(__DIR__ . '/../admin_debug.log', date('Y-m-d H:i:s') . " [SIGNUP_ERROR] createUser: " . $e->getMessage() . "\n", FILE_APPEND);
             throw new RuntimeException('Failed to create user');
         }
     }

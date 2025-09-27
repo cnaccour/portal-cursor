@@ -208,12 +208,18 @@ rsync -av --delete ~/repos/portal/public/ ~/public_html/portal/
 - Features:
   - Users: role change, active/inactive toggle, delete (soft), reset password (CSRF‑protected)
   - Invitations: send (`api/invitations/send-invitation.php`), list, revoke, copy secure link, reinvite (`api/invitations/reinvite-invitation.php`), delete (`api/invitations/delete-invitation.php`)
-- Temporary debug: `/portal/admin_debug.log` records admin actions (invite send/list/revoke; user status/delete/restore/reset). Remove before real invites. Success feedback uses a top-right banner (no alert) consistent with app UX.
+- Success feedback uses a top-right banner (no alert) consistent with app UX.
 - Security: session auth + CSRF tokens; actions restricted to admin
 
 ## ✉️ Email Status
 - Shift report emails: confirmed working in production
-- Invitations: send via SMTP helper (`public/lib/Email.php`) using same working configuration as shift reports; logs capture failures for troubleshooting.
+- Invitations: send via SMTP helper (`public/lib/Email.php`) using same working configuration as shift reports.
+
+## 👤 Signup and Settings
+- Invitation signup (`/portal/signup.php`) is fully integrated with app header/footer and theme.
+- Signup collects First Name and Last Name separately and stores as full name in `users.name`.
+- Account Settings (`/portal/settings.php`) allows updating First/Last and Email with banner notifications.
+- User creation uses `users.password_hash`; password resets also update `password_hash`.
 
 ## 🛡 Ops: Verify DB in app matches phpMyAdmin
 Run on server to print the live DB/user/host/version the app uses:
