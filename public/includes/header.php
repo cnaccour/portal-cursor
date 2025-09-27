@@ -33,7 +33,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
 <header class="bg-white" x-data="{ mobileMenuOpen: false }">
   <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
     <!-- Logo - icon only on mobile, with text on desktop -->
-    <a href="<?= file_exists('dashboard.php') ? './' : '../' ?>" class="flex items-center gap-3">
+    <a href="/portal/" class="flex items-center gap-3">
       <img src="/portal/assets/images/logo.png" alt="J. Joseph Salon Logo" class="h-10 w-auto">
       <div class="hidden md:block">
         <div class="leading-tight">
@@ -47,7 +47,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
     <!-- Desktop Navigation - hidden on mobile -->
     <nav class="hidden md:flex text-sm items-center gap-1">
       <!-- Dashboard/Home -->
-      <a href="<?= file_exists('dashboard.php') ? 'dashboard.php' : '../dashboard.php' ?>" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+      <a href="/portal/dashboard.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z"></path>
@@ -58,21 +58,21 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
       <!-- Separator -->
       <div class="w-px h-4 bg-gray-300 mx-2"></div>
       
-      <a href="<?= file_exists('announcements.php') ? 'announcements.php' : '../announcements.php' ?>" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+      <a href="/portal/announcements.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
         </svg>
         Announcements
       </a>
       
-      <a href="<?= file_exists('forms.php') ? 'forms.php' : '../forms.php' ?>" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+      <a href="/portal/forms.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
         </svg>
         Forms
       </a>
       
-      <a href="<?= file_exists('knowledge-base.php') ? 'knowledge-base.php' : '../knowledge-base.php' ?>" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
+      <a href="/portal/knowledge-base.php" class="flex items-center gap-2 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
         </svg>
@@ -290,7 +290,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             </div>
             
             <!-- Settings -->
-            <a href="dashboard.php" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
+            <a href="/portal/dashboard.php" class="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-gray-50">
               <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -316,19 +316,19 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
               <div x-show="submenuOpen" @mouseenter="submenuOpen = true" @mouseleave="submenuOpen = false"
                    x-transition 
                    class="absolute right-full top-0 mr-1 w-48 bg-white rounded-lg shadow-lg border py-2 z-50">
-                <a href="<?= file_exists('admin-announcements.php') ? 'admin-announcements.php' : '../admin-announcements.php' ?>" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                <a href="/portal/admin-announcements.php" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                   <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
                   </svg>
                   Announcements
                 </a>
-                <a href="<?= file_exists('admin-forms.php') ? 'admin-forms.php' : '../admin-forms.php' ?>" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                <a href="/portal/admin-forms.php" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                   <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                   </svg>
                   Forms
                 </a>
-                <a href="<?= file_exists('admin-kb.php') ? 'admin-kb.php' : '../admin-kb.php' ?>" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                <a href="/portal/admin-kb.php" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                   <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
                   </svg>
@@ -336,7 +336,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
                 </a>
                 <div class="relative" x-data="{ reportsSubmenuOpen: false }">
                   <button @mouseenter="reportsSubmenuOpen = true" @mouseleave="reportsSubmenuOpen = false"
-                          @click="window.location.href='<?= file_exists('reports.php') ? 'reports.php' : '../reports.php' ?>'"
+                          @click="window.location.href='/portal/reports.php'"
                           class="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                     <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -350,13 +350,13 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
                   <div x-show="reportsSubmenuOpen" @mouseenter="reportsSubmenuOpen = true" @mouseleave="reportsSubmenuOpen = false"
                        x-transition 
                        class="absolute right-full top-0 mr-1 w-48 bg-white rounded-lg shadow-lg border py-2 z-50">
-                    <a href="<?= file_exists('reports.php') ? 'reports.php' : '../reports.php' ?>" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                    <a href="/portal/reports.php" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                       <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                       </svg>
                       View Reports
                     </a>
-                    <a href="<?= file_exists('admin-reports-settings.php') ? 'admin-reports-settings.php' : '../admin-reports-settings.php' ?>" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                    <a href="/portal/admin-reports-settings.php" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                       <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -365,7 +365,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
                     </a>
                   </div>
                 </div>
-                <a href="<?= file_exists('admin.php') ? 'admin.php' : '../admin.php' ?>" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                <a href="/portal/admin.php" class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
                   <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
                   </svg>
@@ -377,7 +377,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
             
             <!-- Distinguished Sign Out -->
             <div class="border-t pt-2 mt-2">
-              <a href="<?= file_exists('logout.php') ? 'logout.php' : '../logout.php' ?>" class="flex items-center px-4 py-3 text-sm font-medium" style="color: #AF831A;" onmouseover="this.style.backgroundColor='#FFFBF0'; this.style.color='#92400E';" onmouseout="this.style.backgroundColor=''; this.style.color='#AF831A';">
+              <a href="/portal/logout.php" class="flex items-center px-4 py-3 text-sm font-medium" style="color: #AF831A;" onmouseover="this.style.backgroundColor='#FFFBF0'; this.style.color='#92400E';" onmouseout="this.style.backgroundColor=''; this.style.color='#AF831A';">
                 <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                 </svg>
@@ -388,7 +388,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         </div>
       <?php else: ?>
         <!-- Distinguished Login Button for logged out users -->
-        <a href="<?= file_exists('login.php') ? 'login.php' : '../login.php' ?>" class="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium">
+        <a href="/portal/login.php" class="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
           </svg>
@@ -418,7 +418,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
        class="md:hidden bg-white border-t shadow-lg">
     <nav class="px-4 py-4 space-y-1">
       <!-- Dashboard -->
-      <a href="<?= file_exists('dashboard.php') ? 'dashboard.php' : '../dashboard.php' ?>" 
+      <a href="/portal/dashboard.php" 
          @click="mobileMenuOpen = false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
@@ -431,7 +431,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
       <!-- Separator -->
       <hr class="border-gray-200 my-2">
       
-      <a href="<?= file_exists('announcements.php') ? 'announcements.php' : '../announcements.php' ?>" 
+      <a href="/portal/announcements.php" 
          @click="mobileMenuOpen = false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
@@ -440,7 +440,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         Announcements
       </a>
       
-      <a href="<?= file_exists('forms.php') ? 'forms.php' : '../forms.php' ?>" 
+      <a href="/portal/forms.php" 
          @click="mobileMenuOpen = false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
@@ -449,7 +449,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
         Forms
       </a>
       
-      <a href="<?= file_exists('knowledge-base.php') ? 'knowledge-base.php' : '../knowledge-base.php' ?>" 
+      <a href="/portal/knowledge-base.php" 
          @click="mobileMenuOpen = false"
          class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: #AF831A;">
@@ -478,7 +478,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
           <!-- Mobile Admin Tools -->
           <div class="space-y-1">
             <div class="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">Admin Tools</div>
-            <a href="<?= file_exists('admin-announcements.php') ? 'admin-announcements.php' : '../admin-announcements.php' ?>" 
+            <a href="/portal/admin-announcements.php" 
                @click="mobileMenuOpen = false"
                class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -486,7 +486,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
               </svg>
               Manage Announcements
             </a>
-            <a href="<?= file_exists('admin-forms.php') ? 'admin-forms.php' : '../admin-forms.php' ?>" 
+            <a href="/portal/admin-forms.php" 
                @click="mobileMenuOpen = false"
                class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -494,7 +494,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
               </svg>
               Manage Forms
             </a>
-            <a href="<?= file_exists('reports.php') ? 'reports.php' : '../reports.php' ?>" 
+            <a href="/portal/reports.php" 
                @click="mobileMenuOpen = false"
                class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -502,7 +502,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
               </svg>
               Reports
             </a>
-            <a href="<?= file_exists('admin-reports-settings.php') ? 'admin-reports-settings.php' : '../admin-reports-settings.php' ?>" 
+            <a href="/portal/admin-reports-settings.php" 
                @click="mobileMenuOpen = false"
                class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -511,7 +511,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
               </svg>
               Reports Settings
             </a>
-            <a href="<?= file_exists('admin.php') ? 'admin.php' : '../admin.php' ?>" 
+            <a href="/portal/admin.php" 
                @click="mobileMenuOpen = false"
                class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100 hover:text-gray-900 transition-colors">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -524,7 +524,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
           
           <!-- Mobile Sign Out - Distinguished -->
           <hr class="border-gray-200 my-3">
-          <a href="<?= file_exists('logout.php') ? 'logout.php' : '../logout.php' ?>" 
+          <a href="/portal/logout.php" 
              class="flex items-center gap-3 px-4 py-3 rounded-lg transition-colors font-medium" 
              style="background-color: #AF831A; color: white;" 
              onmouseover="this.style.backgroundColor='#92400E';" 
@@ -539,7 +539,7 @@ require_once __DIR__.'/auth.php'; // Required for has_role and get_role_display_
       <?php else: ?>
         <!-- Mobile Login Section for logged out users -->
         <div class="pt-2 mt-2 border-t border-gray-200">
-          <a href="<?= file_exists('login.php') ? 'login.php' : '../login.php' ?>" 
+          <a href="/portal/login.php" 
              @click="mobileMenuOpen = false"
              class="flex items-center gap-3 px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-medium">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
