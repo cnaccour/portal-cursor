@@ -17,7 +17,7 @@ $invitationManager = InvitationManager::getInstance();
 // Check if user is already logged in
 session_start();
 if (isset($_SESSION['user_id'])) {
-    header('Location: dashboard.php');
+    header('Location: /portal/dashboard.php');
     exit;
 }
 
@@ -60,15 +60,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $invitation && empty($error_message
             throw new InvalidArgumentException('Invalid security token. Please refresh and try again.');
         }
         // Validate input
-        $name = trim($_POST['name'] ?? '');
+        $first_name = trim($_POST['first_name'] ?? '');
+        $last_name = trim($_POST['last_name'] ?? '');
+        $name = trim(($first_name . ' ' . $last_name));
         $password = $_POST['password'] ?? '';
         $confirm_password = $_POST['confirm_password'] ?? '';
         
-        if (empty($name)) {
-            throw new InvalidArgumentException('Please enter your full name.');
+        if ($first_name === '' || $last_name === '') {
+            throw new InvalidArgumentException('Please enter your first and last name.');
         }
         
-        if (strlen($name) < 2) {
+        if (strlen($first_name) < 2 || strlen($last_name) < 2) {
             throw new InvalidArgumentException('Name must be at least 2 characters long.');
         }
         
@@ -103,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $invitation && empty($error_message
         session_regenerate_id(true);
         
         // Redirect to dashboard
-        header('Location: dashboard.php?welcome=1');
+        header('Location: /portal/dashboard.php?welcome=1');
         exit;
         
     } catch (Exception $e) {
@@ -258,15 +260,10 @@ function getRoleDisplayName($role) {
 <body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
     <div class="flex items-center justify-center min-h-screen py-12 px-4 sm:px-6 lg:px-8">
         <div class="max-w-md w-full">
-            <!-- Header -->
-            <div class="text-center mb-8">
-                <div class="mx-auto h-16 w-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mb-4">
-                    <svg class="h-8 w-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
-                    </svg>
-                </div>
-                <h1 class="text-3xl font-bold text-gray-900">J. Joseph Salon</h1>
-                <p class="text-gray-600 mt-2">Complete Your Registration</p>
+            <!-- Title -->
+            <div class="text-center mb-6">
+                <h1 class="text-2xl font-semibold text-gray-900">Complete Your Registration</h1>
+                <p class="text-sm text-gray-600 mt-1">Create your account to access the team portal.</p>
             </div>
 
             <?php if (!empty($error_message)): ?>
@@ -327,12 +324,21 @@ function getRoleDisplayName($role) {
                     <?php if ($invitation): ?>
                     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['signup_csrf_token']) ?>">
                     <?php endif; ?>
-                    <div>
-                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-                        <input type="text" id="name" name="name" required
-                               value="<?= htmlspecialchars($_POST['name'] ?? '') ?>"
-                               class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                               placeholder="Enter your full name">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">First Name</label>
+                            <input type="text" id="first_name" name="first_name" required
+                                   value="<?= htmlspecialchars($_POST['first_name'] ?? '') ?>"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="First name">
+                        </div>
+                        <div>
+                            <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label>
+                            <input type="text" id="last_name" name="last_name" required
+                                   value="<?= htmlspecialchars($_POST['last_name'] ?? '') ?>"
+                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                   placeholder="Last name">
+                        </div>
                     </div>
 
                     <div>
@@ -367,7 +373,7 @@ function getRoleDisplayName($role) {
                     </div>
 
                     <button type="submit" 
-                            class="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-purple-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 transform hover:scale-[1.02]">
+                            class="w-full px-4 py-3 bg-black text-white font-semibold rounded-lg hover:bg-gray-800 transition-colors">
                         Complete Registration
                     </button>
                 </form>
