@@ -176,7 +176,12 @@ $all_users = UserManager::getAllUsers(false);
 <div class="bg-gray-50 border border-gray-200 rounded-xl p-4">
     <h3 class="font-semibold text-gray-800 mb-3 text-sm sm:text-base">Invitations</h3>
     <div class="space-y-2">
-        <button onclick="showInvitationsTab()" class="w-full text-left px-3 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">📧 Manage Pending Invitations</button>
+        <button onclick="showInvitationsTab()" class="w-full text-left px-3 py-2 text-xs sm:text-sm text-gray-700 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            </svg>
+            <span>Manage Pending Invitations</span>
+        </button>
     </div>
 </div>
 
