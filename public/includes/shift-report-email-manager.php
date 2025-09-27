@@ -151,7 +151,7 @@ class ShiftReportEmailManager {
         $user_name = htmlspecialchars($data['user_name'] ?? 'Unknown User');
         $shift_date = htmlspecialchars($data['shift_date'] ?? 'Unknown Date');
         $shift_type = htmlspecialchars($data['shift_type'] ?? 'Unknown Type');
-        $notes = htmlspecialchars($data['notes'] ?? 'No additional notes');
+        $additional_notes = htmlspecialchars($data['notes'] ?? 'No additional notes');
         
         // Process checklist data safely
         $checklist = [];
@@ -266,9 +266,9 @@ class ShiftReportEmailManager {
                 
                 $status = htmlspecialchars($shipment['status'] ?? 'N/A');
                 $vendor = htmlspecialchars($shipment['vendor'] ?? 'N/A');
-                $notes = htmlspecialchars($shipment['notes'] ?? 'N/A');
+                $shipment_notes = htmlspecialchars($shipment['notes'] ?? 'N/A');
                 $shipments_html .= '<div class="shipment-item">
-                    Status: ' . $status . ' | Vendor: ' . $vendor . ' | Notes: ' . $notes . '
+                    Status: ' . $status . ' | Vendor: ' . $vendor . ' | Notes: ' . $shipment_notes . '
                 </div>';
             }
             $shipments_html .= '</div>';
@@ -354,7 +354,7 @@ class ShiftReportEmailManager {
                     <div class="section">
                         <div class="section-title">Additional Notes</div>
                         <div class="notes-section">
-                            <p>' . $notes . '</p>
+                            <p>' . $additional_notes . '</p>
                         </div>
                     </div>
                 </div>
