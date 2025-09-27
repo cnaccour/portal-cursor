@@ -37,7 +37,7 @@ try {
 
     if ($reportId) {
         // Redirect back to dashboard with success flag
-        header('Location: /dashboard.php?ok=1');
+        header('Location: dashboard.php?ok=1');
         exit;
     } else {
         throw new Exception('Failed to save shift report');
@@ -47,6 +47,6 @@ try {
     error_log("Save shift report error: " . $e->getMessage());
     
     // Redirect with error flag
-    header('Location: /dashboard.php?error=' . urlencode('Failed to save shift report. Please try again.'));
+    header('Location: dashboard.php?error=' . urlencode('Failed to save shift report. Please try again.'));
     exit;
 }

@@ -102,7 +102,7 @@ try {
         file_put_contents(__DIR__ . '/../debug.log', date('Y-m-d H:i:s') . " Email notification result: " . ($emailResult ? 'SUCCESS' : 'FAILED') . "\n", FILE_APPEND);
         
         // Redirect back to forms page with success flag
-        header('Location: /portal/forms.php?ok=1');
+        header('Location: ../forms.php?ok=1');
         exit;
     } else {
         throw new Exception('Failed to save shift report');
@@ -112,6 +112,6 @@ try {
     error_log("Save shift report error: " . $e->getMessage());
     
     // Redirect with error flag
-    header('Location: /portal/forms.php?error=' . urlencode('Failed to save shift report. Please try again.'));
+    header('Location: ../forms.php?error=' . urlencode('Failed to save shift report. Please try again.'));
     exit;
 }
