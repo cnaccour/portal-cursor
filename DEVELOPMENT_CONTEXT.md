@@ -1,14 +1,14 @@
 # J. Joseph Salon Team Portal - Development Context
-**Last Updated:** September 23, 2025  
+**Last Updated:** September 27, 2025  
 **AI Assistant Memory File** — Keep this updated as we work together
 
 ## 🚀 Quick Start in Cursor
 - Open this file first: `DEVELOPMENT_CONTEXT.md` (project overview + status)
 - Then open, in order:
-  1) `includes/db.php` (PDO + env + MAMP socket)
+  1) `includes/db.php` (bootstraps PDO; defers to `public/includes/db.php` in prod)
   2) `includes/shift-report-manager.php` (DB mode; MySQL usage)
-  3) `migrate.php` (how migrations run locally)
-  4) `includes/config.php` (base URL + future redirect helper)
+  3) `migrate.php` (numbered SQL migrations runner)
+  4) `includes/config.php` and `public/includes/config.php` (APP_URL-aware base URL)
   5) `CPANEL_MIGRATION.md` (deployment specifics)
 - Local commands (MAMP): see “Commands (Local)” below
 
@@ -33,33 +33,22 @@ Traditional PHP application for J. Joseph Salon team management.
 - App URL: `http://portaltest:8888`
 - Helper: run-php.sh (deleted; can recreate if needed)
 
-## 📁 Migration Files
-Production (run on cPanel):
-- `001_create_notifications.sql`
-- `002_create_user_tables.sql`
-- `003_create_invitations_table.sql`
-- `004_create_shift_reports_table.sql`
-
-Knowledge Base related (ensure schema parity on prod):
-- `009_add_kb_print_control.sql` (adds `allow_print`)
-- `010_add_kb_sections_control.sql` (adds `enable_sections`)
-- `011_add_kb_user_tracking.sql` (adds `created_by`, `updated_by` + FKs)
-
-Development-only demo data (do NOT run on prod):
-- `003_migrate_mock_users.sql`
-- `005_insert_demo_shift_reports.sql`
-- `006_add_eliana_stewson_user.sql`
-- `007_add_eliana_shift_report.sql` (deleted; demo only)
+## 📁 Migrations (Current)
+- Use `migrate.php` (root or `public/`) to apply all `database/migrations/*.sql` with tracking in a `migrations` table.
+- Export `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS` before running on non-MAMP environments.
+- Production safety: do NOT run dev/demo seeds (e.g., `099_dev_mock_users.sql`). If present, move it out before running migrations on prod.
+- Alternative (schema-only on cPanel): run `scripts/db_migrate.sh` to apply `db/schema.sql`.
 
 ## 👥 Users & Demo Data (Dev Only)
 - Users: Admin User, Staff User, Eliana Stewson (manager)
 - Demo Shift Reports: 4 realistic reports across locations/shift types
 
 ## 🔧 Key Files to Reference
-- `includes/db.php` — PDO setup; loads env; supports MAMP socket
+- `includes/db.php` — PDO setup; prefers `public/includes/db.php` in production
+- `public/includes/db.php` — cPanel DB credentials + DSN fallbacks; runtime guard for `password_resets`
 - `includes/shift-report-manager.php` — fixed to MySQL (no mock when DB present)
-- `migrate.php` — applies SQL migrations; loads `.env` if present
-- `includes/config.php` — base URL helpers; candidate for cPanel-safe redirects
+- `migrate.php` and `public/migrate.php` — apply numbered SQL migrations; load `.env` if present
+- `includes/config.php` and `public/includes/config.php` — base URL helpers (prefer `APP_URL` env, fallback to MAMP/prod detection)
 - `CPANEL_MIGRATION.md` — full production deployment guide
 - `api/upload-kb-image.php` — KB image upload endpoint (admin-only, CSRF-protected)
 - `knowledge-base.php` — KB listing; gold category badges
@@ -67,22 +56,21 @@ Development-only demo data (do NOT run on prod):
 - (Removed) `AI_RULES.md` — folded rules into this document
 - (Removed) `replit.md` — historical architecture notes folded in
 
-## 🚦 cPanel Migration Notes
-- Remove Replit artifacts before production: `.replit`, `replit.nix`, `replit.md`
-- Fix absolute redirects to relative in:
-  - `api/save-shift-report.php`
-  - `logout.php`
-  - `signup.php`
-- Ensure `includes/config.php` uses environment-based or auto-detected base URL; avoid MAMP-specific logic in prod
-- Ensure writable dirs exist with 755 perms: `storage/`, `storage/notifications/`, `attached_assets/`, `attached_assets/kb_images/`
-- PHP limits in `.htaccess`: `upload_max_filesize=10M`, `post_max_size=12M`, `max_execution_time=300`, `max_input_vars=3000`
+## 🚦 cPanel Migration Notes (Aligned to Code)
+- Map site to `public/` (set DocumentRoot or symlink `~/public_html -> public`).
+- DB config comes from `public/includes/db.php` (no `.env` needed for DB in prod). Use secure cPanel credentials.
+- Run DB migrations:
+  - Recommended schema-only: `bash scripts/db_migrate.sh` (applies `db/schema.sql`).
+  - Or full numbered: export `DB_*` and run `/usr/local/bin/php migrate.php` (avoid dev-only files like `099_dev_mock_users.sql`).
+- Ensure writable dirs (755): `storage/`, `storage/notifications/`, `attached_assets/`, `attached_assets/kb_images/`.
+- `.htaccess`: security headers, PHP limits (`upload_max_filesize=10M`, `post_max_size=12M`, `max_execution_time=300`, `max_input_vars=3000`), disable indexes, enable gzip.
 
 ### Highlights from CPANEL_MIGRATION.md
 - Deployment steps:
-  1) Pull via cPanel Git or SSH clone to `public_html/portal/`
-  2) Import DB schema (prod-only migrations: 001–004)
-  3) Update `includes/db.php` with cPanel credentials (host=localhost)
-  4) Ensure upload dirs exist (e.g., `assets/kb/`, `storage/notifications/`)
+  1) Pull via cPanel Git or SSH clone to `~/repos/portal`
+  2) Map/symlink `public/` to `~/public_html`
+  3) Run schema-only or full migrations as above
+  4) Ensure upload dirs exist (e.g., `attached_assets/kb_images/`, `storage/notifications/`)
 - Permissions/ownership:
   - Files 644, directories 755; chown to the cPanel user
   - Make storage dirs writable where needed
@@ -150,7 +138,7 @@ Development-only demo data (do NOT run on prod):
 - Validate upload perms on `attached_assets/kb_images/` in prod
 
 ## 🔄 Workflow
-Dev (MAMP) → Push to GitHub → Pull via cPanel Git → Run only prod migrations (001–004) → Real users create data via forms/announcements/KB.
+Dev (MAMP) → Push to GitHub → SSH and `cd ~/repos/portal && git pull` → Run schema-only or full migrations → Real users create data via forms/announcements/KB.
 
 ## 🔔 Notification System Snapshot (from NOTIFICATION_SYSTEM_LOG.md)
 - Tables: `notifications`, `user_notifications` (indexes for performance)
