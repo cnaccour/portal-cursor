@@ -207,7 +207,7 @@ rsync -av --delete ~/repos/portal/public/ ~/public_html/portal/
 - URL: `/portal/user-management.php` — requires login + `admin` role
 - Features:
   - Users: role change, active/inactive toggle, delete (soft), reset password (CSRF‑protected)
-  - Invitations: send (`api/invitations/send-invitation.php`), list, revoke, copy secure link
+  - Invitations: send (`api/invitations/send-invitation.php`), list, revoke, copy secure link, reinvite (`api/invitations/reinvite-invitation.php`), delete (`api/invitations/delete-invitation.php`)
 - Temporary debug: `/portal/admin_debug.log` records admin actions (invite send/list/revoke; user status/delete/restore/reset). Remove before real invites. Success feedback uses a top-right banner (no alert) consistent with app UX.
 - Security: session auth + CSRF tokens; actions restricted to admin
 
